@@ -21,8 +21,7 @@
   },
   "homepage": "https://github.com/poetaio/EduPlatform#readme",
   "dependencies": {
-    "@graphql-tools/graphql-file-loader": "^7.3.7",
-    "@graphql-tools/load": "^7.5.6",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "express-graphql": "^0.12.0",
