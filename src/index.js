@@ -1,21 +1,22 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
+const { graphqlHTTP } = require("express-graphql");
+
+const PORT = process.env.PORT || 5000;
 
 require('./models/models');
 const sequelize = require('./services/dbService');
 
-const schema = require('./graphql/schema.js')
-const resolvers = require('./graphql/resolvers')
-const {graphqlHTTP} = require("express-graphql");
+const schema = require('./schemas/index')
 
-const PORT = process.env.PORT || 5000;
+const handleError = require('./middleware/errorHandlingMiddleware');
 
 const app = express();
 
-app.use('/graphql', graphqlHTTP({
+app.use('/graphql', cors(), graphqlHTTP({
     schema: schema,
-    rootValue: resolvers,
-    graphiql: true
+    customFormatErrorFn: err => handleError(err)
 }))
 
 const run = async () => {
