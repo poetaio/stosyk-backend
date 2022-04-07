@@ -97,6 +97,11 @@ StudentAnswer.belongsTo(ActiveOption, {
 });
 
 module.exports = {
+    User,
+    Lesson,
+    Task,
+    Sentence,
+    Option,
     ActiveLesson,
     ActiveTask,
     ActiveSentence,
