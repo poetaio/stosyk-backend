@@ -15,6 +15,10 @@ module.exports = new Sequelize(
                 required: true,
                 rejectUnauthorized: false
             }
+        },
+        pool: {
+            idle: 10000,
+            evict: 20000,
         }
     }
 );

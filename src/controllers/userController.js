@@ -1,6 +1,9 @@
+const userService = require('../services/userService');
+
 class UserController {
-    async get(req, res) {
-        res.status(200).send('User endpoint');
+    async get(args) {
+        const userId = args.id;
+        return await userService.getUserById(userId);
     }
 }
 
