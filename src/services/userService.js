@@ -1,4 +1,4 @@
-const { User } = require('../models/models');
+const { User } = require('../models/index');
 
 class UserService {
     async getUserById(userId) {

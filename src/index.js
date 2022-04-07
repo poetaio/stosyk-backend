@@ -5,7 +5,7 @@ const { graphqlHTTP } = require("express-graphql");
 
 const PORT = process.env.PORT || 5000;
 
-require('./models/models');
+require('./models/index');
 const sequelize = require('./services/dbService');
 
 const schema = require('./schemas/index')
@@ -22,7 +22,7 @@ app.use('/graphql', cors(), graphqlHTTP({
 const run = async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync();
+        await sequelize.sync({force: true});
         app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
     } catch (e) {
         console.error(e);

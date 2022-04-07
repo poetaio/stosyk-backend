@@ -1,4 +1,4 @@
-const { GraphQLInt, GraphQLID, GraphQLList, GraphQLNonNull} = require('graphql')
+const { GraphQLID, GraphQLNonNull} = require('graphql')
 
 const lessonController = require('../../controllers/lessonController');
 const { LessonType, CountedLessonListType} = require("./lessonTypes");

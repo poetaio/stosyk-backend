@@ -17,7 +17,7 @@ const CountedLessonListType = new GraphQLObjectType({
         total: { type: GraphQLNonNull(GraphQLInt) },
         lessonsList: { type: GraphQLNonNull(GraphQLList(LessonType)) }
     }
-})
+});
 
 module.exports = {
     LessonType,

@@ -1,4 +1,4 @@
-const { Lesson, User} = require('../models/models');
+const { Lesson, User} = require('../models/index');
 const ApiError = require('../error/ApiError');
 
 class LessonController {
