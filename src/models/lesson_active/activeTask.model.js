@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define('active_task', {
     //     allowNull: false
     // },
     // type: {
-    //     type: require('../utils/TaskType')(sequelize, DataTypes),
+    //     type: require('../utils.js/TaskType')(sequelize, DataTypes),
     //     allowNull: false
     // }
 });
