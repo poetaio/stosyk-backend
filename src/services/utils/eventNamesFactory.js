@@ -1,4 +1,4 @@
-const EventNames = require('./EventNames');
+const EventNames = require('./EventNamesEnum');
 
 
 class EventNamesFactory {

@@ -19,9 +19,9 @@ const lesson = {
         id: { type: GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args) => await lessonController.getOneById(args.id)
-}
+};
 
 module.exports = {
     lessons,
     lesson
-}
+};

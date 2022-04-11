@@ -1,11 +1,11 @@
-const {User, Lesson, ActiveLesson, StudentAnswerSheet} = require("../models");
+const {Student, Teacher, Lesson, ActiveLesson, StudentAnswerSheet} = require("../models");
 const sequelize = require('sequelize');
 
 class TestDataService {
     async createAndLogActiveLessonTeachersAndStudents() {
-        const student1 = await User.create();
-        const student2 = await User.create();
-        const teacher = await User.create();
+        const student1 = await Student.create({ name: "Mia" });
+        const student2 = await Student.create({ name: "Max" });
+        const teacher = await Teacher.create();
         const lesson = await Lesson.create({ authorId: teacher.id });
         const activeLesson = await ActiveLesson.create({ lessonMarkupId: lesson.id, teacherId: teacher.id });
         // await activeLesson.update(

@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define('active_task', {
     //     allowNull: false
     // },
     // type: {
-    //     type: require('../utils.js/TaskType')(sequelize, DataTypes),
+    //     type: require('../StudentAnswerSheetStatusEnum.model.js/TaskType')(sequelize, DataTypes),
     //     allowNull: false
     // }
 });
