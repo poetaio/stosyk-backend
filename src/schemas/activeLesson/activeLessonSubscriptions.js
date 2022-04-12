@@ -1,6 +1,6 @@
 const { GraphQLNonNull, GraphQLID } = require("graphql");
 
-const { TeacherChangedLessonType } = require("./activeLessonTypes");
+const { TeacherChangedLessonType } = require("./types/index");
 const activeLessonController = require('../../controllers/activeLessonController');
 
 /*

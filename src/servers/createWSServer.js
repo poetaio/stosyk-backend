@@ -22,4 +22,4 @@ module.exports = (expressServer, pubsub) => {
         }, wsServer);
 
     return wsServer;
-}
+};

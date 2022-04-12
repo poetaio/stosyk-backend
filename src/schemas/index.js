@@ -1,12 +1,12 @@
-const { GraphQLSchema, GraphQLObjectType } = require('graphql');
+const { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLString} = require('graphql');
 const { LessonQueries, LessonMutations } = require('./lesson/index');
-const { ActiveLessonMutations, ActiveLessonSubscriptions } = require('./activeLesson/index');
-
+const { ActiveLessonQueries, ActiveLessonMutations, ActiveLessonSubscriptions } = require('./activeLesson/index');
 
 const RootQueryType = new GraphQLObjectType({
     name: "Query",
     description: "Root Query",
     fields: () => ({
+        ...ActiveLessonQueries,
         ...LessonQueries
     })
 });
