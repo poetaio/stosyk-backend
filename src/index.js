@@ -21,6 +21,9 @@ const run = async () => {
 
         // inserting test data for active lessons
         // await require('./services/testDataService').createAndLogActiveLessonTeachersAndStudents();
+        // await require('./services/testDataService').createAndLogTeacherAndLessonWithData();
+        // await require('./services/testDataService').createLessonMarkupAndActiveLesson()
+        // await require('./services/testDataService').createStudent()
 
         // initiating servers
         const expressServer = createExpressServer(pubsub);

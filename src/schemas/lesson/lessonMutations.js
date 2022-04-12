@@ -1,12 +1,12 @@
-const { GraphQLID } = require('graphql');
+const { GraphQLID, GraphQLNonNull} = require('graphql');
 const lessonController = require('../../controllers/lessonController');
-const { LessonType } = require('./lessonTypes');
+const { LessonType } = require('./types');
 
 const addLesson = {
     type: LessonType,
     description: "Add Lesson",
     args: {
-        authorId: { type: GraphQLID }
+        authorId: { type: GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args) => await lessonController.add(args)
 };

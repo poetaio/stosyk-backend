@@ -1,4 +1,4 @@
-const {StudentAnswerSheet} = require("../models");
+const {StudentAnswerSheet} = require("../../models");
 
 class StudentAnswerSheetService {
     async existsByLessonIdAndStudentId(activeLessonId, studentId) {
@@ -21,8 +21,29 @@ class StudentAnswerSheetService {
 
     async createOneByLessonIdAndStudentId(activeLessonId, studentId) {
         return await StudentAnswerSheet.create({
-            activeLessonId: activeLessonId,
+            activeLessonId,
             studentId
+        });
+    }
+
+    async getStatusByActiveLessonIdAndStudent(activeLessonId, studentId) {
+        return await StudentAnswerSheet.findOne({
+            where: {
+                activeLessonId: activeLessonId,
+                studentId
+            },
+            attributes: ['status']
+        }).then(({status}) => status);
+    }
+
+    async updateStatusByActiveLessonIdAndStudentId(activeLessonId, studentId, status) {
+        return await StudentAnswerSheet.update({
+            status
+        }, {
+            where: {
+                activeLessonId,
+                studentId
+            }
         });
     }
 

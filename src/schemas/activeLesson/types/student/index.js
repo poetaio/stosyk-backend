@@ -5,6 +5,7 @@ const StudentAnswerType = require('./StudentAnswer.type');
 const StudentActiveSentenceType = require('./StudentActiveSentence.type');
 const StudentActiveOptionType = require('./StudentActiveOption.type');
 const StudentActiveTaskType = require('./StudentActiveTask.type');
+const ActiveLessonStatusChangedType = require('./ActiveLessonStatusChanged.type');
 
 module.exports = {
     StudentActiveOptionType,
@@ -13,5 +14,7 @@ module.exports = {
     StudentActiveLessonType,
     StudentAnswerType,
     StudentAnswerSheetType,
-    StudentJoinedLessonType
+    StudentJoinedLessonType,
+
+    ActiveLessonStatusChangedType
 };

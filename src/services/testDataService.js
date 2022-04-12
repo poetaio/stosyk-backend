@@ -1,5 +1,8 @@
 const {Student, Teacher, Lesson, ActiveLesson, StudentAnswerSheet} = require("../models");
-const sequelize = require('sequelize');
+const lessonInclude = require('../models/includes/lessonInclude');
+const activeLessonService = require('./lesson_active/activeLessonService');
+const lessonService = require('./lesson_constructor/lessonService');
+const studentService = require('../services/studentService');
 
 class TestDataService {
     async createAndLogActiveLessonTeachersAndStudents() {
@@ -23,6 +26,46 @@ class TestDataService {
         console.log(`Teacher id: ${teacher.id}`);
         console.log(`Lesson id: ${lesson.id}`);
         console.log(`Active lesson id: ${activeLesson.id}`);
+    }
+
+    async createAndLogTeacherAndLessonWithData() {
+        const teacher = await Teacher.create({});
+
+        const lesson = await lessonService.createWithAuthorIdAndTasks(
+            teacher.id,
+            [ {
+                text: "Slava ",
+                name: "Which is right?",
+                description: "Enter right option",
+                gaps: [ {
+                    gapPosition: 6,
+                    options: [
+                        "Ukraini",
+                        "Nazii",
+                        "ZSU",
+                        "All of the above"
+                    ],
+                    rightOption: "All of the above"
+                }]
+            }]);
+
+        // console.log(lesson);
+        return lesson;
+    }
+
+    async createLessonMarkupAndActiveLesson() {
+        const lesson = await this.createAndLogTeacherAndLessonWithData();
+
+        const activeLesson = await activeLessonService.create(lesson.authorId, lesson.id);
+
+        console.log(`active lesson: ${activeLesson}`);
+
+        return activeLesson;
+    }
+
+    async createStudent() {
+        console.log(await studentService.create("Ilia").then(({id}) => id));
+        console.log(await studentService.create("Margo").then(({id}) => id));
     }
 }
 

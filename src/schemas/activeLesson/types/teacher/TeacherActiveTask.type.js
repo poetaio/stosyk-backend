@@ -1,5 +1,5 @@
-const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList, GraphQLBoolean} = require("graphql");
-const TeacherActiveSentenceType = require('./TeacherActiveSentence.type');
+const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList, GraphQLBoolean, GraphQLString} = require("graphql");
+const TeacherActiveGapType = require('./TeacherActiveGap.type');
 
 
 module.exports = new GraphQLObjectType({
@@ -7,7 +7,7 @@ module.exports = new GraphQLObjectType({
     description: "Active task type",
     fields: {
         id: { type: GraphQLNonNull(GraphQLID) },
-        sentences: { type: GraphQLList(TeacherActiveSentenceType) },
-        answerShown: { type: GraphQLNonNull(GraphQLBoolean) }
+        gaps: { type: GraphQLList(TeacherActiveGapType) },
+        text: { type: GraphQLNonNull(GraphQLString) }
     }
 });

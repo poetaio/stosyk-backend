@@ -17,6 +17,16 @@ show answer
 
  */
 
+const createActiveLesson = {
+    type: TeacherActiveLessonType,
+    description: "Creates new active lesson from lesson markup",
+    args: {
+        teacherId: { type: GraphQLNonNull(GraphQLID) },
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    resolve: async (parent, args) => activeLessonController.createActiveLesson(args)
+}
+
 const studentJoinLesson = {
     type: StudentJoinedLessonType,
     name: "studentJoinLesson",
@@ -89,6 +99,7 @@ const teacherChange = {
 module.exports = {
     studentChange,
     teacherChange,
+    createActiveLesson,
     studentJoinLesson,
     startActiveLesson,
     finishActiveLesson,
