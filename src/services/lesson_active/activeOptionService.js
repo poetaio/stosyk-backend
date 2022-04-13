@@ -5,6 +5,10 @@ class ActiveOptionService {
         return !!await ActiveOption.count({ where: { id } });
     }
 
+    async existsByIdAndGapId(id, activeGapId) {
+        return !!await ActiveOption.count({ where: { id, activeGapId } });
+    }
+
     async create(activeGapId, value) {
         return !!await ActiveOption.create({ activeGapId, value });
     }

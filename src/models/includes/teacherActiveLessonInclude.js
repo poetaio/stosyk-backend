@@ -11,7 +11,20 @@ module.exports = [
         association: 'tasks',
         include: {
             association: 'gaps',
-            include: [ 'rightOption', 'studentsAnswers', 'options']
+            include: [
+                'rightOption',
+                'options',
+                {
+                    association: 'studentsAnswers',
+                    include: [{
+                            association: 'answerSheet',
+                            // attributes: ['studentId'],
+                            include: 'student'
+                        },
+                        'chosenOption'
+                    ]
+                }
+            ]
         }
     },
     'teacher',

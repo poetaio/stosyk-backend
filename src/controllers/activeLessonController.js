@@ -3,7 +3,11 @@ const ApiError = require('../error/ApiError');
 
 
 class ActiveLessonController {
-    async getActiveLessonById({ teacherId, activeLessonId }) {
+    async isLessonActive({ activeLessonId }) {
+        return await activeLessonService.exists(activeLessonId);
+    }
+
+    async getActiveLessonByIdForTeacher({ teacherId, activeLessonId }) {
         const activeLesson = await activeLessonService.getOneByIdAndTeacherId(teacherId, activeLessonId);
 
         if (!activeLesson)
@@ -33,28 +37,16 @@ class ActiveLessonController {
         return await activeLessonService.resumeActiveLesson(pubsub, activeLessonId, teacherId);
     }
 
+    async changeStudentAnswer({ studentId, gap: { lessonId, taskId, gapId }, optionId }, { pubsub }) {
+        return await activeLessonService.changeStudentAnswer(pubsub, lessonId, taskId, gapId, optionId, studentId);
+    }
+
     async subscribeStudentOnActiveLessonStatusChanged({ activeLessonId, studentId }, { pubsub }) {
         return await activeLessonService.subscribeStudentOnActiveLessonStatusChanged(pubsub, activeLessonId, studentId);
     }
 
-    // test change for setup
-    async studentChangedActiveLesson({ studentId }, { pubsub }) {
-        await activeLessonService.studentChangedActiveLesson(pubsub, studentId);
-    }
-
-    // test change for setup
-    async teacherChangedActiveLesson({ teacherId, teacherMessage }, { pubsub }) {
-        await activeLessonService.teacherChangedActiveLesson(pubsub, teacherId, teacherMessage);
-    }
-
-    // test change for setup
-    async subscribeToTeacherChangedActiveLesson({ studentId }, { pubsub }) {
-        return await activeLessonService.subscribeToTeacherChangedActiveLesson(pubsub, studentId);
-    }
-
-    // test change for setup
-    async subscribeToStudentChangedActiveLesson({ teacherId }, { pubsub }) {
-        return await activeLessonService.subscribeToStudentChangedActiveLesson(pubsub, teacherId);
+    async subscribeTeacherOnStudentEnteredAnswer({ activeLessonId, teacherId }, { pubsub }) {
+        return await activeLessonService.subscribeTeacherOnStudentEnterAnswer(pubsub, activeLessonId, teacherId);
     }
 }
 

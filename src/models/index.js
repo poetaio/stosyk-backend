@@ -156,6 +156,15 @@ ActiveLesson.belongsToMany(Student, {
     foreignKey: "activeLessonId",
     as: "students",
 });
+// to access from answer sheet both to lesson and to student   as aliases
+StudentAnswerSheet.belongsTo(ActiveLesson, {
+    as: 'activeLesson',
+    foreignKey: "activeLessonId",
+});
+StudentAnswerSheet.belongsTo(Student, {
+    as: 'student',
+    foreignKey: "studentId"
+})
 
 // student answers
 StudentAnswerSheet.hasMany(StudentAnswer, {
@@ -164,7 +173,7 @@ StudentAnswerSheet.hasMany(StudentAnswer, {
 });
 StudentAnswer.belongsTo(StudentAnswerSheet, {
     foreignKey: 'answerSheetId',
-    as: 'answerStudent'
+    as: 'answerSheet'
 });
 
 // answers given by students in active sentence
@@ -183,7 +192,8 @@ ActiveOption.hasMany(StudentAnswer, {
     as: 'studentsOptions'
 });
 StudentAnswer.belongsTo(ActiveOption, {
-    foreignKey: "chosenOptionId"
+    foreignKey: "chosenOptionId",
+    as: 'chosenOption'
 });
 
 module.exports = {
