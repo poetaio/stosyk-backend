@@ -84,10 +84,34 @@ const changeStudentAnswer = {
     args: {
         // todo: get id from token
         studentId: { type: GraphQLNonNull(GraphQLID) },
-        optionId: { type: GraphQLNonNull(GraphQLID) },
-        gap: { type: GraphQLNonNull(ChangeStudentAnswerType) },
+        lessonId: { type: GraphQLNonNull(GraphQLID) },
+        answer: { type: GraphQLNonNull(ChangeStudentAnswerType) },
     },
     resolve: async (parent, args, context) => await activeLessonController.changeStudentAnswer(args, context)
+}
+
+const showTaskRightAnswers = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: "showTaskRightAnswers",
+    description: "showTaskRightAnswers",
+    args: {
+        teacherId: { type: GraphQLNonNull(GraphQLID) },
+        activeLessonId: { type: GraphQLNonNull(GraphQLID) },
+        taskId: { type: GraphQLNonNull(GraphQLID) },
+    },
+    resolve: async (parent, args, context) => await activeLessonController.showTaskRightAnswers(args, context)
+}
+
+const hideTaskRightAnswers = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: "hideTaskRightAnswers",
+    description: "hideTaskRightAnswers",
+    args: {
+        teacherId: { type: GraphQLNonNull(GraphQLID) },
+        activeLessonId: { type: GraphQLNonNull(GraphQLID) },
+        taskId: { type: GraphQLNonNull(GraphQLID) },
+    },
+    resolve: async (parent, args, context) => await activeLessonController.hideTaskRightAnswers(args, context)
 }
 
 
@@ -97,5 +121,7 @@ module.exports = {
     startActiveLesson,
     finishActiveLesson,
     resumeActiveLesson,
-    changeStudentAnswer
+    changeStudentAnswer,
+    showTaskRightAnswers,
+    hideTaskRightAnswers
 };

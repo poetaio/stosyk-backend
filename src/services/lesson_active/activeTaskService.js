@@ -14,6 +14,32 @@ class ActiveTaskService {
         return !!await ActiveTask.count({ where: { id, activeLessonId } });
     }
 
+    async getOneByIdWithGapsWithHiddenAnswer(id) {
+        return await ActiveTask.findOne(
+            {
+                where: { id } ,
+                include: {
+                    association: 'gaps',
+                    where: { answerShown: false },
+                    required: false
+                }
+            }
+        );
+    }
+
+    async getOneByIdWithGapsWithShownAnswer(id) {
+        return await ActiveTask.findOne(
+            {
+                where: { id } ,
+                include: {
+                    association: 'gaps',
+                    where: { answerShown: true },
+                    required: false
+                }
+            }
+        );
+    }
+
     async createEmpty(activeLessonId, name, description, text) {
         return await ActiveTask.create({ activeLessonId, name, description, text });
     }

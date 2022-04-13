@@ -6,6 +6,7 @@ const studentGapInclude = require('./studentGapInclude');
 const teacherGapInclude = require('./teacherGapInclude');
 const studentTaskInclude = require('./studentTaskInclude');
 const teacherTaskInclude = require('./teacherTaskInclude');
+const studentAnswerSheetInclude = require('./studentAnswerSheetInclude');
 
 
 module.exports = {
@@ -17,4 +18,5 @@ module.exports = {
     teacherGapInclude,
     studentTaskInclude,
     teacherTaskInclude,
+    studentAnswerSheetInclude
 };

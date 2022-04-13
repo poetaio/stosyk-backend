@@ -58,6 +58,7 @@ class LessonService {
         //         : { gaps, text }
         // )).filter((task) => task !== null);
 
+
         const newLesson = await Lesson.create({
             authorId
         });

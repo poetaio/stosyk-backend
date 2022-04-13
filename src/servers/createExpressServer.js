@@ -17,7 +17,5 @@ module.exports = (pubsub) => {
         customFormatErrorFn: err => handleError(err)
     }))
 
-    app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
-
-    return app;
+    return app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
 };

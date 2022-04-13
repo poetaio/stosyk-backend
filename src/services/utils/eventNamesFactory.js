@@ -23,7 +23,7 @@ class EventNamesFactory {
     }
 
     // active lesson teacher showed answer event
-    activeLessonTeacherShowedAnswerEventName(activeLessonId) {
+    activeLessonTeacherShowedHidAnswerEventName(activeLessonId) {
         return `${EventNames.RIGHT_ANSWER_SHOWN}${activeLessonId}`;
     }
 

@@ -1,5 +1,6 @@
 const {StudentAnswerSheet} = require("../../models");
 const StudentAnswerSheetStatus = require('../../models/lesson_active/utils/StudentAnswerSheetStatusEnum')
+const { studentAnswerSheetInclude } = require('../../models/includes');
 
 class StudentAnswerSheetService {
     async existsByLessonIdAndStudentId(activeLessonId, studentId) {
@@ -26,7 +27,8 @@ class StudentAnswerSheetService {
             where: {
                 activeLessonId,
                 studentId
-            }
+            },
+            include: studentAnswerSheetInclude
         });
     }
 
@@ -34,7 +36,7 @@ class StudentAnswerSheetService {
         return await StudentAnswerSheet.create({
             activeLessonId,
             studentId
-        });
+        }, { include: studentAnswerSheetInclude });
     }
 
     async getStatusByActiveLessonIdAndStudent(activeLessonId, studentId) {

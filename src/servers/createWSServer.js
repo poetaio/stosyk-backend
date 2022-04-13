@@ -7,10 +7,10 @@ const schema = require('../schemas/index');
 
 module.exports = (expressServer, pubsub) => {
     const wsServer = new WebSocketServer({
-        // server: expressServer,
+        server: expressServer,
         path: '/subscriptions',
         // port: process.env.WS_PORT,
-        port: 8889,
+        // port: 8889,
     }, () => console.log(`WebSocket server is running on http://localhost:8889/subscriptions`));
 
     useServer({

@@ -11,6 +11,6 @@ module.exports = new GraphQLObjectType({
         status: { type: GraphQLNonNull(ActiveLessonStatusEnumType)},
         tasks: { type: GraphQLList(TeacherActiveTaskType)},
         students: { type: GraphQLList(StudentType) },
-        teacher: { type: TeacherType }
+        teacher: { type: TeacherType },
     }
 });

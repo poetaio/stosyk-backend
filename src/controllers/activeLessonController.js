@@ -37,8 +37,16 @@ class ActiveLessonController {
         return await activeLessonService.resumeActiveLesson(pubsub, activeLessonId, teacherId);
     }
 
-    async changeStudentAnswer({ studentId, gap: { lessonId, taskId, gapId }, optionId }, { pubsub }) {
+    async changeStudentAnswer({ studentId, lessonId, answer: { optionId, taskId, gapId } }, { pubsub }) {
         return await activeLessonService.changeStudentAnswer(pubsub, lessonId, taskId, gapId, optionId, studentId);
+    }
+
+    async showTaskRightAnswers({ teacherId, activeLessonId, taskId }, { pubsub }) {
+        return await activeLessonService.showAllRightAnswersForTask(pubsub, activeLessonId, taskId, teacherId);
+    }
+
+    async hideTaskRightAnswers({ teacherId, activeLessonId, taskId }, { pubsub }) {
+        return await activeLessonService.hideAllRightAnswersForTask(pubsub, activeLessonId, taskId, teacherId);
     }
 
     async subscribeStudentOnActiveLessonStatusChanged({ activeLessonId, studentId }, { pubsub }) {
@@ -47,6 +55,10 @@ class ActiveLessonController {
 
     async subscribeTeacherOnStudentEnteredAnswer({ activeLessonId, teacherId }, { pubsub }) {
         return await activeLessonService.subscribeTeacherOnStudentEnterAnswer(pubsub, activeLessonId, teacherId);
+    }
+
+    async subscribeStudentOnTeacherShowedHidRightAnswer({ activeLessonId, studentId }, {pubsub}) {
+        return await activeLessonService.subscribeStudentOnTeacherShowedHidAnswer(pubsub, activeLessonId, studentId);
     }
 }
 
