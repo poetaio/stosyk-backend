@@ -1,11 +1,11 @@
-module.exports = (sequelize, DataTypes) => sequelize.define('sentence', {
+module.exports = (sequelize, DataTypes) => sequelize.define('gap', {
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
-    text: {
-        type: DataTypes.STRING,
+    gapPosition: {
+        type: DataTypes.INTEGER,
         allowNull: false
     }
 });

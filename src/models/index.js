@@ -8,14 +8,14 @@ const Account = require('./account.model')(sequelize, DataTypes);
 const {
     Lesson,
     Task,
-    Sentence,
+    Gap,
     Option
 } = require('./lesson_constructor/index')(sequelize, DataTypes);
 
 const {
     ActiveLesson,
     ActiveTask,
-    ActiveSentence,
+    ActiveGap,
     ActiveOption,
     StudentAnswerSheet,
     StudentAnswer
@@ -60,26 +60,26 @@ Task.belongsTo(Lesson, {
     as: 'lesson'
 });
 
-Task.hasMany(Sentence, {
-    as: 'sentences'
+Task.hasMany(Gap, {
+    as: 'gaps'
 });
-Sentence.belongsTo(Task, {
+Gap.belongsTo(Task, {
     as: 'task'
 });
 
 // sentence available options
-Sentence.hasMany(Option, {
+Gap.hasMany(Option, {
     as: 'options'
 });
-Option.belongsTo(Sentence);
+Option.belongsTo(Gap);
 
 // sentence right option
-Option.hasOne(Sentence, {
+Option.hasOne(Gap, {
     foreignKey: 'rightOptionId',
-    as: 'sentenceRightAnswerTo',
+    as: 'rightAnswerTo',
     constraints: false,
 });
-Sentence.belongsTo(Option, {
+Gap.belongsTo(Option, {
     foreignKey: 'rightOptionId',
     as: 'rightOption',
     constraints: false,
@@ -106,36 +106,40 @@ ActiveLesson.belongsTo(Teacher, {
 
 // tasks of a lesson
 ActiveLesson.hasMany(ActiveTask, {
-    as: 'activeTasks'
+    foreignKey: 'activeLessonId',
+    as: 'tasks'
 });
 ActiveTask.belongsTo(ActiveLesson, {
-    as: 'activeLesson'
+    foreignKey: 'activeLessonId',
+    as: 'lesson'
 });
 
-ActiveTask.hasMany(ActiveSentence, {
-    as: 'activeSentences'
+ActiveTask.hasMany(ActiveGap, {
+    foreignKey: 'activeTaskId',
+    as: 'gaps'
 });
-ActiveSentence.belongsTo(ActiveTask, {
-    as: 'activeTask'
+ActiveGap.belongsTo(ActiveTask, {
+    foreignKey: 'activeTaskId',
+    as: 'task'
 });
 
 // active sentence available options
-ActiveSentence.hasMany(ActiveOption, {
-    foreignKey: 'activeSentenceId',
+ActiveGap.hasMany(ActiveOption, {
+    foreignKey: 'activeGapId',
     as: 'options'
 });
-ActiveOption.belongsTo(ActiveSentence, {
-    foreignKey: 'activeSentenceId',
-    as: 'sentenceAvailableIn'
+ActiveOption.belongsTo(ActiveGap, {
+    foreignKey: 'activeGapId',
+    as: 'gap'
 });
 
 // right option of an active sentence
-ActiveOption.hasOne(ActiveSentence, {
+ActiveOption.hasOne(ActiveGap, {
     foreignKey: "rightOptionId",
-    as: 'sentenceRightAnswerTo',
+    as: 'rightAnswerTo',
     constraints: false,
 });
-ActiveSentence.belongsTo(ActiveOption, {
+ActiveGap.belongsTo(ActiveOption, {
     foreignKey: "rightOptionId",
     as: 'rightOption',
     constraints: false
@@ -164,13 +168,13 @@ StudentAnswer.belongsTo(StudentAnswerSheet, {
 });
 
 // answers given by students in active sentence
-ActiveSentence.hasMany(StudentAnswer, {
-    foreignKey: 'activeSentenceId',
+ActiveGap.hasMany(StudentAnswer, {
+    foreignKey: 'answerToId',
     as: 'studentsAnswers'
 });
-StudentAnswer.belongsTo(ActiveSentence, {
-    foreignKey: 'activeSentenceId',
-    as: 'answerSentence'
+StudentAnswer.belongsTo(ActiveGap, {
+    foreignKey: 'answerToId',
+    as: 'answerTo'
 });
 
 // chosen option by student
@@ -188,11 +192,11 @@ module.exports = {
     Account,
     Lesson,
     Task,
-    Sentence,
+    Gap,
     Option,
     ActiveLesson,
     ActiveTask,
-    ActiveSentence,
+    ActiveGap,
     ActiveOption,
     StudentAnswerSheet,
     StudentAnswer

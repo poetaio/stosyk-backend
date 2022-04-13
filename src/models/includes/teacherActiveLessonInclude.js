@@ -1,15 +1,16 @@
+// tasks-gaps-options list + studentAnswers on each gap
 module.exports = [
+    // {
+    //     association: 'lessonMarkup',
+    //     include: {
+    //         association: "tasks",
+    //         include: "gaps"
+    //     }
+    // },
     {
-        association: 'lessonMarkup',
+        association: 'tasks',
         include: {
-            association: "tasks",
-            include: "sentences"
-        }
-    },
-    {
-        association: 'activeTasks',
-        include: {
-            association: 'activeSentences',
+            association: 'gaps',
             include: [ 'rightOption', 'studentsAnswers', 'options']
         }
     },

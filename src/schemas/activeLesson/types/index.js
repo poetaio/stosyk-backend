@@ -1,6 +1,6 @@
 const TeacherActiveLessonType = require('./teacher/TeacherActiveLesson.type');
 const TeacherChangedLessonType = require('./teacher/TeacherChangedLesson.type');
-const { StudentActiveLessonType, StudentAnswerSheetType, StudentJoinedLessonType} = require('./student');
+const { StudentActiveLessonType, StudentAnswerSheetType, StudentJoinedLessonType, ActiveLessonStatusChangedType } = require('./student');
 const ActiveLessonStatusEnumType = require('./ActiveLessonStatusEnum.type');
 
 
@@ -11,6 +11,7 @@ module.exports = {
     StudentAnswerSheetType,
     StudentActiveLessonType,
     StudentJoinedLessonType,
+    ActiveLessonStatusChangedType,
 
     ActiveLessonStatusEnumType,
 };

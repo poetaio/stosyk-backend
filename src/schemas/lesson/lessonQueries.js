@@ -1,7 +1,7 @@
 const { GraphQLID, GraphQLNonNull} = require('graphql')
 
 const lessonController = require('../../controllers/lessonController');
-const { LessonType, CountedLessonListType} = require("./lessonTypes");
+const { LessonType, CountedLessonListType} = require("./types");
 
 const lessons = {
     type: CountedLessonListType,
@@ -18,7 +18,7 @@ const lesson = {
     args: {
         id: { type: GraphQLNonNull(GraphQLID) }
     },
-    resolve: async (parent, args) => await lessonController.getOneById(args.id)
+    resolve: async (parent, args) => await lessonController.getOneById(args)
 };
 
 module.exports = {
