@@ -1,4 +1,5 @@
 // tasks-gaps-options list + studentAnswers on each gap
+
 module.exports = [
     // {
     //     association: 'lessonMarkup',
@@ -16,9 +17,15 @@ module.exports = [
                 'options',
                 {
                     association: 'studentsAnswers',
-                    include: [{
+                    // raw: true,
+                    // // including only user from student_answer_sheet
+                    // attributes: {
+                    //     include: [sequelize.col('answerSheet.studentId'), 'student']
+                    // },
+                    include: [
+                        {
                             association: 'answerSheet',
-                            // attributes: ['studentId'],
+                            // attributes: [],
                             include: 'student'
                         },
                         'chosenOption'

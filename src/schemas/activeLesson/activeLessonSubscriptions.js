@@ -1,6 +1,6 @@
 const { GraphQLNonNull, GraphQLID } = require("graphql");
 
-const { ActiveLessonStatusChangedType, StudentEnteredAnswerType, TeacherShowedHidRightAnswerType } = require("./types");
+const { ActiveLessonStatusChangedType, StudentEnteredAnswerType, TeacherShowedHidRightAnswerType, StudentJoinedLeftType } = require("./types");
 const activeLessonController = require('../../controllers/activeLessonController');
 /*
 Events:
@@ -44,12 +44,20 @@ const teacherShowedHidAnswer = {
 };
 
 // student enters the classroom
-const studentJoinedLeftSubscription = {
-
+const studentJoinedLeft = {
+    type: StudentJoinedLeftType,
+    name: "studentJoinedLeft",
+    description: "Fires when students joins or leaves lesson",
+    args: {
+        userId: { type: GraphQLNonNull(GraphQLID) },
+        activeLessonId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    subscribe: async (parent, args, context) => await activeLessonController.subscribeOnStudentJoinedLeftLesson(args, context)
 }
 
 module.exports = {
     activeLessonStatusChanged,
     studentEnteredAnswer,
-    teacherShowedHidAnswer
+    teacherShowedHidAnswer,
+    studentJoinedLeft
  };

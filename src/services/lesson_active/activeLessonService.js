@@ -87,6 +87,27 @@ class ActiveLessonService {
         throw ApiError.internal(`Unknown activeLesson status ${activeLesson.status}`);
     }
 
+    async getActiveLessonStudentsIds(teacherId, activeLessonId) {
+        const activeLesson = await ActiveLesson.findOne(
+            {
+                where: { teacherId, id: activeLessonId },
+                include: 'students'
+            }
+        );
+
+        if (!activeLesson)
+            throw ApiError.badRequest(`No activeLesson id: ${activeLessonId}, teacherId: ${teacherId}`);
+
+        const studentsIds = [];
+        console.log(activeLesson.students);
+        // cannot map :( sorry
+        for (let { id } of activeLesson.students || []) {
+            studentsIds.push(id);
+        }
+
+        return studentsIds;
+    }
+
     // teacher creates markup, active lesson is added as well to generate link
     async create(teacherId, lessonId) {
         if (!await teacherService.exists(teacherId))
@@ -124,23 +145,43 @@ class ActiveLessonService {
         if (!await studentService.exists(studentId))
             throw ApiError.badRequest(`No student with ${studentId}`);
 
+        // if student already on lesson
+        // return info, without publishing joining
+        if (await studentAnswerSheetService.existsActiveByLessonIdAndStudentId(activeLessonId, studentId))
+            return {
+                // if lesson is not active, only old answers are returned, lesson full info is not sent
+                activeLesson: await this.getOneByIdAndStudentId(studentId, activeLessonId),
+                answerSheet: await studentAnswerSheetService.getOneActiveByLessonIdAndStudentIdIfLessonStarted(activeLessonId, studentId)
+            };
+
         // if student has answer sheet (once joined and left lesson or already joined) -> set status to JOINED
         if (await studentAnswerSheetService.existsByLessonIdAndStudentId(activeLessonId, studentId)) {
             await studentAnswerSheetService.updateStatusByActiveLessonIdAndStudentId( activeLessonId, studentId, StudentAnswerSheetStatusEnum.JOINED );
 
+            await subscribePublishService.publishStudentJoinedLeftLesson(pubsub, activeLessonId, {
+                studentId,
+                action: StudentAnswerSheetStatusEnum.JOINED
+            });
+
             return {
                 activeLesson: await this.getOneByIdAndStudentId(studentId, activeLessonId),
-                answerSheet: await studentAnswerSheetService.getOneByLessonIdAndStudentId(activeLessonId, studentId)
+                answerSheet: await studentAnswerSheetService.getOneActiveByLessonIdAndStudentIdIfLessonStarted(activeLessonId, studentId)
             };
         }
 
-        const studentAnswerSheet = await studentAnswerSheetService.createOneByLessonIdAndStudentId(activeLessonId, studentId);
+        // otherwise creating new
+        await studentAnswerSheetService.createOneByLessonIdAndStudentId(activeLessonId, studentId);
 
-        await subscribePublishService.publishStudentJoinedLeftLesson(pubsub, activeLessonId, studentId, StudentAnswerSheetStatusEnum.JOINED);
+        await subscribePublishService.publishStudentJoinedLeftLesson(pubsub, activeLessonId, {
+            studentId,
+            action: StudentAnswerSheetStatusEnum.JOINED
+        });
 
         return {
+            // if lesson is not active (NOT_STARTED, FINISHED) no tasks/gaps/options info is sent
             activeLesson: await this.getOneByIdAndStudentId(studentId, activeLessonId),
-            answerSheet: studentAnswerSheet
+            // if lesson is not started null returned
+            answerSheet: await studentAnswerSheetService.getOneActiveByLessonIdAndStudentIdIfLessonStarted(activeLessonId, studentId)
         };
     }
 
@@ -153,11 +194,14 @@ class ActiveLessonService {
         //     .then((status) => status === StudentAnswerSheetStatusEnum.LEFT))
         //     throw ApiError.badRequest(`Student is not on lesson ${activeLessonId}, studentId: ${studentId}`);
 
-        await studentAnswerSheetService.updateStatusByActiveLessonIdAndStudentId(activeLessonId, studentActiveLessonInclude,
+        await studentAnswerSheetService.updateStatusByActiveLessonIdAndStudentId(activeLessonId, studentId,
             StudentAnswerSheetStatusEnum.LEFT);
 
         // notify others that student left lesson
-        await subscribePublishService.publishStudentJoinedLeftLesson(pubsub, activeLessonId, studentId, StudentAnswerSheetStatusEnum.LEFT);
+        await subscribePublishService.publishStudentJoinedLeftLesson(pubsub, activeLessonId, {
+            studentId,
+            action: StudentAnswerSheetStatusEnum.LEFT
+        });
     }
 
     // teacher starts the lesson
@@ -188,7 +232,13 @@ class ActiveLessonService {
         );
 
         // notifying students that lesson resumed
-        await subscribePublishService.publishActiveLessonStatusChanged(pubsub, activeLessonId, { status: ActiveLessonStatusEnum.STARTED });
+        for (let studentId of await this.getActiveLessonStudentsIds(teacherId, activeLessonId)) {
+            // notifying students that lesson resumed
+            await subscribePublishService.publishActiveLessonStatusChanged(pubsub, activeLessonId, studentId, {
+                status: ActiveLessonStatusEnum.STARTED,
+                ...await this.resolveActiveLessonAndStudentAnswerSheetOnLessonStarted(activeLessonId, studentId)
+            });
+        }
 
         return await this.getOneByIdAndTeacherId(teacherId, activeLessonId);
     }
@@ -197,12 +247,12 @@ class ActiveLessonService {
     async finishActiveLesson(pubsub, activeLessonId, teacherId) {
         // if teacher is not the host -> null
         // if the lesson already finished -> no update, no subscription publishing
-        const activeLesson = await this.getOneByIdAndTeacherId(activeLessonId, teacherId);
+        const activeLesson = await this.getOneByIdAndTeacherId(teacherId, activeLessonId);
 
         if (!activeLesson)
             return null;
 
-        if (activeLesson.status === ActiveLessonStatusEnum.FINISHED)
+        if (activeLesson.status === ActiveLessonStatusEnum.FINISHED || activeLesson.status === ActiveLessonStatusEnum.NOT_STARTED)
             return activeLesson;
 
         await ActiveLesson.update(
@@ -218,7 +268,12 @@ class ActiveLessonService {
         );
 
         // notifying students that lesson finished
-        await subscribePublishService.publishActiveLessonStatusChanged(pubsub, activeLessonId, { status: ActiveLessonStatusEnum.FINISHED });
+        for (let studentId of await this.getActiveLessonStudentsIds(teacherId, activeLessonId)) {
+            // notifying students that lesson resumed
+            await subscribePublishService.publishActiveLessonStatusChanged(pubsub, activeLessonId, studentId, {
+                status: ActiveLessonStatusEnum.FINISHED
+            });
+        }
 
         return await this.getOneByIdAndTeacherId(teacherId, activeLessonId);
     }
@@ -227,7 +282,7 @@ class ActiveLessonService {
     async resumeActiveLesson(pubsub, activeLessonId, teacherId) {
         // if teacher is not the host nothing is returned
         // if the status is finished, reset it and publish event
-        const activeLesson = await this.getOneByIdAndTeacherId(activeLessonId, teacherId);
+        const activeLesson = await this.getOneByIdAndTeacherId(teacherId, activeLessonId);
 
         if (!activeLesson)
             return null;
@@ -246,15 +301,29 @@ class ActiveLessonService {
             }
         );
 
-        // notifying students that lesson resumed
-        await subscribePublishService.publishActiveLessonStatusChanged(pubsub, activeLessonId, { status: ActiveLessonStatusEnum.STARTED });
+        for (let studentId of await this.getActiveLessonStudentsIds(teacherId, activeLessonId)) {
+            // notifying students that lesson resumed
+            await subscribePublishService.publishActiveLessonStatusChanged(pubsub, activeLessonId, studentId, {
+                status: ActiveLessonStatusEnum.STARTED,
+                ...await this.resolveActiveLessonAndStudentAnswerSheetOnLessonStarted(activeLessonId, studentId)
+            });
+        }
 
         return await this.getOneByIdAndTeacherId(teacherId, activeLessonId);
     }
 
+    async resolveActiveLessonAndStudentAnswerSheetOnLessonStarted(activeLessonId, studentId) {
+        return {
+            // if lesson is not active (NOT_STARTED, FINISHED) no tasks/gaps/options info is sent
+            activeLesson: await this.getOneByIdAndStudentId(studentId, activeLessonId),
+            // if lesson is not started null returned
+            answerSheet: await studentAnswerSheetService.getOneActiveByLessonIdAndStudentIdIfLessonStarted(activeLessonId, studentId)
+        };
+    }
+
     async changeStudentAnswer(pubsub, activeLessonId, activeTaskId, activeGapId, activeOptionId, studentId) {
         // if student not on a lesson
-        if (!await studentAnswerSheetService.existsActiveByLessonIdAndStudentId(activeLessonId, studentId))
+        if (!await studentAnswerSheetService.existsActiveByLessonIdAndStudentIdAndLessonStarted(activeLessonId, studentId))
             throw ApiError.badRequest(`No activeLesson with id: ${activeLessonId}, studentId: ${studentId}`)
 
         if (!await activeTaskService.existsByIdAndLessonId(activeTaskId, activeLessonId))
@@ -264,7 +333,7 @@ class ActiveLessonService {
         if (!await activeOptionService.existsByIdAndGapId(activeOptionId, activeGapId))
             throw ApiError.badRequest(`No option with id: ${activeOptionId}`);
 
-        const answerSheet = await studentAnswerSheetService.getOneByLessonIdAndStudentId(activeLessonId, studentId);
+        const answerSheet = await studentAnswerSheetService.getOneActiveByLessonIdAndStudentIdIfLessonStarted(activeLessonId, studentId);
 
         const updated = await studentAnswerService.createOrUpdateIfExists(answerSheet.id, activeGapId, activeOptionId);
         const studentAnswer = await studentAnswerService.getOneByAnswerSheetIdAndActiveGapId(answerSheet.id, activeGapId);
@@ -280,7 +349,6 @@ class ActiveLessonService {
         return studentAnswer.chosenOption;
     }
 
-    // todo: publish teacher showed right answer event
     async showRightAnswerForGap(pubsub, activeLessonId, taskId, gapId, teacherId) {
         // check for teacher on lesson and lesson is started
         if (!await this.existsStartedByIdAndTeacherId(activeLessonId, teacherId))
@@ -368,18 +436,13 @@ class ActiveLessonService {
         if (!await studentAnswerSheetService.existsActiveByLessonIdAndStudentId(activeLessonId, studentId))
             throw ApiError.badRequest(`No active lesson, lessonId: ${activeLessonId}, studentId: ${studentId}`);
 
-        if (await studentAnswerSheetService.getStatusByActiveLessonIdAndStudent(activeLessonId, studentId) !== StudentAnswerSheetStatusEnum.JOINED)
-            throw ApiError.badRequest(`Student has not joined lesson, lessonId: ${activeLessonId}, studentId: ${studentId}`);
-
-        return subscribePublishService.subscribeStudentOnActiveLessonStatusChanged(pubsub, activeLessonId);
+        return subscribePublishService.subscribeStudentOnActiveLessonStatusChanged(pubsub, activeLessonId, studentId);
     }
 
     async subscribeStudentOnTeacherShowedHidAnswer(pubsub, activeLessonId, studentId) {
         // if activeLessonId or student is not on lesson does not exist throw error
-        if (!await studentAnswerSheetService.existsActiveByLessonIdAndStudentId(activeLessonId, studentId))
+        if (!await studentAnswerSheetService.existsActiveByLessonIdAndStudentIdAndLessonStarted(activeLessonId, studentId))
             throw ApiError.badRequest(`No active lesson, lessonId: ${activeLessonId}, studentId: ${studentId}`);
-        if (!await this.existsStartedById(activeLessonId))
-            throw ApiError.badRequest(`Lesson is not started ${activeLessonId}`);
 
         return subscribePublishService.subscribeStudentOnTeacherShowedAnswer(pubsub, activeLessonId);
     }
@@ -392,8 +455,13 @@ class ActiveLessonService {
         return subscribePublishService.subscribeTeacherOnStudentEnterAnswer(pubsub, activeLessonId);
     }
 
-    async subscribeTeacherOnStudentJoinedLeftLesson(pubsub, activeLessonId, teacherId) {
+    async subscribeOnStudentJoinedLeftLesson(pubsub, activeLessonId, userId) {
+        // if teacher is not the host and student is not on the lesson
+        if (!await this.existsStartedByIdAndTeacherId(activeLessonId, userId) &&
+            !await studentAnswerSheetService.existsActiveByLessonIdAndStudentIdAndLessonStarted(activeLessonId, userId))
+            throw ApiError.badRequest(`No active lesson with id ${activeLessonId}, userId: ${userId}`);
 
+        return subscribePublishService.subscribeOnStudentJoinedLeftLesson(pubsub, activeLessonId);
     }
 }
 

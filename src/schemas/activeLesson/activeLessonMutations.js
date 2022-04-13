@@ -77,6 +77,17 @@ const studentJoinLesson = {
     resolve: async (parent, args, context) => await activeLessonController.studentJoinLesson(args, context)
 };
 
+const studentLeaveLesson = {
+    type: EmptyType,
+    name: "studentLeaveLesson",
+    description: "Student leave lesson",
+    args: {
+        activeLessonId: { type: GraphQLNonNull(GraphQLID) },
+        studentId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    resolve: async (parent, args, context) => await activeLessonController.studentLeaveLesson(args, context)
+}
+
 const changeStudentAnswer = {
     type: GraphQLNonNull(StudentActiveOptionType),
     name: "changeStudentAnswer",
@@ -118,6 +129,7 @@ const hideTaskRightAnswers = {
 module.exports = {
     createActiveLesson,
     studentJoinLesson,
+    studentLeaveLesson,
     startActiveLesson,
     finishActiveLesson,
     resumeActiveLesson,
