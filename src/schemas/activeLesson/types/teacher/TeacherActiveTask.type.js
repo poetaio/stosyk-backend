@@ -7,6 +7,8 @@ module.exports = new GraphQLObjectType({
     description: "Active task type",
     fields: {
         id: { type: GraphQLNonNull(GraphQLID) },
+        name: { type: GraphQLNonNull(GraphQLString) },
+        description: { type: GraphQLNonNull(GraphQLString) },
         gaps: { type: GraphQLList(TeacherActiveGapType) },
         text: { type: GraphQLNonNull(GraphQLString) }
     }

@@ -6,8 +6,8 @@ module.exports = new GraphQLInputObjectType({
     name: "ChangeStudentAnswerType",
     description: "Changes student answer",
     fields: {
-        lessonId: {type: GraphQLNonNull(GraphQLID)},
         taskId: {type: GraphQLNonNull(GraphQLID)},
-        gapId: {type: GraphQLNonNull(GraphQLID)}
+        gapId: {type: GraphQLNonNull(GraphQLID)},
+        optionId: { type: GraphQLNonNull(GraphQLID) }
     }
 });

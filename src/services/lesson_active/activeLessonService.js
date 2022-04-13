@@ -37,10 +37,23 @@ class ActiveLessonService {
         if (!await studentAnswerSheetService.existsActiveByLessonIdAndStudentId(activeLessonId, studentId))
             throw ApiError.badRequest(`No such activeLesson ${activeLessonId} ${studentId}`);
 
-        return await ActiveLesson.findOne({
+        const activeLesson = await ActiveLesson.findOne({
             where: { id: activeLessonId },
             include: studentActiveLessonInclude
         });
+
+        if (!activeLesson)
+            return null;
+
+        // if right answer is not shown set it to null
+        for (let task of activeLesson.tasks) {
+            for (let gap of task.gaps) {
+                if (!gap.answerShown)
+                    gap.rightOption = null;
+            }
+        }
+
+        return activeLesson;
     }
 
     async getOneByIdAndTeacherId(teacherId, activeLessonId) {
@@ -48,7 +61,6 @@ class ActiveLessonService {
             where: { id: activeLessonId, teacherId },
             include: teacherLessonInclude
         });
-
 
         if (!activeLesson)
             return null;
@@ -155,7 +167,7 @@ class ActiveLessonService {
         //
         // if (!await teacherService.exists(teacherId))
         //     throw new Error(`No teacher with ${teacherId}`);
-        const activeLesson = await this.getOneByIdAndTeacherId(activeLessonId, teacherId);
+        const activeLesson = await this.getOneByIdAndTeacherId(teacherId, activeLessonId);
 
         if (!activeLesson)
             return null;
@@ -240,7 +252,6 @@ class ActiveLessonService {
         return await this.getOneByIdAndTeacherId(teacherId, activeLessonId);
     }
 
-    // todo: publish student enter answer event
     async changeStudentAnswer(pubsub, activeLessonId, activeTaskId, activeGapId, activeOptionId, studentId) {
         // if student not on a lesson
         if (!await studentAnswerSheetService.existsActiveByLessonIdAndStudentId(activeLessonId, studentId))
@@ -287,21 +298,69 @@ class ActiveLessonService {
 
         await activeGapService.setAnswerShown(gapId, true);
 
-        await subscribePublishService.publishTeacherShowedAnswer(pubsub, activeLessonId, { taskId, gapId });
+        await subscribePublishService.publishTeacherShowedHidAnswer(pubsub, activeLessonId, { taskId, gapId });
     }
 
-    async showAllRightAnswersForTask(activeLessonId, taskId, teacherId) {
-        /* todo: send right answer if it is shown when
+    async showAllRightAnswersForTask(pubsub, activeLessonId, taskId, teacherId) {
+        /* todo: send right answer if it is shown
             when student joined lesson
+            (change student joined lesson method (includes))
          */
-    }
+        // check for teacher on lesson and lesson is started
+        if (!await this.existsStartedByIdAndTeacherId(activeLessonId, teacherId))
+            throw ApiError.badRequest(`No lesson exists lessonId: ${activeLessonId}, teacherId: ${teacherId}`);
 
-    async hideAllRightAnswersForTask(activeLessonId, taskId, teacherId) {
+        // if no such task
+        if (!await activeTaskService.existsByIdAndLessonId(taskId, activeLessonId))
+            throw ApiError.badRequest(`No task with id ${taskId}`);
 
+        // getting task with gaps, where answer not shown
+        const task = await activeTaskService.getOneByIdWithGapsWithHiddenAnswer(taskId);
+        // if gaps arr is empty, then all answers are shown
+        if (!task.gaps?.length)
+            return false;
+
+        for (let { id : gapId } of task.gaps) {
+            await activeGapService.setAnswerShown(gapId, true);
+        }
+
+        await subscribePublishService.publishTeacherShowedHidAnswer(pubsub, activeLessonId, {
+            taskId,
+            action: "SHOWED"
+        });
+
+        return true;
     }
 
     async hideRightAnswerForGap(activeLessonId, taskId, gapId, teacherId) {
 
+    }
+
+    async hideAllRightAnswersForTask(pubsub, activeLessonId, taskId, teacherId) {
+        // check for teacher on lesson and lesson is started
+        if (!await this.existsStartedByIdAndTeacherId(activeLessonId, teacherId))
+            throw ApiError.badRequest(`No lesson exists lessonId: ${activeLessonId}, teacherId: ${teacherId}`);
+
+        // if no such task or gap
+        if (!await activeTaskService.existsByIdAndLessonId(taskId, activeLessonId))
+            throw ApiError.badRequest(`No task with id ${taskId}`);
+
+        // getting task with gaps, where answer shown
+        const task = await activeTaskService.getOneByIdWithGapsWithShownAnswer(taskId);
+        // if gaps arr is empty, then all answers are hidden
+        if (!task.gaps.length)
+            return false;
+
+        for (let { id : gapId } of task.gaps) {
+            await activeGapService.setAnswerShown(gapId, false);
+        }
+
+        await subscribePublishService.publishTeacherShowedHidAnswer(pubsub, activeLessonId, {
+            taskId,
+            action: "HID"
+        });
+
+        return true;
     }
 
     async subscribeStudentOnActiveLessonStatusChanged(pubsub, activeLessonId, studentId) {
@@ -315,7 +374,7 @@ class ActiveLessonService {
         return subscribePublishService.subscribeStudentOnActiveLessonStatusChanged(pubsub, activeLessonId);
     }
 
-    async subscribeStudentOnTeacherShowedAnswer(pubsub, activeLessonId, studentId) {
+    async subscribeStudentOnTeacherShowedHidAnswer(pubsub, activeLessonId, studentId) {
         // if activeLessonId or student is not on lesson does not exist throw error
         if (!await studentAnswerSheetService.existsActiveByLessonIdAndStudentId(activeLessonId, studentId))
             throw ApiError.badRequest(`No active lesson, lessonId: ${activeLessonId}, studentId: ${studentId}`);

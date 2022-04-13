@@ -14,12 +14,13 @@ class SubscribePublishService {
     }
 
     async subscribeStudentOnTeacherShowedAnswer(pubsub, activeLessonId) {
-        return pubsub.asyncIterator([eventNamesFactory.activeLessonStatusChangedEventName(activeLessonId)]);
+        return pubsub.asyncIterator([eventNamesFactory.activeLessonTeacherShowedHidAnswerEventName(activeLessonId)]);
     }
 
-    // payload: taskId, gapId, rightOption
-    async publishTeacherShowedAnswer(pubsub, activeLessonId, payload) {
-        await pubsub.publish(eventNamesFactory.activeLessonTeacherShowedAnswerEventName(activeLessonId), payload);
+    // payload: taskId, action(Showed/Hid)
+    async publishTeacherShowedHidAnswer(pubsub, activeLessonId, payload) {
+        await pubsub.publish(eventNamesFactory.activeLessonTeacherShowedHidAnswerEventName(activeLessonId),
+            { teacherShowedHidAnswer: payload });
     }
 
     async subscribeTeacherOnStudentEnterAnswer(pubsub, activeLessonId) {
@@ -38,7 +39,8 @@ class SubscribePublishService {
 
     // studentId, actionName
     async publishStudentJoinedLeftLesson(pubsub, activeLessonId, payload) {
-        await pubsub.publish(eventNamesFactory.activeLessonStudentJoinedLeftLessonEvent(activeLessonId), payload);
+        await pubsub.publish(eventNamesFactory.activeLessonStudentJoinedLeftLessonEvent(activeLessonId),
+            { studentJoinedLeftLesson: payload });
     }
 }
 

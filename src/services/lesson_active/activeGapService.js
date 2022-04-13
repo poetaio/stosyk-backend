@@ -50,7 +50,7 @@ class ActiveGapService {
         if (!await this.existsById(id))
             throw ApiError.badRequest(`No gap with id: ${id}`);
 
-        return await ActiveGap.update({ answerShown })
+        return await ActiveGap.update({ answerShown }, { where: { id } })
     }
 }
 

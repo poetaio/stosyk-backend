@@ -3,7 +3,8 @@ module.exports = [
         association: 'tasks',
         include: {
             association: 'gaps',
-            include: 'options'
+            // adding rightOption, checking if answerShown on return
+            include: [ 'options', 'rightOption' ]
         }
     },
     'teacher'

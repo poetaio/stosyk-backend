@@ -3,6 +3,8 @@ const { StudentActiveLessonType, StudentAnswerSheetType, StudentJoinedLessonType
 const ActiveLessonStatusEnumType = require('./ActiveLessonStatusEnum.type');
 const StudentEnteredAnswerType = require('./teacher/StudentEnteredAnswer.type');
 const ChangeStudentAnswerType = require('./student/ChangeStudentAnswer.type');
+const TeacherShowedHidRightAnswerType = require('./student/TeacherShowedHidRightAnswer.type');
+
 
 module.exports = {
     TeacherActiveLessonType,
@@ -14,5 +16,6 @@ module.exports = {
 
     ActiveLessonStatusEnumType,
     StudentEnteredAnswerType,
-    ChangeStudentAnswerType
+    ChangeStudentAnswerType,
+    TeacherShowedHidRightAnswerType
 };

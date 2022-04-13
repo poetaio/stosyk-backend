@@ -1,12 +1,14 @@
-const {GraphQLObjectType, GraphQLID, GraphQLNonNull} = require("graphql");
+const {GraphQLObjectType, GraphQLNonNull} = require("graphql");
 const ActiveOptionType = require('../ActiveOption.type');
+const StudentAnswerToType = require('./StudentAnswerTo.type');
 
 
 module.exports = new GraphQLObjectType({
     name: "StudentAnswerSheetAnswerType",
     description: "Student Answer Sheet Answer Type",
     fields: {
-        answerToId: { type: GraphQLNonNull(GraphQLID) },
-        chosenOption: { type: ActiveOptionType }
+        // currently, gap type without right option
+        answerTo: { type: GraphQLNonNull(StudentAnswerToType) },
+        chosenOption: { type: GraphQLNonNull(ActiveOptionType) }
     }
 });
