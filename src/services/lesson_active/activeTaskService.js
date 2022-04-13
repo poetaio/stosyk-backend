@@ -6,16 +6,16 @@ const teacherTaskInclude = require("../../models/includes/teacherTaskInclude");
 
 
 class ActiveTaskService {
-    async existsById(taskId) {
-        return !!await ActiveTask.count({ where: {id: taskId} });
+    async existsById(id) {
+        return !!await ActiveTask.count({ where: { id } });
     }
 
-    async existsByIdAndLessonId(taskId, lessonId) {
-        return !!await ActiveTask.count({ where: { id: taskId, lessonId } });
+    async existsByIdAndLessonId(id, activeLessonId) {
+        return !!await ActiveTask.count({ where: { id, activeLessonId } });
     }
 
-    async createEmpty(lessonId, name, description, text) {
-        return await ActiveTask.create({ lessonId, name, description, text });
+    async createEmpty(activeLessonId, name, description, text) {
+        return await ActiveTask.create({ activeLessonId, name, description, text });
     }
 
     // gaps contains options as [ value ], rightOption as value
@@ -32,13 +32,13 @@ class ActiveTaskService {
         return newTask;
     }
 
-    async createWithGapsIds(lessonId, name, description, text, gapsIds) {
+    async createWithGapsIds(activeLessonId, name, description, text, gapsIds) {
         for (let gapId of gapsIds) {
             if (!await activeGapService.existsById(gapId))
                 throw ApiError.badRequest(`No gap with id ${gapId}`)
         }
 
-        const newTask = await ActiveTask.create({ lessonId, text });
+        const newTask = await ActiveTask.create({ activeLessonId, text });
 
         for (let gapId of gapsIds) {
             const gap = await gapService.getOneByIdForTeacher(gapId);

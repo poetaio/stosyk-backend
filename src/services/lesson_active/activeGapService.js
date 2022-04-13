@@ -8,15 +8,15 @@ class ActiveGapService {
         return !!await ActiveGap.count({ where: { id } });
     }
 
-    async existsByIdAndTaskId(id, taskId) {
-        return !!await ActiveGap.count({ where: { id, taskId} });
+    async existsByIdAndTaskId(id, activeTaskId) {
+        return !!await ActiveGap.count({ where: { id, activeTaskId} });
     }
 
     // options - [ value ]
-    async createWithOptionsValues(taskId, gapPosition, options, rightOption) {
+    async createWithOptionsValues(activeTaskId, gapPosition, options, rightOption) {
         // if (!await activeTaskService.existsById(taskId))
         //     throw ApiError.badRequest(`No task with id ${taskId}`);
-        let createdGap = await ActiveGap.create({ gapPosition, activeTaskId: taskId, options }, { include: 'options' });
+        let createdGap = await ActiveGap.create({ gapPosition, activeTaskId, options }, { include: 'options' });
         let rightOptionId;
 
         for (let {id, value} of createdGap.options) {

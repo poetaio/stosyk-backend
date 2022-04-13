@@ -1,44 +1,36 @@
 const { GraphQLNonNull, GraphQLID } = require("graphql");
 
-const { TeacherChangedLessonType, ActiveLessonStatusChangedType } = require("./types");
+const { ActiveLessonStatusChangedType, StudentEnteredAnswerType } = require("./types");
 const activeLessonController = require('../../controllers/activeLessonController');
-
 /*
 Events:
-    Answer entered, answer changed,
-    Answer shown
-    Lesson started/ended
+    - [ ] Answer entered, answer changed,
+    - [ ] Answer shown
+    - [x] Lesson started/ended
  */
 
 const activeLessonStatusChanged = {
     type: ActiveLessonStatusChangedType,
+    name: "ActiveLessonStatusChanged",
     description: "Fires when teacher start/finishes lesson, sends status",
     args: {
+        // todo: get from token
         studentId: { type: GraphQLNonNull(GraphQLID) },
         activeLessonId: { type: GraphQLNonNull(GraphQLID) }
     },
     subscribe: async (parent, args, context) => await activeLessonController.subscribeStudentOnActiveLessonStatusChanged(args, context)
-}
+};
 
-// student subscribes to listen for teacher's changes
-const teacherChangedLesson = {
-    type: TeacherChangedLessonType,
-    description: 'Triggers when teacher changes the active lesson',
+const studentEnteredAnswer = {
+    type: StudentEnteredAnswerType,
+    name: "StudentEnterAnswer",
+    description: "Fires when student enters or changes answer",
     args: {
-        studentId: { type: GraphQLNonNull(GraphQLID)}
+        teacherId: { type: GraphQLNonNull(GraphQLID) },
+        activeLessonId: { type: GraphQLNonNull(GraphQLID) }
     },
-    subscribe: async (parent, args, context) => await activeLessonController.subscribeToTeacherChangedActiveLesson(args, context)
-}
-
-// teacher subscribes to listen for student's changes
-const studentChangedLesson = {
-    type: GraphQLID,
-    description: 'Triggers when student changes the active lesson',
-    args: {
-        teacherId: { type: GraphQLNonNull(GraphQLID) }
-    },
-    subscribe: async (parent, args, context) => await activeLessonController.subscribeToStudentChangedActiveLesson(args, context)
-}
+    subscribe: async (parent, args, context) => await activeLessonController.subscribeTeacherOnStudentEnteredAnswer(args, context)
+};
 
 // start/end subscription
 const rightAnswerShownSubscription = {
@@ -55,23 +47,7 @@ const studentLeftSubscription = {
 
 }
 
-// student enters/changes answer
-const answerChangedSubscription = {
-
-};
-
-// teacher shows right answer
-const activeLessonStatusChangedSubscription = {
-
-};
-
 module.exports = {
     activeLessonStatusChanged,
-    studentChangedLesson,
-    teacherChangedLesson,
-    // studentJoinedSubscription,
-    // studentLeftSubscription,
-    // rightAnswerShownSubscription,
-    // activeLessonStatusChangedSubscription,
-    // answerChangedSubscription
-};
+    studentEnteredAnswer
+ };

@@ -1,7 +1,8 @@
 const activeLessonController = require('../../controllers/activeLessonController');
-const {GraphQLString, GraphQLNonNull, GraphQLID} = require("graphql");
+const {GraphQLString, GraphQLNonNull, GraphQLID, GraphQLBoolean} = require("graphql");
 const {EmptyType} = require("../types");
-const { TeacherActiveLessonType, StudentJoinedLessonType } = require('./types');
+const { TeacherActiveLessonType, StudentJoinedLessonType, ChangeStudentAnswerType } = require('./types');
+const {StudentActiveOptionType} = require("./types/student");
 
 /*
 student
@@ -21,23 +22,12 @@ const createActiveLesson = {
     type: TeacherActiveLessonType,
     description: "Creates new active lesson from lesson markup",
     args: {
+        // todo: get id to token
         teacherId: { type: GraphQLNonNull(GraphQLID) },
         lessonId: { type: GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args) => activeLessonController.createActiveLesson(args)
 }
-
-const studentJoinLesson = {
-    type: StudentJoinedLessonType,
-    name: "studentJoinLesson",
-    description: "Student join lesson by student id and active lesson id",
-    // todo: move id to token
-    args: {
-        activeLessonId: { type: GraphQLNonNull(GraphQLID) },
-        studentId: { type: GraphQLNonNull(GraphQLID) }
-    },
-    resolve: async (parent, args, context) => await activeLessonController.studentJoinLesson(args, context)
-};
 
 const startActiveLesson = {
     type: TeacherActiveLessonType,
@@ -75,33 +65,37 @@ const resumeActiveLesson = {
     resolve: async (parent, args, context) => await activeLessonController.resumeActiveLesson(args, context)
 };
 
-// publishes event 'studentChangedLesson'
-const studentChange = {
-    type: EmptyType,
-    description: 'Publishes event "studentChangedLesson"',
+const studentJoinLesson = {
+    type: StudentJoinedLessonType,
+    name: "studentJoinLesson",
+    description: "Student join lesson by student id and active lesson id",
+    // todo: get id to token
     args: {
+        activeLessonId: { type: GraphQLNonNull(GraphQLID) },
         studentId: { type: GraphQLNonNull(GraphQLID) }
     },
-    resolve: async (parent, args, context) => await activeLessonController.studentChangedActiveLesson(args, context)
+    resolve: async (parent, args, context) => await activeLessonController.studentJoinLesson(args, context)
+};
+
+const changeStudentAnswer = {
+    type: GraphQLNonNull(StudentActiveOptionType),
+    name: "changeStudentAnswer",
+    description: "Student enters/changes answer",
+    args: {
+        // todo: get id from token
+        studentId: { type: GraphQLNonNull(GraphQLID) },
+        optionId: { type: GraphQLNonNull(GraphQLID) },
+        gap: { type: GraphQLNonNull(ChangeStudentAnswerType) },
+    },
+    resolve: async (parent, args, context) => await activeLessonController.changeStudentAnswer(args, context)
 }
 
-// publishes event 'teacherChangedLesson' because teacher has actually changed something, lol
-const teacherChange = {
-    type: EmptyType,
-    description: 'Publishes event "teacherChangedLesson"',
-    args: {
-        teacherId: { type: GraphQLNonNull(GraphQLID) },
-        teacherMessage: { type: GraphQLNonNull(GraphQLString) }
-    },
-    resolve: async (parent, args, context) => await activeLessonController.teacherChangedActiveLesson(args, context)
-}
 
 module.exports = {
-    studentChange,
-    teacherChange,
     createActiveLesson,
     studentJoinLesson,
     startActiveLesson,
     finishActiveLesson,
-    resumeActiveLesson
+    resumeActiveLesson,
+    changeStudentAnswer
 };

@@ -6,6 +6,7 @@ module.exports = new GraphQLObjectType({
     name: "StudentAnswerSheetType",
     description: "Student answer sheet type",
     fields: {
+        id: { type: GraphQLNonNull(GraphQLID) },
         status: { type: GraphQLNonNull(StudentAnswerSheetStatusType) },
         answers: { type: GraphQLList(StudentAnswerSheetAnswerType) }
     }

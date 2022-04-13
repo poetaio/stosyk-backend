@@ -1,11 +1,10 @@
 const TeacherActiveLessonType = require('./teacher/TeacherActiveLesson.type');
-const TeacherChangedLessonType = require('./teacher/TeacherChangedLesson.type');
 const { StudentActiveLessonType, StudentAnswerSheetType, StudentJoinedLessonType, ActiveLessonStatusChangedType } = require('./student');
 const ActiveLessonStatusEnumType = require('./ActiveLessonStatusEnum.type');
-
+const StudentEnteredAnswerType = require('./teacher/StudentEnteredAnswer.type');
+const ChangeStudentAnswerType = require('./student/ChangeStudentAnswer.type');
 
 module.exports = {
-    TeacherChangedLessonType,
     TeacherActiveLessonType,
 
     StudentAnswerSheetType,
@@ -14,4 +13,6 @@ module.exports = {
     ActiveLessonStatusChangedType,
 
     ActiveLessonStatusEnumType,
+    StudentEnteredAnswerType,
+    ChangeStudentAnswerType
 };
