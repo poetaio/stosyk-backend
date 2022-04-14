@@ -20,9 +20,14 @@ class ActiveLessonController {
         return await activeLessonService.create(teacherId, lessonId);
     }
 
-    // returns activeLesson tasks and student's answer sheet
+    // returns lesson status,
+    // if started -> activeLesson tasks & student's answer sheet
     async studentJoinLesson({ activeLessonId, studentId }, { pubsub }) {
         return await activeLessonService.studentJoinLesson(pubsub, activeLessonId, studentId);
+    }
+
+    async studentLeaveLesson({ activeLessonId, studentId }, { pubsub }) {
+        return await activeLessonService.studentLeaveLesson(pubsub, activeLessonId, studentId);
     }
 
     async startActiveLesson({ activeLessonId, teacherId }, { pubsub }) {
@@ -59,6 +64,10 @@ class ActiveLessonController {
 
     async subscribeStudentOnTeacherShowedHidRightAnswer({ activeLessonId, studentId }, {pubsub}) {
         return await activeLessonService.subscribeStudentOnTeacherShowedHidAnswer(pubsub, activeLessonId, studentId);
+    }
+
+    async subscribeOnStudentJoinedLeftLesson({ activeLessonId, userId }, { pubsub }) {
+        return await activeLessonService.subscribeOnStudentJoinedLeftLesson(pubsub, activeLessonId, userId);
     }
 }
 

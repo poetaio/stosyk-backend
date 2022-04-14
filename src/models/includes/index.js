@@ -7,6 +7,7 @@ const teacherGapInclude = require('./teacherGapInclude');
 const studentTaskInclude = require('./studentTaskInclude');
 const teacherTaskInclude = require('./teacherTaskInclude');
 const studentAnswerSheetInclude = require('./studentAnswerSheetInclude');
+const studentAnswerSheetIfLessonStartedInclude = require('./studentAnswerSheetIfLessonStartedInclude')
 
 
 module.exports = {
@@ -18,5 +19,6 @@ module.exports = {
     teacherGapInclude,
     studentTaskInclude,
     teacherTaskInclude,
-    studentAnswerSheetInclude
+    studentAnswerSheetInclude,
+    studentAnswerSheetIfLessonStartedInclude
 };
