@@ -13,8 +13,8 @@ class EventNamesFactory {
     }
 
     // active lesson started/finished/resumed events
-    activeLessonStatusChangedEventName(activeLessonId) {
-        return `${EventNames.ACTIVE_LESSON_STATUS_CHANGED}${activeLessonId}`;
+    activeLessonStatusChangedEventName(activeLessonId, studentId) {
+        return `${EventNames.ACTIVE_LESSON_STATUS_CHANGED}${activeLessonId}${studentId}`;
     }
 
     // active lesson student enter answer event

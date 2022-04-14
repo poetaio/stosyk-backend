@@ -1,6 +1,8 @@
 const {StudentAnswerSheet} = require("../../models");
 const StudentAnswerSheetStatus = require('../../models/lesson_active/utils/StudentAnswerSheetStatusEnum')
-const { studentAnswerSheetInclude } = require('../../models/includes');
+const { studentAnswerSheetInclude, studentAnswerSheetIfLessonStartedInclude } = require('../../models/includes');
+const ActiveLessonStatusEnum = require('../../models/lesson_active/utils/ActiveLessonStatusEnum');
+
 
 class StudentAnswerSheetService {
     async existsByLessonIdAndStudentId(activeLessonId, studentId) {
@@ -22,6 +24,24 @@ class StudentAnswerSheetService {
         });
     }
 
+    // exists answer sheet and lesson started
+    async existsActiveByLessonIdAndStudentIdAndLessonStarted(activeLessonId, studentId) {
+        return !!await StudentAnswerSheet.count({
+            where: {
+                activeLessonId,
+                studentId,
+                status: StudentAnswerSheetStatus.JOINED
+            },
+            include: {
+                association: 'activeLesson',
+                required: true,
+                where: {
+                    status: ActiveLessonStatusEnum.STARTED
+                }
+            }
+        });
+    }
+
     async getOneByLessonIdAndStudentId(activeLessonId, studentId) {
         return await StudentAnswerSheet.findOne({
             where: {
@@ -29,6 +49,18 @@ class StudentAnswerSheetService {
                 studentId
             },
             include: studentAnswerSheetInclude
+        });
+    }
+
+    // where lesson status is started and answer sheet status is joined
+    async getOneActiveByLessonIdAndStudentIdIfLessonStarted(activeLessonId, studentId) {
+        return await StudentAnswerSheet.findOne({
+            where: {
+                activeLessonId,
+                studentId,
+                status: StudentAnswerSheetStatus.JOINED
+            },
+            include: studentAnswerSheetIfLessonStartedInclude
         });
     }
 

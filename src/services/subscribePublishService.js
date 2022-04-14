@@ -1,15 +1,16 @@
 const eventNamesFactory = require('./utils/eventNamesFactory');
+const ActiveLessonStatusEnum = require("../models/lesson_active/utils/ActiveLessonStatusEnum");
 
 
 class SubscribePublishService {
-    async subscribeStudentOnActiveLessonStatusChanged(pubsub, activeLessonId) {
+    async subscribeStudentOnActiveLessonStatusChanged(pubsub, activeLessonId, studentId) {
         // no await
-        return pubsub.asyncIterator([eventNamesFactory.activeLessonStatusChangedEventName(activeLessonId)]);
+        return pubsub.asyncIterator([eventNamesFactory.activeLessonStatusChangedEventName(activeLessonId, studentId)]);
     }
 
     // payload: newStatus
-    async publishActiveLessonStatusChanged(pubsub, activeLessonId, payload) {
-        await pubsub.publish(eventNamesFactory.activeLessonStatusChangedEventName(activeLessonId),
+    async publishActiveLessonStatusChanged(pubsub, activeLessonId, studentId, payload) {
+        await pubsub.publish(eventNamesFactory.activeLessonStatusChangedEventName(activeLessonId, studentId),
             { activeLessonStatusChanged: payload });
     }
 
@@ -33,14 +34,14 @@ class SubscribePublishService {
             { studentEnteredAnswer: payload });
     }
 
-    async subscribeTeacherOnStudentJoinedLeftLesson(pubsub, activeLessonId) {
+    async subscribeOnStudentJoinedLeftLesson(pubsub, activeLessonId) {
         return pubsub.asyncIterator([eventNamesFactory.activeLessonStudentJoinedLeftLessonEvent(activeLessonId)]);
     }
 
     // studentId, actionName
     async publishStudentJoinedLeftLesson(pubsub, activeLessonId, payload) {
         await pubsub.publish(eventNamesFactory.activeLessonStudentJoinedLeftLessonEvent(activeLessonId),
-            { studentJoinedLeftLesson: payload });
+            { studentJoinedLeft: payload });
     }
 }
 
