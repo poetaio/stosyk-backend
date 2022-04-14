@@ -20,6 +20,14 @@ class LessonService {
         });
     }
 
+    // returns full lesson object, if one exists, with tasks-gaps-options-rightOption
+    async getOneByIdAndAuthorId(authorId, id) {
+        return await Lesson.findOne({
+            where: { authorId, id },
+            include: lessonInclude
+        });
+    }
+
     async getOneByIdShort(lessonId) {
         return await Lesson.findOne({
             where: { id: lessonId },
@@ -27,11 +35,8 @@ class LessonService {
         });
     }
 
-    async getAll({ authorId }) {
-        const where = {};
-
-        if (authorId)
-            where.authorId = authorId;
+    async getAll(authorId) {
+        const where = { authorId };
 
         const countedLessons = await Lesson.findAndCountAll({
             ...where,
@@ -58,6 +63,7 @@ class LessonService {
         //         : { gaps, text }
         // )).filter((task) => task !== null);
 
+        await this.checkIfGapsContainRightOption(tasks);
 
         const newLesson = await Lesson.create({
             authorId
@@ -72,6 +78,22 @@ class LessonService {
             include: lessonInclude
         });
     }
+
+    async checkIfGapsContainRightOption(tasks) {
+        for (let task in tasks || []) {
+            for (let gap in task.gaps || []) {
+                if (!gap.options)
+                    throw ApiError(`Gaps list cannot be empty`);
+                if (!gap.options.includes(gap.rightOption))
+                    throw ApiError(`Gap does not contain right option`);
+            }
+        }
+    }
+
+    async deleteOneByIdAndAuthorId(authorId, id) {
+        return await Lesson.destroy({ where: { authorId, id } });
+    }
+
 }
 
 module.exports = new LessonService();
