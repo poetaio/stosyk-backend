@@ -10,8 +10,8 @@ class TeacherService {
         return await Teacher.create();
     }
 
-    async getOneById(teacherId) {
-        return await Teacher.findOne({ where: { id: teacherId } });
+    async getOneById(id) {
+        return await Teacher.findOne({ where: { id } });
     }
 }
 

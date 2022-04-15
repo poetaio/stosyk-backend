@@ -10,8 +10,8 @@ class StudentService {
         return await Student.create({ name });
     }
 
-    async getOneById(studentId) {
-        return await Student.findOne({ where: { id: studentId } });
+    async getOneById(id) {
+        return await Student.findOne({ where: { id } });
     }
 }
 
