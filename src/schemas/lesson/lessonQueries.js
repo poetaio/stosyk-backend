@@ -7,7 +7,7 @@ const lessons = {
     type: CountedLessonListType,
     description: "Get All Lessons",
     args: {
-        authorId: { type: GraphQLID }
+        authorId: { type: GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args) => await lessonController.getAll(args),
 };
@@ -16,9 +16,10 @@ const lesson = {
     type: LessonType,
     description: "Get lesson by lesson id",
     args: {
-        id: { type: GraphQLNonNull(GraphQLID) }
+        id: { type: GraphQLNonNull(GraphQLID) },
+        authorId: { type: GraphQLNonNull(GraphQLID) }
     },
-    resolve: async (parent, args) => await lessonController.getOneById(args)
+    resolve: async (parent, args) => await lessonController.getOne(args)
 };
 
 module.exports = {

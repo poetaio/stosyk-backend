@@ -2,16 +2,20 @@ const lessonService = require('../services/lesson_constructor/lessonService');
 
 
 class LessonController {
-    async getAll({ filters }) {
-        return await lessonService.getAll(filters);
+    async getAll({ authorId }) {
+        return await lessonService.getAll(authorId);
     }
 
-    async getOneById({ id }) {
-        return await lessonService.getOneById(id);
+    async getOne({ authorId, id }) {
+        return await lessonService.getOneByIdAndAuthorId(authorId, id);
     }
 
     async add({ authorId, tasks }) {
         return await lessonService.createWithAuthorIdAndTasks(authorId, tasks);
+    }
+
+    async deleteOne( { authorId, lessonId }) {
+        return await lessonService.deleteOneByIdAndAuthorId(authorId, lessonId);
     }
 }
 
