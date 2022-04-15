@@ -1,13 +1,18 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLString} = require('graphql');
-const { LessonQueries, LessonMutations } = require('./lesson/index');
-const { ActiveLessonQueries, ActiveLessonMutations, ActiveLessonSubscriptions } = require('./activeLesson/index');
+const { GraphQLSchema, GraphQLObjectType } = require('graphql');
+const { LessonQueries, LessonMutations } = require('./lesson');
+const { ActiveLessonQueries, ActiveLessonMutations, ActiveLessonSubscriptions } = require('./activeLesson');
+const { StudentQueries, StudentMutations } = require('./student');
+const { TeacherQueries, TeacherMutations } = require('./teacher');
+
 
 const RootQueryType = new GraphQLObjectType({
     name: "Query",
     description: "Root Query",
     fields: () => ({
         ...ActiveLessonQueries,
-        ...LessonQueries
+        ...LessonQueries,
+        ...StudentQueries,
+        ...TeacherQueries
     })
 });
 
@@ -16,7 +21,9 @@ const RootMutationType = new GraphQLObjectType({
     description: "Root Mutation",
     fields: () => ({
         ...LessonMutations,
-        ...ActiveLessonMutations
+        ...ActiveLessonMutations,
+        ...StudentMutations,
+        ...TeacherMutations
     })
 });
 
