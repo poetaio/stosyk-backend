@@ -1,6 +1,8 @@
 const UserMutations = require('./userMutations');
+const UserQueries = require('./userQueries');
 
 
 module.exports = {
-    UserMutations
+    UserQueries,
+    UserMutations,
 };
