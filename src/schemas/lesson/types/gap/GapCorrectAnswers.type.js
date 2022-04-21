@@ -1,5 +1,5 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLID} = require("graphql");
-const OptionAnswerType = require('./OptionAnswer.type');
+const { OptionAnswerType } = require('../option');
 
 
 module.exports = new GraphQLObjectType({

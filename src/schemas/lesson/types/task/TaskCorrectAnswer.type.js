@@ -1,5 +1,5 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLID} = require("graphql");
-const SentenceCorrectAnswersType = require('./SentenceCorrectAnswers.type');
+const { SentenceCorrectAnswersType } = require('../sentence');
 
 
 module.exports = new GraphQLObjectType({

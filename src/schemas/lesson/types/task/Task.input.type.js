@@ -1,5 +1,5 @@
 const {GraphQLInputObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLList} = require("graphql");
-const SentenceInputType = require('./Sentence.input.type');
+const { SentenceInputType } = require('../sentence');
 
 
 module.exports = new GraphQLInputObjectType({

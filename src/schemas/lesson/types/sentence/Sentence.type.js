@@ -1,5 +1,5 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLString, GraphQLInt, GraphQLList} = require("graphql");
-const GapType = require("./Gap.type");
+const { GapType } = require("../gap");
 
 module.exports = new GraphQLObjectType({
     name: "SentenceType",
