@@ -1,5 +1,5 @@
 const {GraphQLInputObjectType, GraphQLNonNull, GraphQLInt, GraphQLString, GraphQLList} = require("graphql");
-const GapInputType = require('./Gap.input.type');
+const { GapInputType } = require('../gap');
 
 
 module.exports = new GraphQLInputObjectType({

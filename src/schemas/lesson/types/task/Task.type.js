@@ -1,5 +1,5 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLList, GraphQLID} = require("graphql");
-const SentenceType = require("./Sentence.type");
+const { SentenceType } = require("../sentence");
 
 module.exports = new GraphQLObjectType({
     name: 'TaskType',

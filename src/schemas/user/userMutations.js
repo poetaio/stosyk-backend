@@ -1,6 +1,6 @@
 const { GraphQLBoolean, GraphQLString, GraphQLNonNull} = require("graphql");
 const { teacherController, studentController, accountController } =require('../../controllers');
-const {TeacherInputType} = require("./types");
+const {TeacherInputType} = require("./types/teacher");
 
 
 const createAnonymousTeacher = {

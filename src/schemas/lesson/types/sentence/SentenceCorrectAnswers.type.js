@@ -1,5 +1,5 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLID} = require("graphql");
-const GapCorrectAnswersType = require('./GapCorrectAnswers.type');
+const { GapCorrectAnswersType } = require('../gap');
 
 
 module.exports = new GraphQLObjectType({

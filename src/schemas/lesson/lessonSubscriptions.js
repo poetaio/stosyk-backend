@@ -27,11 +27,11 @@ const studentAnswersChanged = {
 const lessonStatusChanged = {
     type: LessonType,
     name: "lessonStatusChanged",
-    descpription: "Lesson Status Changed",
+    description: "Lesson Status Changed",
     args: {
         lessonId: {type: GraphQLNonNull(GraphQLID)},
     },
-subscribe: async (parent, args, context) => await lessonController.lessonStatusChanged(args, context)
+    subscribe: async (parent, args, context) => await lessonController.lessonStatusChanged(args, context)
 }
 
 const correctAnswersShown = {

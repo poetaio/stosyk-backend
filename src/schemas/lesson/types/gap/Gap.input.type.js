@@ -1,5 +1,5 @@
 const {GraphQLInputObjectType, GraphQLNonNull, GraphQLInt, GraphQLList} = require("graphql");
-const OptionInputType = require('./Option.input.type');
+const { OptionInputType } = require('../option');
 
 
 module.exports = new GraphQLInputObjectType({
