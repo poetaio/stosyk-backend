@@ -1,28 +1,51 @@
-const { GraphQLID, GraphQLNonNull, GraphQLBoolean, GraphQLList} = require('graphql');
-const lessonController = require('../../controllers/lessonController');
-const { LessonType, TaskCreateType } = require('./types');
+const { lessonController } = require('../../controllers');
+const { LessonType, LessonInputType } = require('./types');
+const {GraphQLBoolean, GraphQLID, GraphQLNonNull} = require("graphql");
 
-const addLesson = {
-    type: LessonType,
-    description: "Add Lesson",
+
+const createLesson = {
+    type: GraphQLID,
+    name: 'createLesson',
+    description: 'Create lesson',
     args: {
-        authorId: { type: GraphQLNonNull(GraphQLID) },
-        tasks: { type: GraphQLList(GraphQLNonNull(TaskCreateType)) }
+        lesson: { type: LessonInputType }
     },
-    resolve: async (parent, args) => await lessonController.add(args)
+    resolve: async (parent, args, context) => await lessonController.createLesson(args, context)
 };
 
-const deleteLesson = {
+const startLesson = {
     type: GraphQLBoolean,
-    description: "Delete Lesson",
+    name: 'startLesson',
+    description: 'Start Lesson',
     args: {
-        authorId: { type: GraphQLNonNull(GraphQLID) },
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
     },
-    resolve: async (parent, args) => await lessonController.deleteOne(args)
+    resolve: async (parent, args, context) => await lessonController.startLesson(args, context)
+};
+
+const finishLesson = {
+    type: GraphQLBoolean,
+    name: 'finishLesson',
+    description: 'Finish Lesson',
+    args: {
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    resolve: async (parent, args, context) => await lessonController.finishLesson(args, context)
+};
+
+const showAnswers = {
+    type: GraphQLBoolean,
+    name: 'showAnswers',
+    description: 'Show Answers',
+    args: {
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    resolve: async (parent, args, context) => await lessonController.showAnswers(args, context)
 }
 
 module.exports = {
-    addLesson,
-    deleteLesson
+    createLesson,
+    startLesson,
+    finishLesson,
+    showAnswers,
 };

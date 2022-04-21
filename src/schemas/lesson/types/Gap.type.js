@@ -1,14 +1,12 @@
-const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList, GraphQLInt} = require("graphql");
-const OptionType = require('./Option.type');
-
+const {GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLList, GraphQLID} = require("graphql");
+const OptionType = require("./Option.type");
 
 module.exports = new GraphQLObjectType({
-    name: "GapType",
-    description: "Gap type containing list of options and right option",
+    name: 'GapType',
+    description: 'Gap Type',
     fields: {
-        id: { type: GraphQLNonNull(GraphQLID) },
-        gapPosition: { type: GraphQLNonNull(GraphQLInt) },
-        options: { type: GraphQLList(OptionType)},
-        rightOption: { type: OptionType }
+        gapId: { type: GraphQLNonNull(GraphQLID) },
+        position: { type: GraphQLNonNull(GraphQLInt) },
+        options: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OptionType)))}
     }
 });

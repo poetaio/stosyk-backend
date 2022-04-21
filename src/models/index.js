@@ -1,213 +1,270 @@
-const sequelize = require('../services/dbService');
 const { DataTypes } = require('sequelize');
+const { sequelize } = require('../services');
 
-const Teacher = require('./teacher.model')(sequelize, DataTypes);
-const Student = require('./student.model')(sequelize, DataTypes);
-const Account = require('./account.model')(sequelize, DataTypes);
+const {
+    Account,
+    User,
+    Teacher,
+    Student
+} = require('./user')(sequelize, DataTypes);
 
 const {
     Lesson,
+    TaskList,
     Task,
+    Sentence,
     Gap,
     Option
-} = require('./lesson_constructor/index')(sequelize, DataTypes);
+} = require('./lesson')(sequelize, DataTypes);
 
 const {
-    ActiveLesson,
-    ActiveTask,
-    ActiveGap,
-    ActiveOption,
-    StudentAnswerSheet,
-    StudentAnswer
-} = require('./lesson_active/index')(sequelize, DataTypes);
+    LessonStudent,
+    LessonTeacher,
+    TaskListTask,
+    TaskSentence,
+    SentenceGap,
+    GapOption,
+    StudentOption,
+} = require('./relations')(sequelize, DataTypes);
 
+//User-Account One-to-One relationship
 
-// teacher account
-Account.hasOne(Teacher, {
-    foreignKey: 'accountId',
-    as: 'accountTeacher'
-});
-Teacher.belongsTo(Account, {
-    foreignKey: 'accountId',
+User.hasOne(Account, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
     as: 'account'
 });
-
-// student account
-Account.hasOne(Student, {
-    foreignKey: 'accountId',
-    as: 'accountStudent'
-});
-Student.belongsTo(Account, {
-    foreignKey: 'accountId',
-    as: 'account',
-})
-
-// teacher's lesson markups
-Teacher.hasMany(Lesson, {
-    foreignKey: "authorId",
-    as: 'lessons'
-});
-Lesson.belongsTo(Teacher, {
-    foreignKey: "authorId",
-    as: "author"
+Account.belongsTo(User, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'user'
 });
 
-// lesson tasks
-Lesson.hasMany(Task, {
-    as: 'tasks'
-});
-Task.belongsTo(Lesson, {
-    as: 'lesson'
-});
+//User-Teacher One-to-One relationship
 
-Task.hasMany(Gap, {
-    as: 'gaps'
-});
-Gap.belongsTo(Task, {
-    as: 'task'
-});
-
-// sentence available options
-Gap.hasMany(Option, {
-    as: 'options'
-});
-Option.belongsTo(Gap);
-
-// sentence right option
-Option.hasOne(Gap, {
-    foreignKey: 'rightOptionId',
-    as: 'rightAnswerTo',
-    constraints: false,
-});
-Gap.belongsTo(Option, {
-    foreignKey: 'rightOptionId',
-    as: 'rightOption',
-    constraints: false,
-});
-
-// active lesson markup
-Lesson.hasMany(ActiveLesson, {
-    foreignKey: "lessonMarkupId"
-});
-ActiveLesson.belongsTo(Lesson, {
-    foreignKey: "lessonMarkupId",
-    as: 'lessonMarkup'
-});
-
-// teacher's active lessons
-Teacher.hasMany(ActiveLesson, {
-    foreignKey: "teacherId",
-    as: 'teacherActiveLessons'
-});
-ActiveLesson.belongsTo(Teacher, {
-    foreignKey: "teacherId",
+User.hasOne(Teacher, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
     as: 'teacher'
+})
+Teacher.belongsTo(User, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'user'
 });
 
-// tasks of a lesson
-ActiveLesson.hasMany(ActiveTask, {
-    foreignKey: 'activeLessonId',
-    as: 'tasks'
+//User-Student One-to-One relationship
+
+User.hasOne(Student, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'student'
+})
+Student.belongsTo(User, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'user'
 });
-ActiveTask.belongsTo(ActiveLesson, {
-    foreignKey: 'activeLessonId',
+
+//Teacher-Lesson One-to-Many relationship
+
+Teacher.hasMany(LessonTeacher, {
+    foreignKey: 'teacherId',
+    as: 'lessonTeachers'
+});
+LessonTeacher.belongsTo(Teacher, {
+    foreignKey: 'teacherId',
+    as: 'ltteacher'
+});
+Lesson.hasOne(LessonTeacher, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true
+    },
+    as: 'llessonTeacher'
+});
+LessonTeacher.belongsTo(Lesson, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true
+    },
+    as: 'ltlesson'
+});
+
+//Lesson-Task list One-to-One relationship
+
+Lesson.hasOne(TaskList, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true
+    },
+    as: 'taskList'
+})
+TaskList.belongsTo(Lesson, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true
+    },
     as: 'lesson'
 });
 
-ActiveTask.hasMany(ActiveGap, {
-    foreignKey: 'activeTaskId',
-    as: 'gaps'
+//TaskList-Task One-to-Many relationship
+
+TaskList.hasMany(TaskListTask, {
+    foreignKey: 'taskListId',
+    as: 'taskListTasks'
 });
-ActiveGap.belongsTo(ActiveTask, {
-    foreignKey: 'activeTaskId',
+TaskListTask.belongsTo(TaskList, {
+    foreignKey: 'taskListId',
+    as: 'taskList'
+});
+Task.hasOne(TaskListTask, {
+    foreignKey: {
+        name: 'taskId',
+        unique: true
+    },
+    as: 'taskListTask'
+});
+TaskListTask.belongsTo(Task, {
+    foreignKey: {
+        name: 'taskId',
+        unique: true
+    },
     as: 'task'
 });
 
-// active sentence available options
-ActiveGap.hasMany(ActiveOption, {
-    foreignKey: 'activeGapId',
-    as: 'options'
+//Task-Sentence One-to-Many relationship
+
+Task.hasMany(TaskSentence, {
+    foreignKey: 'taskId',
+    as: 'taskSentences'
 });
-ActiveOption.belongsTo(ActiveGap, {
-    foreignKey: 'activeGapId',
+TaskSentence.belongsTo(Task, {
+    foreignKey: 'taskId',
+    as: 'task'
+});
+Sentence.hasOne(TaskSentence, {
+    foreignKey: {
+        name: 'sentenceId',
+        unique: true
+    },
+    as: 'taskSentence'
+});
+TaskSentence.belongsTo(Sentence, {
+    foreignKey: {
+        name: 'sentenceId',
+        unique: true
+    },
+    as: 'sentence'
+});
+
+//Sentence-Gap One-to-Many relationship
+
+Sentence.hasMany(SentenceGap, {
+    foreignKey: 'sentenceId',
+    as: 'sentenceGaps'
+});
+SentenceGap.belongsTo(Sentence, {
+    foreignKey: 'sentenceId',
+    as: 'sentence'
+});
+Gap.hasOne(SentenceGap, {
+    foreignKey: {
+        name: 'gapId',
+        unique: true
+    },
+    as: 'sentenceGap'
+});
+SentenceGap.belongsTo(Gap, {
+    foreignKey: {
+        name: 'gapId',
+        unique: true
+    },
     as: 'gap'
 });
 
-// right option of an active sentence
-ActiveOption.hasOne(ActiveGap, {
-    foreignKey: "rightOptionId",
-    as: 'rightAnswerTo',
-    constraints: false,
+//Gap-Answer One-to-Many relationship
+
+Gap.hasMany(GapOption, {
+    foreignKey: 'gapId',
+    as: 'gapOptions'
 });
-ActiveGap.belongsTo(ActiveOption, {
-    foreignKey: "rightOptionId",
-    as: 'rightOption',
-    constraints: false
+GapOption.belongsTo(Gap, {
+    foreignKey: 'gapId',
+    as: 'gap'
+});
+Option.hasOne(GapOption, {
+    foreignKey: {
+        name: 'optionId',
+        unique: true
+    },
+    as: 'gapOption'
+});
+GapOption.belongsTo(Option, {
+    foreignKey: {
+        name: 'optionId',
+        unique: true
+    },
+    as: 'option'
 });
 
-// student active lessons
-Student.belongsToMany(ActiveLesson, {
-    through: StudentAnswerSheet,
+//Student-Answers Many-to-Many relationship
+
+Student.belongsToMany(Option, {
+    through: StudentOption,
+    foreignKey: 'studentId',
+    as: 'studentOptions'
+});
+Option.belongsToMany(Student, {
+    through: StudentOption,
+    foreignKey: 'optionId',
+    as: 'optionStudents'
+});
+
+// Student-Lesson Many-to-Many relationship
+
+Student.belongsToMany(Lesson,{
+    through: LessonStudent,
     foreignKey: "studentId",
-    as: "studentActiveLessons"
+    as: "studentLessons",
 });
-ActiveLesson.belongsToMany(Student, {
-    through: StudentAnswerSheet,
-    foreignKey: "activeLessonId",
-    as: "students",
-});
-// to access from answer sheet both to lesson and to student   as aliases
-StudentAnswerSheet.belongsTo(ActiveLesson, {
-    as: 'activeLesson',
-    foreignKey: "activeLessonId",
-});
-StudentAnswerSheet.belongsTo(Student, {
-    as: 'student',
-    foreignKey: "studentId"
-})
-
-// student answers
-StudentAnswerSheet.hasMany(StudentAnswer, {
-    foreignKey: 'answerSheetId',
-    as: 'answers'
-});
-StudentAnswer.belongsTo(StudentAnswerSheet, {
-    foreignKey: 'answerSheetId',
-    as: 'answerSheet'
+Lesson.belongsToMany(Student,{
+    through: LessonStudent,
+    foreignKey: "lessonId",
+    as: "lessonStudents",
 });
 
-// answers given by students in active sentence
-ActiveGap.hasMany(StudentAnswer, {
-    foreignKey: 'answerToId',
-    as: 'studentsAnswers'
-});
-StudentAnswer.belongsTo(ActiveGap, {
-    foreignKey: 'answerToId',
-    as: 'answerTo'
-});
-
-// chosen option by student
-ActiveOption.hasMany(StudentAnswer, {
-    foreignKey: "chosenOptionId",
-    as: 'studentsOptions'
-});
-StudentAnswer.belongsTo(ActiveOption, {
-    foreignKey: "chosenOptionId",
-    as: 'chosenOption'
-});
 
 module.exports = {
+    Account,
+    User,
     Teacher,
     Student,
-    Account,
+
     Lesson,
+    TaskList,
     Task,
+    Sentence,
     Gap,
     Option,
-    ActiveLesson,
-    ActiveTask,
-    ActiveGap,
-    ActiveOption,
-    StudentAnswerSheet,
-    StudentAnswer
-}
+
+    LessonStudent,
+    LessonTeacher,
+    TaskListTask,
+    TaskSentence,
+    SentenceGap,
+    GapOption,
+    StudentOption,
+};

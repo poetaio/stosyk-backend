@@ -1,12 +1,13 @@
-const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList} = require("graphql");
-const TaskType = require('./Task.type');
+const {GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList, GraphQLID} = require("graphql");
+const TaskType = require("./Task.type");
+
 
 module.exports = new GraphQLObjectType({
     name: "LessonType",
-    description: "Lesson Type",
+    description: "Lesson type",
     fields: {
-        id: { type: GraphQLNonNull(GraphQLID) },
-        authorId: { type: GraphQLNonNull(GraphQLID) },
-        tasks: { type: GraphQLList(TaskType)}
+        lessonId: { type: GraphQLNonNull(GraphQLID) },
+        name: { type: GraphQLNonNull(GraphQLString) },
+        tasks: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskType))) }
     }
 });

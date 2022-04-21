@@ -1,13 +1,12 @@
-const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLList, GraphQLString} = require("graphql");
-const GapType = require('./Gap.type');
-
+const {GraphQLObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLList, GraphQLID} = require("graphql");
+const SentenceType = require("./Sentence.type");
 
 module.exports = new GraphQLObjectType({
-    name: "TaskType",
-    description: "Task type containing gaps list",
+    name: 'TaskType',
+    description: 'Task Type',
     fields: {
-        id: { type: GraphQLNonNull(GraphQLID)},
-        text: { type: GraphQLNonNull(GraphQLString) },
-        gaps: { type: GraphQLList(GapType) }
+        taskId: { type: GraphQLNonNull(GraphQLID) },
+        answerShown: { type: GraphQLNonNull(GraphQLBoolean) },
+        sentences: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(SentenceType)))}
     }
 });

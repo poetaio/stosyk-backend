@@ -18,7 +18,7 @@ module.exports = (expressServer, pubsub) => {
         execute,
         subscribe,
         context: { pubsub },
-        keepAlive: 10000,
+        keepAlive: 10000
         }, wsServer);
 
     return wsServer;

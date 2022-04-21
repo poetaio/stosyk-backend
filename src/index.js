@@ -2,8 +2,8 @@ require('dotenv').config();
 const { PubSub } = require("graphql-subscriptions");
 
 // db init
-require('./models/index');
-const sequelize = require('./services/dbService');
+require('./models');
+const { sequelize } = require('./services');
 
 // servers
 const createExpressServer = require('./servers/createExpressServer');
@@ -18,12 +18,6 @@ const run = async () => {
         await sequelize.authenticate();
         // await sequelize.sync({force: true});
         await sequelize.sync();
-
-        // inserting test data for active lessons
-        // await require('./services/testDataService').createAndLogActiveLessonTeachersAndStudents();
-        // await require('./services/testDataService').createAndLogTeacherAndLessonWithData();
-        // await require('./services/testDataService').createLessonMarkupAndActiveLesson()
-        // await require('./services/testDataService').createStudent()
 
         // initiating servers
         const expressServer = createExpressServer(pubsub);

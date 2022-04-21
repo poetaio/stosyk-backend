@@ -1,11 +1,12 @@
-const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLString} = require("graphql");
+const {GraphQLObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLString, GraphQLID} = require("graphql");
 
 
 module.exports = new GraphQLObjectType({
     name: "OptionType",
-    description: "Option type containing option value",
+    description: "Option  type",
     fields: {
-        id: { type: GraphQLNonNull(GraphQLID) },
-        value: { type: GraphQLNonNull(GraphQLString) }
+        optionId: { type: GraphQLNonNull(GraphQLID) },
+        value: { type: GraphQLNonNull(GraphQLString) },
+        isCorrect: { type: GraphQLNonNull(GraphQLBoolean) }
     }
 });

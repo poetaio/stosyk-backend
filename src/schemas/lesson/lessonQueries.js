@@ -1,28 +1,30 @@
-const { GraphQLID, GraphQLNonNull} = require('graphql')
-
-const lessonController = require('../../controllers/lessonController');
-const { LessonType, CountedLessonListType} = require("./types");
-
-const lessons = {
-    type: CountedLessonListType,
-    description: "Get All Lessons",
-    args: {
-        authorId: { type: GraphQLNonNull(GraphQLID) }
-    },
-    resolve: async (parent, args) => await lessonController.getAll(args),
-};
+const { LessonType, LessonInputType} = require("./types");
+const {lessonController} = require("../../controllers");
+const {GraphQLNonNull, GraphQLID, GraphQLList} = require("graphql");
+const TaskType = require("./types/Task.type");
 
 const lesson = {
     type: LessonType,
-    description: "Get lesson by lesson id",
+    name: 'lesson',
+    description: 'Get lesson',
     args: {
-        id: { type: GraphQLNonNull(GraphQLID) },
-        authorId: { type: GraphQLNonNull(GraphQLID) }
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
     },
-    resolve: async (parent, args) => await lessonController.getOne(args)
+    resolve: async (parent, args, context) => await lessonController.getLesson(args, context)
 };
 
+const lessonTasks = {
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskType))),
+    name: 'lessonTasks',
+    description: 'Lesson Tasks',
+    args: {
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    resolve: async (parent, args, context) => await lessonController.getLessonTasks(args, context)
+};
+
+
 module.exports = {
-    lessons,
-    lesson
+    lesson,
+    lessonTasks
 };

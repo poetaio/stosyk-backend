@@ -1,10 +1,10 @@
 const LessonType = require('./Lesson.type');
-const CountedLessonListType = require('./CountedLessonList.type');
-const TaskCreateType = require('./TaskCreate.type');
+const LessonInputType = require('./Lesson.input.type');
+const TaskStudentsAnswersType = require('./TaskStudentsAnswers.type');
 
 
 module.exports = {
     LessonType,
-    CountedLessonListType,
-    TaskCreateType
+    LessonInputType,
+    TaskStudentsAnswersType
 };
