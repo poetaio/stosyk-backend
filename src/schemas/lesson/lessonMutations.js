@@ -1,6 +1,6 @@
 const { lessonController } = require('../../controllers');
-const { LessonType, LessonInputType } = require('./types');
-const {GraphQLBoolean, GraphQLID, GraphQLNonNull} = require("graphql");
+const { LessonInputType, AnswerInputType } = require('./types');
+const { GraphQLBoolean, GraphQLID, GraphQLNonNull } = require("graphql");
 
 
 const createLesson = {
@@ -43,9 +43,48 @@ const showAnswers = {
     resolve: async (parent, args, context) => await lessonController.showAnswers(args, context)
 }
 
+const deleteLesson = {
+    type: GraphQLBoolean,
+    name: 'deleteLesson',
+    description: 'Delete Lesson',
+    args:{
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    resolve: async (parent, args, context) => await lessonController.deleteLesson(args, context)
+}
+
+const joinLesson = {
+    type: GraphQLBoolean,
+    name: 'joinLesson',
+    description: 'Join Lesson',
+    args:{
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    resolve: async (parent, args, context) => await lessonController.joinLesson(args, context)
+
+}
+
+const setAnswer = {
+    type: GraphQLBoolean,
+    name: 'setAnswer',
+    description: 'Set Answer',
+    args:{
+        lessonId: { type: GraphQLNonNull(GraphQLID) },
+        answer: { type: GraphQLNonNull(AnswerInputType)}
+    },
+    resolve: async (parent, args, context) => await lessonController.setAnswer(args, context)
+}
+
+
 module.exports = {
+    // lesson
     createLesson,
     startLesson,
     finishLesson,
     showAnswers,
+    deleteLesson,
+
+    // student
+    joinLesson,
+    setAnswer,
 };

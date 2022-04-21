@@ -38,7 +38,6 @@ class LessonController {
     }
 
     async getLesson({ id }) {
-        console.log(id);
         return lessonToReturn;
     }
 
@@ -46,7 +45,35 @@ class LessonController {
         return lessonToReturn.tasks;
     }
 
-    async presentStudents({ id }) {
+    async startLesson() {
+        return true;
+    }
+
+    async showAnswers({lessonId}) {
+        return true;
+    }
+
+    async finishLesson({lessonId}) {
+        return false;
+    }
+
+    async getLessons() {
+        return [];
+    }
+
+    async deleteLesson({ lessonId }) {
+        return true;
+    }
+
+    async joinLesson({ lessonId }) {
+        return true;
+    }
+
+    async setAnswer() {
+        return true;
+    }
+
+    async presentStudentsChanged({ id }) {
         return [{
             id: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
             name: 'Jordgje'
@@ -69,16 +96,12 @@ class LessonController {
         }];
     }
 
-    async startLesson() {
-        return true;
+    async lessonStatusChanged({ lessonId }, { pubsub }) {
+        return pubsub.asyncIterator([`LessonStatusChanged${lessonId}`]);
     }
 
-    async showAnswers() {
-        return true;
-    }
-
-    async finishLesson() {
-        return false;
+    async correctAnswerShown({ lessonId }, { pubsub }) {
+        return pubsub.asyncIterator([`CorrectAnswersShown${lessonId}`]);
     }
 }
 

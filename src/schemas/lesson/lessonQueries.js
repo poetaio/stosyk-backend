@@ -1,7 +1,7 @@
-const { LessonType, LessonInputType} = require("./types");
-const {lessonController} = require("../../controllers");
-const {GraphQLNonNull, GraphQLID, GraphQLList} = require("graphql");
-const TaskType = require("./types/Task.type");
+const { LessonType, TaskType } = require("./types");
+const { lessonController } = require("../../controllers");
+const { GraphQLNonNull, GraphQLID, GraphQLList } = require("graphql");
+
 
 const lesson = {
     type: LessonType,
@@ -23,8 +23,17 @@ const lessonTasks = {
     resolve: async (parent, args, context) => await lessonController.getLessonTasks(args, context)
 };
 
+const getLessons = {
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(LessonType))),
+    name: 'getLessons',
+    description: 'Gey Lessons',
+    //args teacher Id in token
+    resolve: async (parent, context) => await lessonController.getLessons(context),
+}
+
 
 module.exports = {
     lesson,
-    lessonTasks
+    lessonTasks,
+    getLessons,
 };
