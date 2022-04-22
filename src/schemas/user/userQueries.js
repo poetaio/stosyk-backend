@@ -1,5 +1,7 @@
 const { GraphQLBoolean } = require("graphql");
 const { userController } = require('../../controllers');
+const {authMiddleware} = require("../../middleware");
+const {UserRoleEnum} = require("../../utils");
 
 const checkTeacherAuth = {
     type: GraphQLBoolean,
@@ -17,6 +19,6 @@ const checkStudentAuth = {
 
 
 module.exports = {
-    checkTeacherAuth,
-    checkStudentAuth
+    checkTeacherAuth: authMiddleware(UserRoleEnum.TEACHER)(checkTeacherAuth),
+    checkStudentAuth: authMiddleware(UserRoleEnum.STUDENT)(checkStudentAuth),
 };

@@ -1,5 +1,5 @@
 class StudentController {
-    async create() {
+    async createAnonymous() {
         return true;
     }
 }

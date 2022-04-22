@@ -1,17 +1,17 @@
 const { GraphQLBoolean, GraphQLString, GraphQLNonNull} = require("graphql");
 const { teacherController, studentController, accountController } =require('../../controllers');
-const {TeacherInputType} = require("./types/teacher");
+const { TeacherInputType, TokenType} = require("./types");
 
 
 const createAnonymousTeacher = {
-    type: GraphQLBoolean,
+    type: TokenType,
     name: 'createAnonymousTeacher',
     description: 'Create anonymous teacher',
-    resolve: async (parent, args, context) => teacherController.create(args, context)
+    resolve: async (parent, args, context) => await teacherController.createAnonymous(args, context)
 };
 
 const registerTeacher = {
-    type: GraphQLBoolean,
+    type: TokenType,
     name: 'registerTeacher',
     description: 'Register Teacher',
     args: {
@@ -21,7 +21,7 @@ const registerTeacher = {
 };
 
 const loginTeacher = {
-    type: GraphQLBoolean,
+    type: TokenType,
     name: 'loginTeacher',
     description: 'Login Teacher',
     args: {
@@ -31,13 +31,13 @@ const loginTeacher = {
 };
 
 const createAnonymousStudent = {
-    type: GraphQLBoolean,
+    type: TokenType,
     name: 'createAnonymousStudent',
     description: "Create Anonymous Student",
     args: {
         name: {type: GraphQLNonNull(GraphQLString)},
     },
-    resolve: async (parent, args, context) => studentController.create(args, context)
+    resolve: async (parent, args, context) => await studentController.createAnonymous(args, context)
 };
 
 

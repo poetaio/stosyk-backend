@@ -1,4 +1,4 @@
-const lessonTypeEnum = require("../../utils/enums/lessonType.enum");
+const lessonTypeEnum = require("../../utils/enums/LessonType.enum");
 
 
 module.exports = (sequelize, DataTypes) => sequelize.define('lesson', {

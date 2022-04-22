@@ -1,12 +1,12 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLList, GraphQLID} = require("graphql");
-const { OptionType } = require("../option");
+const { TeacherOptionType } = require("../option");
 
 module.exports = new GraphQLObjectType({
-    name: 'GapType',
-    description: 'Gap Type',
+    name: 'TeacherGapType',
+    description: 'Teacher Gap Type',
     fields: {
         gapId: { type: GraphQLNonNull(GraphQLID) },
         position: { type: GraphQLNonNull(GraphQLInt) },
-        options: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OptionType)))}
+        options: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherOptionType)))}
     }
 });

@@ -1,6 +1,8 @@
 const { lessonController } = require('../../controllers');
 const { LessonInputType, AnswerInputType } = require('./types');
 const { GraphQLBoolean, GraphQLID, GraphQLNonNull } = require("graphql");
+const {authMiddleware} = require("../../middleware");
+const {UserRoleEnum} = require("../../utils");
 
 
 const createLesson = {
@@ -77,14 +79,14 @@ const setAnswer = {
 
 
 module.exports = {
-    // lesson
-    createLesson,
-    startLesson,
-    finishLesson,
-    showAnswers,
-    deleteLesson,
+    // teacher
+    createLesson: authMiddleware(UserRoleEnum.TEACHER)(createLesson),
+    startLesson: authMiddleware(UserRoleEnum.TEACHER)(startLesson),
+    finishLesson: authMiddleware(UserRoleEnum.TEACHER)(finishLesson),
+    showAnswers: authMiddleware(UserRoleEnum.TEACHER)(showAnswers),
+    deleteLesson: authMiddleware(UserRoleEnum.TEACHER)(deleteLesson),
 
     // student
-    joinLesson,
-    setAnswer,
+    joinLesson: authMiddleware(UserRoleEnum.STUDENT)(joinLesson),
+    setAnswer: authMiddleware(UserRoleEnum.STUDENT)(setAnswer),
 };
