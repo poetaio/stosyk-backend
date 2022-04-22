@@ -1,4 +1,5 @@
 const util = require("util");
+const {LessonService} = require('../services')
 
 const lessonToReturn = {
     lessonId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
@@ -45,16 +46,17 @@ class LessonController {
         return lessonToReturn.tasks;
     }
 
-    async startLesson() {
+    async startLesson({lessonId}) {
+        await LessonService.startLesson(lessonId)
         return true;
     }
 
-    async showAnswers({lessonId}) {
-        return true;
+    async showAnswers({taskId}) {
+        return await LessonService.showAnswers(taskId)
     }
 
     async finishLesson({lessonId}) {
-        return false;
+        return await LessonService.finishLesson(lessonId)
     }
 
     async getLessons() {
@@ -62,6 +64,7 @@ class LessonController {
     }
 
     async deleteLesson({ lessonId }) {
+        await LessonService.deleteLesson(lessonId);
         return true;
     }
 
