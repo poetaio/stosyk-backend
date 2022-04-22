@@ -1,6 +1,11 @@
+const {studentService, tokenService} = require("../services");
+
 class StudentController {
-    async createAnonymous() {
-        return true;
+    async createAnonymous(name) {
+        const userId = await studentService.createAnonymous(name);
+        const token = tokenService.createStudentToken(userId);
+
+        return { token };
     }
 }
 
