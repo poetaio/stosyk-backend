@@ -3,7 +3,7 @@ const userTypeEnum = require('../../utils/enums/userType.enum')
 
 
 module.exports = (sequelize, DataTypes) => sequelize.define('user', {
-    id: {
+    userId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true

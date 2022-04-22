@@ -2,7 +2,7 @@ const lessonTypeEnum = require("../../utils/enums/lessonType.enum");
 
 
 module.exports = (sequelize, DataTypes) => sequelize.define('lesson', {
-    id: {
+    lessonId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
