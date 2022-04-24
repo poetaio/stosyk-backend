@@ -37,11 +37,15 @@ class LessonController {
         return "59d9c6c4-aa93-40e7-ba30-7de589766e82";
     }
 
-    async getLesson({ id }) {
+    async getTeacherLesson(parent, args, context) {
         return lessonToReturn;
     }
 
-    async getLessonTasks({ id }) {
+    async getStudentLesson(parent, args, context) {
+        return lessonToReturn;
+    }
+
+    async getTeacherLessonTasks({ id }) {
         return lessonToReturn.tasks;
     }
 

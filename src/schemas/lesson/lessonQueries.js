@@ -1,39 +1,61 @@
-const { LessonType, TaskType } = require("./types");
+const { TeacherLessonType, TeacherTaskType, StudentLessonType, StudentTaskType } = require("./types");
 const { lessonController } = require("../../controllers");
 const { GraphQLNonNull, GraphQLID, GraphQLList } = require("graphql");
+const { authMiddleware } = require('../../middleware');
+const {UserRoleEnum} = require("../../utils");
 
 
-const lesson = {
-    type: LessonType,
-    name: 'lesson',
-    description: 'Get lesson',
+const teacherLesson = {
+    type: TeacherLessonType,
+    name: 'teacherLesson',
+    description: 'Get lesson for teacher',
     args: {
         lessonId: { type: GraphQLNonNull(GraphQLID) }
     },
-    resolve: async (parent, args, context) => await lessonController.getLesson(args, context)
+    resolve: async (parent, args, context) => await lessonController.getTeacherLesson(parent, args, context)
 };
 
-const lessonTasks = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskType))),
-    name: 'lessonTasks',
-    description: 'Lesson Tasks',
+const studentLesson = {
+    type: StudentLessonType,
+    name: 'studentLesson',
+    description: 'Get lesson for student',
     args: {
         lessonId: { type: GraphQLNonNull(GraphQLID) }
     },
-    resolve: async (parent, args, context) => await lessonController.getLessonTasks(args, context)
+    resolve: async (parent, args, context) => await lessonController.getStudentLesson(parent, args, context)
 };
 
-const getLessons = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(LessonType))),
+const teacherLessonTasks = {
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherTaskType))),
+    name: 'teacherLessonTasks',
+    description: 'Teacher Lesson Tasks',
+    args: {
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    resolve: async (parent, args, context) => await lessonController.getTeacherLessonTasks(args, context)
+};
+
+const studentLessonTasks = {
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentTaskType))),
+    name:'studentLessonTasks',
+    description: 'Student Lesson Tasks',
+    args: {
+        lessonId: { type: GraphQLNonNull(GraphQLID) }
+    },
+ }
+
+const lessons = {
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherLessonType))),
     name: 'getLessons',
-    description: 'Gey Lessons',
-    //args teacher Id in token
-    resolve: async (parent, context) => await lessonController.getLessons(context),
-}
+    description: 'Get Lessons',
+    resolve: async (parent, args, context) => await lessonController.getLessons(context),
+};
 
 
 module.exports = {
-    lesson,
-    lessonTasks,
-    getLessons,
+    teacherLesson: authMiddleware(UserRoleEnum.TEACHER)(teacherLesson),
+    studentLesson: authMiddleware(UserRoleEnum.STUDENT)(studentLesson),
+    teacherLessonTasks: authMiddleware(UserRoleEnum.TEACHER)(teacherLessonTasks),
+    studentLessonTasks: authMiddleware(UserRoleEnum.STUDENT)(studentLessonTasks),
+    lessons: authMiddleware(UserRoleEnum.TEACHER)(lessons),
 };
