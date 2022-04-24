@@ -1,9 +1,9 @@
-const userRoleEnum = require('../../utils/enums/userRole.enum');
-const userTypeEnum = require('../../utils/enums/userType.enum')
+const userRoleEnum = require('../../utils/enums/UserRole.enum');
+const userTypeEnum = require('../../utils/enums/UserType.enum')
 
 
 module.exports = (sequelize, DataTypes) => sequelize.define('user', {
-    id: {
+    userId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true

@@ -2,8 +2,8 @@ const {GraphQLObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLString, GraphQL
 
 
 module.exports = new GraphQLObjectType({
-    name: "OptionType",
-    description: "Option  type",
+    name: "TeacherOptionType",
+    description: "Teacher option  type",
     fields: {
         optionId: { type: GraphQLNonNull(GraphQLID) },
         value: { type: GraphQLNonNull(GraphQLString) },

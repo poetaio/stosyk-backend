@@ -1,12 +1,14 @@
 const GapInputType = require('./Gap.input.type');
-const GapType = require('./Gap.type')
+const TeacherGapType = require('./TeacherGap.type')
+const StudentGapType = require('./StudentGap.type')
 const GapCorrectAnswersType = require('./GapCorrectAnswers.type');
 const GapStudentsAnswersType = require('./GapStudentsAnswers.type');
 
 
 module.exports = {
     GapInputType,
-    GapType,
+    TeacherGapType,
+    StudentGapType,
     GapCorrectAnswersType,
     GapStudentsAnswersType
 };

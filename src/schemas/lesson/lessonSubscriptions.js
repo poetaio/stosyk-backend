@@ -1,7 +1,9 @@
 const {GraphQLList, GraphQLNonNull, GraphQLID} = require("graphql");
-const { TaskStudentsAnswersType, LessonType, LessonCorrectAnswersType} = require('./types');
+const { TaskStudentsAnswersType, TeacherLessonType, LessonCorrectAnswersType} = require('./types');
 const { StudentType } = require('../user/types');
 const { lessonController } = require('../../controllers');
+const {authMiddleware} = require("../../middleware");
+const {UserRoleEnum} = require("../../utils");
 
 const presentStudentsChanged = {
     type: GraphQLList(GraphQLNonNull(StudentType)),
@@ -25,7 +27,7 @@ const studentAnswersChanged = {
 };
 
 const lessonStatusChanged = {
-    type: LessonType,
+    type: TeacherLessonType,
     name: "lessonStatusChanged",
     description: "Lesson Status Changed",
     args: {
@@ -45,8 +47,8 @@ const correctAnswersShown = {
 }
 
 module.exports = {
-    presentStudentsChanged,
-    studentAnswersChanged,
-    lessonStatusChanged,
-    correctAnswersShown,
+    presentStudentsChanged: authMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(presentStudentsChanged),
+    studentAnswersChanged: authMiddleware(UserRoleEnum.TEACHER)(studentAnswersChanged),
+    lessonStatusChanged: authMiddleware(UserRoleEnum.STUDENT)(lessonStatusChanged),
+    correctAnswersShown: authMiddleware(UserRoleEnum.STUDENT)(correctAnswersShown),
 };

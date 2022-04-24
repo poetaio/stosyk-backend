@@ -1,9 +1,10 @@
-const { StudentType } = require('./student');
-const { TeacherType, TeacherInputType } = require('./teacher');
+const student = require('./student');
+const teacher = require('./teacher');
+const auth = require('./auth');
 
 
 module.exports = {
-    StudentType,
-    TeacherType,
-    TeacherInputType,
+    ...teacher,
+    ...student,
+    ...auth,
 };

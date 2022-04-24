@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => sequelize.define('taskListTask', {
-    id: {
+    taskListTaskId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
