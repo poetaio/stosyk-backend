@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => sequelize.define(
     'account',
     {
-        id: {
+        accountId: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             primaryKey: true

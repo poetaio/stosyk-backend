@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => sequelize.define('gap', {
-    id: {
+    gapId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
