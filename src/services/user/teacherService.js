@@ -1,10 +1,11 @@
-const { Teacher } = require('../../models');
-const {UserRoleEnum, UserTypeEnum} = require("../../utils");
+const { Teacher, User} = require('../../models');
+const {UserRoleEnum, UserTypeEnum, hashPassword} = require("../../utils");
+const bcrypt = require('bcrypt');
 
 
 class TeacherService {
     async existsAnonymousById(teacherId) {
-        return !!Teacher.count({
+        return !!await Teacher.count({
             where: { teacherId },
             include: {
                 association: 'user',
@@ -20,6 +21,27 @@ class TeacherService {
         return await Teacher.create(
             { user: { role: UserRoleEnum.TEACHER } },
             { include: 'user' }
+        ).then(({ user }) => user.userId);
+    }
+
+    async create(email, password) {
+        const passwordHash = await hashPassword(password);
+
+        return await Teacher.create({
+                user: {
+                    role: UserRoleEnum.TEACHER,
+                    type: UserTypeEnum.REGISTERED,
+                    account: {
+                        login: email, passwordHash
+                    }
+                }
+            },
+            {
+                include: {
+                    association: 'user',
+                    include: 'account'
+                }
+            }
         ).then(({ user }) => user.userId);
     }
 
