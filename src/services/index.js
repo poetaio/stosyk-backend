@@ -1,12 +1,10 @@
 const sequelize = require('../models/sequelize');
-const teacherService = require('./teacherService');
-const studentService = require('./studentService')
-const tokenService = require('./tokenService');
+const lessonServices = require('./lesson')
+const userServices = require('./user');
 
 
 module.exports = {
     sequelize,
-    teacherService,
-    studentService,
-    tokenService
+    ...lessonServices,
+    ...userServices
 };

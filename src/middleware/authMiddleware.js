@@ -23,8 +23,8 @@ module.exports = (...userRole) => {
             }
 
             // check role
-            if (userRole.includes(user.role)) {
-                throw new NotFoundError('Not found');
+            if (!userRole.includes(user.role)) {
+                throw new UnauthorizedError('Unauthorized');
             }
 
             // put user (id + role) to context

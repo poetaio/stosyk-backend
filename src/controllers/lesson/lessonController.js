@@ -1,4 +1,7 @@
 const util = require("util");
+const { lessonService, taskService } = require('../../services')
+const teacherService = require("../../services/user/teacherService");
+const {ValidationError} = require("../../utils");
 
 const lessonToReturn = {
     lessonId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
@@ -32,13 +35,22 @@ const lessonToReturn = {
 };
 
 class LessonController {
-    async createLesson({ lesson }, context) {
-        // console.log(util.inspect(lesson, {showHidden: false, depth: null, colors: true}))
-        return "59d9c6c4-aa93-40e7-ba30-7de589766e82";
+    async createLesson({ lesson }, { user: { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await lessonService.create(lesson, teacher.teacherId);
     }
 
-    async getTeacherLesson(parent, args, context) {
-        return lessonToReturn;
+    async getTeacherLessons({ where, page, limit }, { user : { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await lessonService.getTeacherLessons(teacher.teacherId, where, page, limit);
     }
 
     async getStudentLesson(parent, args, context) {
@@ -49,24 +61,35 @@ class LessonController {
         return lessonToReturn.tasks;
     }
 
-    async startLesson() {
-        return true;
+    async startLesson({lessonId}, { user: { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await lessonService.startLesson(lessonId, teacher.teacherId);
     }
 
-    async showAnswers({lessonId}) {
-        return true;
-    }
+    async finishLesson({lessonId}, { user: { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
 
-    async finishLesson({lessonId}) {
-        return false;
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await lessonService.finishLesson(lessonId, teacher.teacherId)
     }
 
     async getLessons() {
         return [];
     }
 
-    async deleteLesson({ lessonId }) {
-        return true;
+    async deleteLesson({ lessonId }, { user: { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await lessonService.deleteLesson(lessonId, teacher.teacherId);
     }
 
     async joinLesson({ lessonId }) {

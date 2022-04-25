@@ -1,14 +1,8 @@
-const lessonController = require('./lessonController');
-const teacherController = require('./teacherController');
-const studentController = require('./studentController');
-const accountController = require('./accountController');
-const userController = require('./userController');
+const lessonControllers = require('./lesson');
+const userControllers = require('./user');
 
 
 module.exports = {
-    lessonController,
-    teacherController,
-    studentController,
-    accountController,
-    userController,
+    ...lessonControllers,
+    ...userControllers,
 };

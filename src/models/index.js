@@ -1,5 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('./sequelize');
+const queries = require('./queries');
+const includes = require('./includes');
 
 const {
     Account,
@@ -82,25 +84,28 @@ Student.belongsTo(User, {
 
 Teacher.hasMany(LessonTeacher, {
     foreignKey: 'teacherId',
-    as: 'lessonTeachers'
+    as: 'teacherLessonTeachers'
 });
 LessonTeacher.belongsTo(Teacher, {
     foreignKey: 'teacherId',
-    as: 'ltteacher'
+    as: 'lessonTeacherTeacher'
 });
 Lesson.hasOne(LessonTeacher, {
     foreignKey: {
         name: 'lessonId',
-        unique: true
+        unique: true,
     },
-    as: 'llessonTeacher'
+    as: 'lessonLessonTeacher',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 LessonTeacher.belongsTo(Lesson, {
     foreignKey: {
         name: 'lessonId',
-        unique: true
+        unique: true,
     },
-    as: 'ltlesson'
+    as: 'lessonTeacherLesson',
 });
 
 //Lesson-Task list One-to-One relationship
@@ -110,114 +115,141 @@ Lesson.hasOne(TaskList, {
         name: 'lessonId',
         unique: true
     },
-    as: 'taskList'
+    as: 'lessonTaskList',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 })
 TaskList.belongsTo(Lesson, {
     foreignKey: {
         name: 'lessonId',
         unique: true
     },
-    as: 'lesson'
+    as: 'taskListLesson'
 });
 
 //TaskList-Task One-to-Many relationship
 
 TaskList.hasMany(TaskListTask, {
     foreignKey: 'taskListId',
-    as: 'taskListTasks'
+    as: 'taskListTaskListTasks',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 TaskListTask.belongsTo(TaskList, {
     foreignKey: 'taskListId',
-    as: 'taskList'
+    as: 'taskListTaskTaskList'
 });
 Task.hasOne(TaskListTask, {
     foreignKey: {
         name: 'taskId',
         unique: true
     },
-    as: 'taskListTask'
+    as: 'taskTaskListTask',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 TaskListTask.belongsTo(Task, {
     foreignKey: {
         name: 'taskId',
         unique: true
     },
-    as: 'task'
+    as: 'taskListTaskTask'
 });
 
 //Task-Sentence One-to-Many relationship
 
 Task.hasMany(TaskSentence, {
     foreignKey: 'taskId',
-    as: 'taskSentences'
+    as: 'taskTaskSentences',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 TaskSentence.belongsTo(Task, {
     foreignKey: 'taskId',
-    as: 'task'
+    as: 'taskSentenceTask'
 });
 Sentence.hasOne(TaskSentence, {
     foreignKey: {
         name: 'sentenceId',
         unique: true
     },
-    as: 'taskSentence'
+    as: 'sentenceTaskSentence',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 TaskSentence.belongsTo(Sentence, {
     foreignKey: {
         name: 'sentenceId',
         unique: true
     },
-    as: 'sentence'
+    as: 'taskSentenceSentence'
 });
 
 //Sentence-Gap One-to-Many relationship
 
 Sentence.hasMany(SentenceGap, {
     foreignKey: 'sentenceId',
-    as: 'sentenceGaps'
+    as: 'sentenceSentenceGaps',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 SentenceGap.belongsTo(Sentence, {
     foreignKey: 'sentenceId',
-    as: 'sentence'
+    as: 'sentenceGapSentence'
 });
 Gap.hasOne(SentenceGap, {
     foreignKey: {
         name: 'gapId',
         unique: true
     },
-    as: 'sentenceGap'
+    as: 'gapSentenceGap',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 SentenceGap.belongsTo(Gap, {
     foreignKey: {
         name: 'gapId',
         unique: true
     },
-    as: 'gap'
+    as: 'sentenceGapGap'
 });
 
 //Gap-Answer One-to-Many relationship
 
 Gap.hasMany(GapOption, {
     foreignKey: 'gapId',
-    as: 'gapOptions'
+    as: 'gapGapOptions',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 GapOption.belongsTo(Gap, {
     foreignKey: 'gapId',
-    as: 'gap'
+    as: 'gapOptionGap'
 });
 Option.hasOne(GapOption, {
     foreignKey: {
         name: 'optionId',
         unique: true
     },
-    as: 'gapOption'
+    as: 'optionGapOption',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 GapOption.belongsTo(Option, {
     foreignKey: {
         name: 'optionId',
         unique: true
     },
-    as: 'option'
+    as: 'gapOptionOption'
 });
 
 //Student-Answers Many-to-Many relationship
@@ -248,6 +280,8 @@ Lesson.belongsToMany(Student,{
 
 
 module.exports = {
+    sequelize,
+
     Account,
     User,
     Teacher,
@@ -267,4 +301,7 @@ module.exports = {
     SentenceGap,
     GapOption,
     StudentOption,
+
+    ...queries,
+    ...includes
 };

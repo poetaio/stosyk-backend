@@ -1,5 +1,5 @@
-const { Student } = require('../models');
-const {UserRoleEnum} = require("../utils");
+const { Student } = require('../../models');
+const {UserRoleEnum} = require("../../utils");
 
 
 class StudentService {

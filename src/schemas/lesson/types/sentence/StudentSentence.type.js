@@ -8,6 +8,9 @@ module.exports = new GraphQLObjectType({
         sentenceId: { type: GraphQLNonNull(GraphQLID) },
         text: { type: GraphQLNonNull(GraphQLString) },
         index: { type: GraphQLNonNull(GraphQLInt) },
-        gaps: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentGapType)))}
+        gaps: {
+            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentGapType))),
+            // todo: add resolve
+        }
     }
 });

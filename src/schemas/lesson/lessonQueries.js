@@ -1,18 +1,20 @@
-const { TeacherLessonType, TeacherTaskType, StudentLessonType, StudentTaskType } = require("./types");
+const { TeacherLessonType, TeacherTaskType, StudentLessonType, StudentTaskType, TeacherCountedLessonsType,
+    LessonsWhereType
+} = require("./types");
 const { lessonController } = require("../../controllers");
 const { GraphQLNonNull, GraphQLID, GraphQLList } = require("graphql");
 const { authMiddleware } = require('../../middleware');
-const {UserRoleEnum} = require("../../utils");
+const { UserRoleEnum } = require("../../utils");
 
 
-const teacherLesson = {
-    type: TeacherLessonType,
-    name: 'teacherLesson',
-    description: 'Get lesson for teacher',
+const teacherLessons = {
+    type: TeacherCountedLessonsType,
+    name: 'teacherLessons',
+    description: 'Get lessons with total number for teacher',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) }
+        where: { type: LessonsWhereType }
     },
-    resolve: async (parent, args, context) => await lessonController.getTeacherLesson(parent, args, context)
+    resolve: async (parent, args, context) => await lessonController.getTeacherLessons(args, context)
 };
 
 const studentLesson = {
@@ -44,18 +46,10 @@ const studentLessonTasks = {
     },
  }
 
-const lessons = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherLessonType))),
-    name: 'getLessons',
-    description: 'Get Lessons',
-    resolve: async (parent, args, context) => await lessonController.getLessons(context),
-};
-
 
 module.exports = {
-    teacherLesson: authMiddleware(UserRoleEnum.TEACHER)(teacherLesson),
+    teacherLessons: authMiddleware(UserRoleEnum.TEACHER)(teacherLessons),
     studentLesson: authMiddleware(UserRoleEnum.STUDENT)(studentLesson),
     teacherLessonTasks: authMiddleware(UserRoleEnum.TEACHER)(teacherLessonTasks),
     studentLessonTasks: authMiddleware(UserRoleEnum.STUDENT)(studentLessonTasks),
-    lessons: authMiddleware(UserRoleEnum.TEACHER)(lessons),
 };

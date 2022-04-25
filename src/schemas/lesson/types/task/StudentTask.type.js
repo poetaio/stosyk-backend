@@ -6,7 +6,10 @@ module.exports = new GraphQLObjectType({
     description: 'Student Task Type',
     fields: {
         taskId: { type: GraphQLNonNull(GraphQLID) },
-        answerShown: { type: GraphQLNonNull(GraphQLBoolean) },
-        sentences: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentSentenceType)))}
+        answersShown: { type: GraphQLNonNull(GraphQLBoolean) },
+        sentences: {
+            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentSentenceType))),
+            // todo: add resolve
+        }
     }
 });
