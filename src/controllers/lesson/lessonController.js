@@ -1,5 +1,7 @@
 const util = require("util");
-const { lessonService, taskService } = require('../services')
+const { lessonService, taskService } = require('../../services')
+const teacherService = require("../../services/user/teacherService");
+const {ValidationError} = require("../../utils");
 
 const lessonToReturn = {
     lessonId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
@@ -34,11 +36,21 @@ const lessonToReturn = {
 
 class LessonController {
     async createLesson({ lesson }, { user: { userId } }) {
-        return await lessonService.create(lesson, userId);
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await lessonService.create(lesson, teacher.teacherId);
     }
 
-    async getTeacherLesson({ lessonId }, { userId }) {
-        return lessonToReturn;
+    async getTeacherLessons({ where, page, limit }, { user : { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await lessonService.getTeacherLessons(teacher.teacherId, where, page, limit);
     }
 
     async getStudentLesson(parent, args, context) {

@@ -51,6 +51,31 @@ class TaskService {
 
         return task;
     }
+
+    async getAll({ lessonId }) {
+        const where = {};
+        // if lessonId is null, task will not have taskLessonTask as child,
+        // thus no need to require = true
+        let required = false;
+        if (lessonId) {
+            where.lessonId = lessonId;
+            required = true;
+        }
+
+        return await Task.findAll({
+            include: {
+                association: 'taskTaskListTask',
+                include: {
+                    association: 'taskListTaskTaskList',
+                    include: {
+                        association: 'taskListLesson',
+                        where,
+                        required
+                    }
+                }
+            }
+        });
+    }
 }
 
 module.exports = new TaskService();

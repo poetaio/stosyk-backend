@@ -4,6 +4,8 @@ const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
 const { sequelize } = require("../../models");
 const {DELETE_BY_TEACHER_ID} = require("../../models/queries/lessonQueries");
+const Sequelize = require('sequelize');
+const { Op } = Sequelize;
 
 
 class LessonService {
@@ -24,7 +26,6 @@ class LessonService {
     }
 
     async deleteByTeacherId(teacherId) {
-        console.log(teacherId);
         const res = await sequelize.query(DELETE_BY_TEACHER_ID, {
             replacements: { teacherId }
         });
@@ -32,7 +33,7 @@ class LessonService {
         return !!res[0];
     }
 
-    async create({ name, tasks }, userId) {
+    async create({ name, tasks }, teacherId) {
         // check if right option exists for every gap
         for (let task of tasks) {
             for (let sentence of task.sentences) {
@@ -43,26 +44,67 @@ class LessonService {
             }
         }
 
-        const teacher = await teacherService.findOneByUserId(userId);
+        try {
+            // check anonymous
+            if (await teacherService.existsAnonymousById(teacherId))
+                await this.deleteByTeacherId(teacherId);
 
-        if (!teacher)
-            throw new ValidationError(`User with id ${userId} not found`);
+            const newLesson = await Lesson.create({name});
 
-        // check anonymous
-        if (await teacherService.existsAnonymousById(teacher.teacherId))
-            await this.deleteByTeacherId(teacher.teacherId);
+            for (let {answerShown, sentences} of tasks) {
+                const newTask = await taskService.create(answerShown, sentences);
 
-        const newLesson = await Lesson.create({ name });
+                const taskList = await TaskList.create({lessonId: newLesson.lessonId});
+                await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
+            }
 
-        for (let { answerShown, sentences } of tasks) {
-            const newTask = await taskService.create(answerShown, sentences);
+            await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
+            return newLesson.lessonId;
+        } catch (e) {
+            throw new DBError(e.message);
+        }
+    }
 
-            const taskList = await TaskList.create({ lessonId: newLesson.lessonId });
-            await TaskListTask.create({ taskListId: taskList.taskListId, taskId: newTask.taskId });
+    async getTeacherLessons(teacherId, whereParam, page, limit) {
+        const { lessonId, name } = whereParam || {};
+
+        const and = [];
+
+        if (lessonId) {
+            and.push({ lessonId });
+        }
+        if (name) {
+            and.push(
+                Sequelize.where(
+                    Sequelize.fn('lower', Sequelize.col('name')),
+                    {
+                        [Op.like]: `%${name.toLowerCase()}%`
+                    }
+                )
+            )
+        }
+        const where = { [Op.and]: and };
+
+        const options = {
+            where,
+            include: {
+                association: 'lessonLessonTeacher',
+                where: { teacherId },
+                required: true
+            }
+        };
+
+        page = page && 1;
+        if (limit && limit > 0) {
+            options.offset = (page - 1) * limit;
         }
 
-        await LessonTeacher.create({ teacherId: teacher.teacherId, lessonId: newLesson.lessonId })
-        return newLesson.lessonId;
+        const countedLessons = await Lesson.findAndCountAll(options);
+
+        return (({ count, rows }) => ({
+            total: count,
+            lessons: rows
+        }))(countedLessons);
     }
 
     async startLesson(lessonId, teacherId) {

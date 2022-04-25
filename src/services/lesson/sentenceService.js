@@ -13,6 +13,28 @@ class SentenceService {
 
         return sentence;
     }
+
+    async getAll({ taskId }) {
+        const where = {};
+        // if taskId is null, sentence will not have sentenceLessonSentence as child,
+        // thus no need to require = true
+        let required = false;
+        if (taskId) {
+            where.taskId = taskId;
+            required = true;
+        }
+
+        return await Sentence.findAll({
+            include: {
+                association: 'sentenceTaskSentence',
+                include: {
+                    association: 'taskSentenceTask',
+                    where,
+                    required
+                }
+            }
+        });
+    }
 }
 
 module.exports = new SentenceService();

@@ -1,16 +1,10 @@
-const { StudentLessonType, TeacherLessonType, LessonInputType, LessonCorrectAnswersType } = require('./lesson');
-const { TaskStudentsAnswersType, TeacherTaskType, StudentTaskType } = require('./task');
-const { AnswerInputType } = require('./option');
+const lessonTypes = require('./lesson');
+const taskTypes = require('./task');
+const optionTypes = require('./option');
 
 
 module.exports = {
-    StudentLessonType,
-    TeacherLessonType,
-    StudentTaskType,
-    TeacherTaskType,
-    LessonInputType,
-    TaskStudentsAnswersType,
-
-    AnswerInputType,
-    LessonCorrectAnswersType
+    ...lessonTypes,
+    ...taskTypes,
+    ...optionTypes
 };

@@ -113,14 +113,14 @@ Lesson.hasOne(TaskList, {
         name: 'lessonId',
         unique: true
     },
-    as: 'taskList'
+    as: 'lessonTaskList'
 })
 TaskList.belongsTo(Lesson, {
     foreignKey: {
         name: 'lessonId',
         unique: true
     },
-    as: 'lesson'
+    as: 'taskListLesson'
 });
 
 //TaskList-Task One-to-Many relationship

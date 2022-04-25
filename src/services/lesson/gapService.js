@@ -13,6 +13,28 @@ class GapService {
 
         return gap;
     }
+
+    async getAll({ sentenceId }) {
+        const where = {};
+        // if taskId is null, sentence will not have sentenceLessonSentence as child,
+        // thus no need to require = true
+        let required = false;
+        if (sentenceId) {
+            where.sentenceId = sentenceId;
+            required = true;
+        }
+
+        return await Gap.findAll({
+            include: {
+                association: 'gapSentenceGap',
+                include: {
+                    association: 'sentenceGapSentence',
+                    where,
+                    required
+                }
+            }
+        });
+    }
 }
 
 module.exports = new GapService();

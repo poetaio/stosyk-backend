@@ -1,4 +1,4 @@
-const {studentService, tokenService} = require("../services");
+const {studentService, tokenService} = require("../../services");
 
 class StudentController {
     async createAnonymous({ name }) {
