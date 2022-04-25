@@ -82,25 +82,28 @@ Student.belongsTo(User, {
 
 Teacher.hasMany(LessonTeacher, {
     foreignKey: 'teacherId',
-    as: 'lessonTeachers'
+    as: 'teacherLessonTeachers'
 });
 LessonTeacher.belongsTo(Teacher, {
     foreignKey: 'teacherId',
-    as: 'ltteacher'
+    as: 'lessonTeacherTeacher'
 });
 Lesson.hasOne(LessonTeacher, {
     foreignKey: {
         name: 'lessonId',
-        unique: true
+        unique: true,
     },
-    as: 'llessonTeacher'
+    as: 'lessonLessonTeacher',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 LessonTeacher.belongsTo(Lesson, {
     foreignKey: {
         name: 'lessonId',
-        unique: true
+        unique: true,
     },
-    as: 'ltlesson'
+    as: 'lessonTeacherLesson',
 });
 
 //Lesson-Task list One-to-One relationship
@@ -124,100 +127,100 @@ TaskList.belongsTo(Lesson, {
 
 TaskList.hasMany(TaskListTask, {
     foreignKey: 'taskListId',
-    as: 'taskListTasks'
+    as: 'taskListTaskListTasks'
 });
 TaskListTask.belongsTo(TaskList, {
     foreignKey: 'taskListId',
-    as: 'taskList'
+    as: 'taskListTaskTaskList'
 });
 Task.hasOne(TaskListTask, {
     foreignKey: {
         name: 'taskId',
         unique: true
     },
-    as: 'taskListTask'
+    as: 'taskTaskListTask'
 });
 TaskListTask.belongsTo(Task, {
     foreignKey: {
         name: 'taskId',
         unique: true
     },
-    as: 'task'
+    as: 'taskListTaskTask'
 });
 
 //Task-Sentence One-to-Many relationship
 
 Task.hasMany(TaskSentence, {
     foreignKey: 'taskId',
-    as: 'taskSentences'
+    as: 'taskTaskSentences'
 });
 TaskSentence.belongsTo(Task, {
     foreignKey: 'taskId',
-    as: 'task'
+    as: 'taskSentenceTask'
 });
 Sentence.hasOne(TaskSentence, {
     foreignKey: {
         name: 'sentenceId',
         unique: true
     },
-    as: 'taskSentence'
+    as: 'sentenceTaskSentence'
 });
 TaskSentence.belongsTo(Sentence, {
     foreignKey: {
         name: 'sentenceId',
         unique: true
     },
-    as: 'sentence'
+    as: 'taskSentenceSentence'
 });
 
 //Sentence-Gap One-to-Many relationship
 
 Sentence.hasMany(SentenceGap, {
     foreignKey: 'sentenceId',
-    as: 'sentenceGaps'
+    as: 'sentenceSentenceGaps'
 });
 SentenceGap.belongsTo(Sentence, {
     foreignKey: 'sentenceId',
-    as: 'sentence'
+    as: 'sentenceGapSentence'
 });
 Gap.hasOne(SentenceGap, {
     foreignKey: {
         name: 'gapId',
         unique: true
     },
-    as: 'sentenceGap'
+    as: 'gapSentenceGap'
 });
 SentenceGap.belongsTo(Gap, {
     foreignKey: {
         name: 'gapId',
         unique: true
     },
-    as: 'gap'
+    as: 'sentenceGapGap'
 });
 
 //Gap-Answer One-to-Many relationship
 
 Gap.hasMany(GapOption, {
     foreignKey: 'gapId',
-    as: 'gapOptions'
+    as: 'gapGapOptions'
 });
 GapOption.belongsTo(Gap, {
     foreignKey: 'gapId',
-    as: 'gap'
+    as: 'gapOptionGap'
 });
 Option.hasOne(GapOption, {
     foreignKey: {
         name: 'optionId',
         unique: true
     },
-    as: 'gapOption'
+    as: 'optionGapOption'
 });
 GapOption.belongsTo(Option, {
     foreignKey: {
         name: 'optionId',
         unique: true
     },
-    as: 'option'
+    as: 'gapOptionOption'
 });
 
 //Student-Answers Many-to-Many relationship
@@ -248,6 +251,8 @@ Lesson.belongsToMany(Student,{
 
 
 module.exports = {
+    sequelize,
+
     Account,
     User,
     Teacher,

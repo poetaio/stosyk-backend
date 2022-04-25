@@ -1,5 +1,5 @@
 const util = require("util");
-const {LessonService} = require('../services')
+const { lessonService, taskService } = require('../services')
 
 const lessonToReturn = {
     lessonId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
@@ -33,12 +33,11 @@ const lessonToReturn = {
 };
 
 class LessonController {
-    async createLesson({ lesson }, context) {
-        // console.log(util.inspect(lesson, {showHidden: false, depth: null, colors: true}))
-        return "59d9c6c4-aa93-40e7-ba30-7de589766e82";
+    async createLesson({ lesson }, { user: { userId } }) {
+        return await lessonService.create(lesson, userId);
     }
 
-    async getTeacherLesson(parent, args, context) {
+    async getTeacherLesson({ lessonId }, { userId }) {
         return lessonToReturn;
     }
 
@@ -50,25 +49,25 @@ class LessonController {
         return lessonToReturn.tasks;
     }
 
-    async startLesson({lessonId}) {
-        await LessonService.startLesson(lessonId)
+    async startLesson({lessonId}, {userId}) {
+        await lessonService.startLesson(lessonId, userId)
         return true;
     }
 
-    async showAnswers({taskId}) {
-        return await LessonService.showAnswers(taskId)
+    async showAnswers({taskId}, {userId}) {
+        return await taskService.showAnswers(taskId, userId)
     }
 
-    async finishLesson({lessonId}) {
-        return await LessonService.finishLesson(lessonId)
+    async finishLesson({lessonId}, {userId}) {
+        return await lessonService.finishLesson(lessonId, userId)
     }
 
     async getLessons() {
         return [];
     }
 
-    async deleteLesson({ lessonId }) {
-        await LessonService.deleteLesson(lessonId);
+    async deleteLesson({ lessonId }, {userId}) {
+        await lessonService.deleteLesson(lessonId, userId);
         return true;
     }
 

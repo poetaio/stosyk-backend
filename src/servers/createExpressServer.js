@@ -6,7 +6,6 @@ const PORT = process.env.PORT || 5000;
 
 const schema = require('../schemas/index')
 const { errorHandlingMiddleware } = require('../middleware');
-const ApiError = require("../error/ApiError");
 
 
 module.exports = (pubsub) => {

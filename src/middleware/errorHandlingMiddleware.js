@@ -1,12 +1,11 @@
-const ApiError = require("../error/ApiError");
+const {BaseError} = require("../utils");
 
 module.exports = (req, res, err) => {
-    if (!(err?.originalError instanceof ApiError))
+    if (!(err?.originalError instanceof BaseError))
         console.error(err);
-    const status = err?.originalError?.status || 500;
+
+    const status = err?.originalError?.statusCode || 500;
     res.status(status);
-    return {
-        message: err.message || 'Unknown error occurred',
-        status: status
-    };
+
+    return err;
 };

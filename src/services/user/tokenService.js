@@ -1,4 +1,4 @@
-const {UserRoleEnum} = require("../utils");
+const {UserRoleEnum} = require("../../utils");
 const jwt = require('jsonwebtoken');
 
 class TokenService {
