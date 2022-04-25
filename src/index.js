@@ -3,7 +3,7 @@ const { PubSub } = require("graphql-subscriptions");
 
 // db init
 require('./models');
-const { sequelize } = require('./services');
+const { sequelize } = require('./models');
 
 // servers
 const createExpressServer = require('./servers/createExpressServer');
