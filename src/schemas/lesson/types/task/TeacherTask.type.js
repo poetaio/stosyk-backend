@@ -7,7 +7,7 @@ module.exports = new GraphQLObjectType({
     description: 'Teacher Task Type',
     fields: {
         taskId: { type: GraphQLNonNull(GraphQLID) },
-        answerShown: { type: GraphQLNonNull(GraphQLBoolean) },
+        answersShown: { type: GraphQLNonNull(GraphQLBoolean) },
         sentences: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherSentenceType))),
             resolve: async (parent, args, context) =>

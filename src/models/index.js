@@ -1,5 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('./sequelize');
+const queries = require('./queries');
+const includes = require('./includes');
 
 const {
     Account,
@@ -113,7 +115,10 @@ Lesson.hasOne(TaskList, {
         name: 'lessonId',
         unique: true
     },
-    as: 'lessonTaskList'
+    as: 'lessonTaskList',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 })
 TaskList.belongsTo(Lesson, {
     foreignKey: {
@@ -127,7 +132,10 @@ TaskList.belongsTo(Lesson, {
 
 TaskList.hasMany(TaskListTask, {
     foreignKey: 'taskListId',
-    as: 'taskListTaskListTasks'
+    as: 'taskListTaskListTasks',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 TaskListTask.belongsTo(TaskList, {
     foreignKey: 'taskListId',
@@ -138,7 +146,10 @@ Task.hasOne(TaskListTask, {
         name: 'taskId',
         unique: true
     },
-    as: 'taskTaskListTask'
+    as: 'taskTaskListTask',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 TaskListTask.belongsTo(Task, {
     foreignKey: {
@@ -152,7 +163,10 @@ TaskListTask.belongsTo(Task, {
 
 Task.hasMany(TaskSentence, {
     foreignKey: 'taskId',
-    as: 'taskTaskSentences'
+    as: 'taskTaskSentences',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 TaskSentence.belongsTo(Task, {
     foreignKey: 'taskId',
@@ -163,7 +177,10 @@ Sentence.hasOne(TaskSentence, {
         name: 'sentenceId',
         unique: true
     },
-    as: 'sentenceTaskSentence'
+    as: 'sentenceTaskSentence',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 TaskSentence.belongsTo(Sentence, {
     foreignKey: {
@@ -177,7 +194,10 @@ TaskSentence.belongsTo(Sentence, {
 
 Sentence.hasMany(SentenceGap, {
     foreignKey: 'sentenceId',
-    as: 'sentenceSentenceGaps'
+    as: 'sentenceSentenceGaps',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 SentenceGap.belongsTo(Sentence, {
     foreignKey: 'sentenceId',
@@ -188,7 +208,10 @@ Gap.hasOne(SentenceGap, {
         name: 'gapId',
         unique: true
     },
-    as: 'gapSentenceGap'
+    as: 'gapSentenceGap',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 SentenceGap.belongsTo(Gap, {
     foreignKey: {
@@ -202,7 +225,10 @@ SentenceGap.belongsTo(Gap, {
 
 Gap.hasMany(GapOption, {
     foreignKey: 'gapId',
-    as: 'gapGapOptions'
+    as: 'gapGapOptions',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 GapOption.belongsTo(Gap, {
     foreignKey: 'gapId',
@@ -213,7 +239,10 @@ Option.hasOne(GapOption, {
         name: 'optionId',
         unique: true
     },
-    as: 'optionGapOption'
+    as: 'optionGapOption',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
 });
 GapOption.belongsTo(Option, {
     foreignKey: {
@@ -272,4 +301,7 @@ module.exports = {
     SentenceGap,
     GapOption,
     StudentOption,
+
+    ...queries,
+    ...includes
 };

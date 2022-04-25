@@ -1,4 +1,4 @@
-const { lessonController } = require('../../controllers');
+const { lessonController, taskController} = require('../../controllers');
 const { LessonInputType, AnswerInputType } = require('./types');
 const { GraphQLBoolean, GraphQLID, GraphQLNonNull } = require("graphql");
 const {authMiddleware} = require("../../middleware");
@@ -38,11 +38,11 @@ const finishLesson = {
 const showAnswers = {
     type: GraphQLBoolean,
     name: 'showAnswers',
-    description: 'Show Answers',
+    description: 'Show Answers Of a task',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) }
+        taskId: { type: GraphQLNonNull(GraphQLID) }
     },
-    resolve: async (parent, args, context) => await lessonController.showAnswers(args, context)
+    resolve: async (parent, args, context) => await taskController.showAnswers(args, context)
 }
 
 const deleteLesson = {
