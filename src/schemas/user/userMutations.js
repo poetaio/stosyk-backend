@@ -37,7 +37,7 @@ const createAnonymousStudent = {
     args: {
         name: {type: GraphQLNonNull(GraphQLString)},
     },
-    resolve: async (parent, args, context) => await studentController.createAnonymous(args, context)
+    resolve: async (parent, args, context) => await studentController.createAnonymous(args)
 };
 
 

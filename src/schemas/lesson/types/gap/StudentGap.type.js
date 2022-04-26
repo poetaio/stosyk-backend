@@ -1,6 +1,6 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLInt, GraphQLList, GraphQLID} = require("graphql");
 const { StudentOptionType } = require("../option");
-const {gapController} = require("../../../../controllers");
+const {gapController, optionController} = require("../../../../controllers");
 
 module.exports = new GraphQLObjectType({
     name: 'StudentGapType',
@@ -10,7 +10,8 @@ module.exports = new GraphQLObjectType({
         position: { type: GraphQLNonNull(GraphQLInt) },
         options: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentOptionType))),
-            // todo: add resolve
+            resolve: async (parent, args, context) =>
+                await optionController.getOptions(parent, args, context)
         },
         chosenOption: {
             type: StudentOptionType,
