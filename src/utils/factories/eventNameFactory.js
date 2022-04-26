@@ -1,7 +1,7 @@
 const {EventNameEnum} = require("../enums");
 
 class EventNameFactory {
-    lessonStatusChangedEventName(lessonId) {
+    lessonStartedEventName(lessonId) {
         return `${EventNameEnum.LESSON_STATUS_CHANGED}${lessonId}`;
     }
 

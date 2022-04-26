@@ -219,7 +219,7 @@ class LessonService {
         });
 
         if(upd[0]){
-            await pubsubService.publishOnLessonStatusChanged(pubsub, lessonId, {
+            await pubsubService.publishLessonStarted(pubsub, lessonId, {
                 lessonId: lessonId, status:'ACTIVE'
             });
         }
@@ -235,7 +235,6 @@ class LessonService {
         if (await this.existsPendingByLessonId(lessonId)) {
             throw new ValidationError(`Lesson is already pending lessonId: ${lessonId}`);
         }
-        // todo: make one db request with custom error messages
 
         const upd = await Lesson.update({
             status: LessonStatusEnum.PENDING
@@ -245,11 +244,11 @@ class LessonService {
             }
         });
 
-        if(upd[0]){
-            await pubsubService.publishOnLessonStatusChanged(pubsub, lessonId, {
-                lessonId: lessonId, status:'PENDING'
-            });
-        }
+        // if(upd[0]){
+        //     await pubsubService.publishLessonStarted(pubsub, lessonId, {
+        //         lessonId: lessonId, status:'PENDING'
+        //     });
+        // }
 
         return !!upd[0];
     }
@@ -307,7 +306,6 @@ class LessonService {
         if (await this.existsActiveByLessonId(lessonId)) {
            throw new ValidationError(`Cannot delete active lesson lessonId: ${lessonId}`);
         }
-        // todo: make one db request with custom error messages
 
         return await this.deleteById(lessonId);
     }
@@ -355,6 +353,14 @@ class LessonService {
         setTimeout(async () => await pubsubService.publishOnTeacherShowedRightAnswers(pubsub, lessonId, studentId,
             await lessonAnswersService.getShownAnswers(lessonId)), 0);
         return await pubsubService.subscribeOnTeacherShowedRightAnswers(pubsub, lessonId, studentId)
+    }
+
+    async subscribeOnLessonStarted(pubsub, lessonId) {
+        if (await this.existsActiveByLessonId(lessonId)) {
+            throw new ValidationError(`Lesson ${lessonId} already started`)
+        }
+
+        return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
     }
 }
 

@@ -26,14 +26,14 @@ const studentAnswersChanged = {
     subscribe: async (parent, args, context) => await lessonController.studentAnswersChanged(args, context)
 };
 
-const lessonStatusChanged = {
+const lessonStarted = {
     type: LessonStatusType,
-    name: "lessonStatusChanged",
-    description: "Lesson Status Changed",
+    name: "lessonStarted",
+    description: "Lesson Started",
     args: {
         lessonId: {type: GraphQLNonNull(GraphQLID)},
     },
-    subscribe: async (parent, args, context) => await lessonController.lessonStatusChanged(args, context)
+    subscribe: async (parent, args, context) => await lessonController.lessonStarted(args, context)
 }
 
 const correctAnswersShown = {
@@ -49,6 +49,6 @@ const correctAnswersShown = {
 module.exports = {
     presentStudentsChanged: subscribeAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(presentStudentsChanged),
     studentAnswersChanged: subscribeAuthMiddleware(UserRoleEnum.TEACHER)(studentAnswersChanged),
-    lessonStatusChanged: subscribeAuthMiddleware(UserRoleEnum.STUDENT)(lessonStatusChanged),
+    lessonStarted,
     correctAnswersShown: subscribeAuthMiddleware(UserRoleEnum.STUDENT)(correctAnswersShown),
 };

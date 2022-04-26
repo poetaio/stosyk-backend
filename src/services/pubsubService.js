@@ -1,14 +1,14 @@
 const {eventNameFactory} = require("../utils");
 
 class PubsubService {
-    async subscribeOnLessonStatusChanged(pubsub, lessonId, studentId) {
-        return pubsub.asyncIterator([eventNameFactory.lessonStatusChangedEventName(lessonId, studentId)]);
+    async subscribeOnLessonStarted(pubsub, lessonId) {
+        return pubsub.asyncIterator([eventNameFactory.lessonStartedEventName(lessonId)]);
     }
 
-    async publishOnLessonStatusChanged(pubsub, lessonId, payload) {
+    async publishLessonStarted(pubsub, lessonId, payload) {
         // payload: { lessonId: lessonID, status: "ACTIVE" }
-        return await pubsub.publish(eventNameFactory.lessonStatusChangedEventName(lessonId), {
-            lessonStatusChanged: payload
+        return await pubsub.publish(eventNameFactory.lessonStartedEventName(lessonId), {
+            lessonStarted: payload
         });
     }
 
