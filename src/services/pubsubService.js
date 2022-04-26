@@ -35,8 +35,10 @@ class PubsubService {
         return pubsub.asyncIterator([eventNameFactory.teacherShowedAnswersEventName(lessonId, studentId)]);
     }
 
-    async publishOnTeacherShowedRightAnswers(pubsub, lessonId, payload) {
-        return await pubsub.publish(eventNameFactory.teacherShowedAnswersEventName(lessonId), payload);
+    async publishOnTeacherShowedRightAnswers(pubsub, lessonId, studentId, payload) {
+        return await pubsub.publish(eventNameFactory.teacherShowedAnswersEventName(lessonId, studentId), {
+            correctAnswersShown: payload
+        });
     }
 }
 

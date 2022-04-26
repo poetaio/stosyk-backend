@@ -100,8 +100,13 @@ class LessonController {
         return await pubsubService.subscribeOnLessonStatusChanged(pubsub, lessonId, student.studentId);
     }
 
-    async correctAnswerShown({ lessonId }, { pubsub }) {
-        return pubsub.asyncIterator([`CorrectAnswersShown${lessonId}`]);
+    async correctAnswerShown({ lessonId }, { pubsub, user: { userId } }) {
+        const student = await studentService.findOneByUserId(userId);
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return await lessonService.subscribeOnCorrectAnswersShown(pubsub, lessonId, student.studentId);
     }
 }
 
