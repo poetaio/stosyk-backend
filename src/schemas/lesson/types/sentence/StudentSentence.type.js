@@ -1,5 +1,6 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLString, GraphQLInt, GraphQLList} = require("graphql");
 const { StudentGapType } = require("../gap");
+const {gapController} = require("../../../../controllers");
 
 module.exports = new GraphQLObjectType({
     name: "StudentSentenceType",
@@ -10,7 +11,8 @@ module.exports = new GraphQLObjectType({
         index: { type: GraphQLNonNull(GraphQLInt) },
         gaps: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentGapType))),
-            // todo: add resolve
+            resolve: async (parent, args, context) =>
+                await gapController.getGaps(parent, args, context)
         }
     }
 });

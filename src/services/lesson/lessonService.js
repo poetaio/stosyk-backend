@@ -1,11 +1,8 @@
-const { Lesson, LessonTeacher, TaskList, TaskListTask, DELETE_TASK_BY_LESSON_ID, DELETE_SENTENCES_BY_TASK_ID,
-    DELETE_GAPS_BY_SENTENCE_ID, DELETE_OPTIONS_BY_GAP_ID, DELETE_LESSON_BY_ID, lessonInclude
+const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude
 } = require('../../models');
-const { LessonStatusEnum: LessonStatusEnum, DBError, NotFoundError, ValidationError} = require('../../utils');
+const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
-const { sequelize } = require("../../models");
-const {DELETE_LESSON_BY_TEACHER_ID} = require("../../models/queries/lessonQueries");
 const Sequelize = require('sequelize');
 const { Op } = Sequelize;
 
@@ -16,6 +13,23 @@ class LessonService {
             where: {
                 lessonId,
                 teacherId
+            }
+        });
+    }
+
+    async studentLessonExists(lessonId, studentId){
+        return !!await LessonStudent.count({
+            where: {
+                lessonId,
+                studentId
+            }
+        });
+    }
+
+    async lessonExists(lessonId){
+        return !!await Lesson.count({
+            where: {
+                lessonId,
             }
         });
     }
@@ -180,6 +194,19 @@ class LessonService {
         }))(countedLessons);
     }
 
+    async getStudentLesson(lessonId, studentId){
+        if(!await this.studentLessonExists(lessonId, studentId)){
+            throw new NotFoundError(`No lesson ${lessonId} of such student ${studentId} found`);
+        }
+        const lesson = Lesson.findOne({
+            where: {
+                lessonId,
+            }
+        })
+
+        return lesson;
+    }
+
     async startLesson(lessonId, teacherId) {
         if (!await this.teacherLessonExists(lessonId, teacherId))
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
@@ -219,6 +246,31 @@ class LessonService {
         });
 
         return !!upd[0];
+    }
+
+    async joinLesson(lessonId, studentId) {
+       if(!await this.lessonExists(lessonId)){
+           throw new NotFoundError(`No lesson ${lessonId} found`);
+       }
+       const lessonStudent = LessonStudent.create({
+           lessonId,
+           studentId
+       })
+       return (!!lessonStudent);
+    }
+
+    async setAnswer(lessonId, studentId, optionId){
+        if(!await this.studentLessonExists(lessonId, studentId)){
+            throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
+        }
+
+        //todo: add check if option belongs to lesson
+
+        const studentOption = StudentOption.create({
+            optionId,
+            studentId
+        })
+        return (!!studentOption);
     }
 
     async deleteLesson(lessonId, teacherId) {

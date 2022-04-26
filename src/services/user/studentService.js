@@ -1,4 +1,4 @@
-const { Student } = require('../../models');
+const { Student} = require('../../models');
 const {UserRoleEnum} = require("../../utils");
 
 
@@ -8,6 +8,10 @@ class StudentService {
             { user: { role: UserRoleEnum.STUDENT }, name },
             { include: 'user' },
         ).then(({ user }) => user.userId);
+    }
+
+    async findOneByUserId(userId) {
+        return await Student.findOne({ where: { userId } });
     }
 }
 

@@ -6,7 +6,7 @@ class GapController {
         return await gapService.getAll(parent);
     }
 
-    async getStudentAnswer({ gapId }, args, { user: { userId } }) {
+    async getStudentAnswer({ gapId }) {
         return {
             optionId: "sfsdfsdf",
             value: 'safsdf'

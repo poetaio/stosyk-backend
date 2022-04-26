@@ -1,6 +1,7 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList, GraphQLID} = require("graphql");
 const { StudentTaskType } = require("../task");
 const LessonStatusEnumType = require("./LessonStatusEnum.type");
+const {taskController} = require("../../../../controllers");
 
 
 module.exports = new GraphQLObjectType({
@@ -12,7 +13,8 @@ module.exports = new GraphQLObjectType({
         status: { type: GraphQLNonNull(LessonStatusEnumType) },
         tasks: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentTaskType))),
-            // todo: add resolve
+            resolve: async (parent, args, context) =>
+                await taskController.getTasks(parent, args, context)
         }
     }
 });

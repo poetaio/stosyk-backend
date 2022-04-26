@@ -1,38 +1,6 @@
-const util = require("util");
-const { lessonService, taskService } = require('../../services')
+const { lessonService, studentService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
-
-const lessonToReturn = {
-    lessonId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-    name: "Lesson",
-    tasks: [
-        {
-            taskId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-            answerShown: false,
-            sentences: [
-                {
-                    sentenceId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-                    text: "Slava Ukraini!!!",
-                    index: 1,
-                    gaps: [
-                        {
-                            gapId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-                            position: 1,
-                            options: [
-                                {
-                                    optionId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-                                    value: 'Slava!!!',
-                                    isCorrect: true
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-};
 
 class LessonController {
     async createLesson({ lesson }, { user: { userId } }) {
@@ -53,12 +21,14 @@ class LessonController {
         return await lessonService.getTeacherLessons(teacher.teacherId, where, page, limit);
     }
 
-    async getStudentLesson(parent, args, context) {
-        return lessonToReturn;
-    }
+    async getStudentLesson({lessonId}, { user: { userId } }) {
+        const student = await studentService.findOneByUserId(userId);
 
-    async getTeacherLessonTasks({ id }) {
-        return lessonToReturn.tasks;
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return await lessonService.getStudentLesson(lessonId, student.studentId);
     }
 
     async startLesson({lessonId}, { user: { userId } }) {
@@ -79,10 +49,6 @@ class LessonController {
         return await lessonService.finishLesson(lessonId, teacher.teacherId)
     }
 
-    async getLessons() {
-        return [];
-    }
-
     async deleteLesson({ lessonId }, { user: { userId } }) {
         const teacher = await teacherService.findOneByUserId(userId);
 
@@ -92,12 +58,24 @@ class LessonController {
         return await lessonService.deleteLesson(lessonId, teacher.teacherId);
     }
 
-    async joinLesson({ lessonId }) {
-        return true;
+    async joinLesson({ lessonId }, {user: {userId}}) {
+        const student = await studentService.findOneByUserId(userId);
+
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return await lessonService.joinLesson(lessonId, student.studentId);
     }
 
-    async setAnswer() {
-        return true;
+    async setAnswer({lessonId, answer: {optionId}}, {user: {userId}}, ) {
+        const student = await studentService.findOneByUserId(userId);
+
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return lessonService.setAnswer(lessonId, student.studentId, optionId)
     }
 
     async presentStudentsChanged({ lessonId }, { pubsub }) {
