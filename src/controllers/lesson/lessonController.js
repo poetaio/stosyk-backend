@@ -1,6 +1,7 @@
 const { lessonService, studentService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
+const {pubsubService} = require('../../services');
 
 class LessonController {
     async createLesson({ lesson }, { user: { userId } }) {
@@ -31,22 +32,22 @@ class LessonController {
         return await lessonService.getStudentLesson(lessonId, student.studentId);
     }
 
-    async startLesson({lessonId}, { user: { userId } }) {
+    async startLesson({lessonId}, { pubsub, user: { userId } }) {
         const teacher = await teacherService.findOneByUserId(userId);
 
         if (!teacher)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
 
-        return await lessonService.startLesson(lessonId, teacher.teacherId);
+        return await lessonService.startLesson(pubsub, lessonId, teacher.teacherId);
     }
 
-    async finishLesson({lessonId}, { user: { userId } }) {
+    async finishLesson({lessonId}, { pubsub, user: { userId } }) {
         const teacher = await teacherService.findOneByUserId(userId);
 
         if (!teacher)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
 
-        return await lessonService.finishLesson(lessonId, teacher.teacherId)
+        return await lessonService.finishLesson(pubsub, lessonId, teacher.teacherId)
     }
 
     async deleteLesson({ lessonId }, { user: { userId } }) {
@@ -58,7 +59,7 @@ class LessonController {
         return await lessonService.deleteLesson(lessonId, teacher.teacherId);
     }
 
-    async joinLesson({ lessonId }, {user: {userId}}) {
+    async joinLesson({ lessonId }, {pubsub, user: {userId}}) {
         const student = await studentService.findOneByUserId(userId);
 
         if(!student){
@@ -103,8 +104,12 @@ class LessonController {
         // }];
     }
 
-    async lessonStatusChanged({ lessonId }, { pubsub }) {
-        return pubsubServi;
+    async lessonStatusChanged({ lessonId }, { pubsub , user:{userId}}) {
+        const student = studentService.findOneByUserId(userId);
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+        return await pubsubService.subscribeOnLessonStatusChanged(pubsub, lessonId, student.studentId);
     }
 
     async correctAnswerShown({ lessonId }, { pubsub }) {

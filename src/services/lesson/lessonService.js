@@ -4,7 +4,8 @@ const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = re
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
 const Sequelize = require('sequelize');
-const {pubsubService} = require("../index");
+const pubsubService = require("../pubsubService");
+const studentService = require("../user/studentService");
 const { Op } = Sequelize;
 
 
@@ -208,7 +209,7 @@ class LessonService {
         return lesson;
     }
 
-    async startLesson(lessonId, teacherId) {
+    async startLesson(pubsub, lessonId, teacherId) {
         if (!await this.teacherLessonExists(lessonId, teacherId))
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
 
@@ -225,10 +226,16 @@ class LessonService {
             }
         });
 
+        if(upd[0]){
+            await pubsubService.publishOnLessonStatusChanged(pubsub, lessonId, {
+                lessonId: lessonId, status:'ACTIVE'
+            });
+        }
+
         return !!upd[0];
     }
 
-    async finishLesson(lessonId, teacherId) {
+    async finishLesson(pubsub, lessonId, teacherId) {
         if (!await this.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
         }
@@ -245,6 +252,12 @@ class LessonService {
                 lessonId
             }
         });
+
+        if(upd[0]){
+            await pubsubService.publishOnLessonStatusChanged(pubsub, lessonId, {
+                lessonId: lessonId, status:'PENDING'
+            });
+        }
 
         return !!upd[0];
     }
