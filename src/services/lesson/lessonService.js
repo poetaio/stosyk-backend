@@ -198,7 +198,7 @@ class LessonService {
         if(!await this.studentLessonExists(lessonId, studentId)){
             throw new NotFoundError(`No lesson ${lessonId} of such student ${studentId} found`);
         }
-        const lesson = Lesson.findOne({
+        const lesson = await Lesson.findOne({
             where: {
                 lessonId,
             }
@@ -252,7 +252,12 @@ class LessonService {
        if(!await this.lessonExists(lessonId)){
            throw new NotFoundError(`No lesson ${lessonId} found`);
        }
-       const lessonStudent = LessonStudent.create({
+
+       if (await this.studentLessonExists(lessonId, studentId)){
+            throw new ValidationError(`Student ${studentId} is already on lesson ${lessonId}`);
+       }
+
+       const lessonStudent = await LessonStudent.create({
            lessonId,
            studentId
        })
@@ -266,7 +271,7 @@ class LessonService {
 
         //todo: add check if option belongs to lesson
 
-        const studentOption = StudentOption.create({
+        const studentOption = await StudentOption.create({
             optionId,
             studentId
         })

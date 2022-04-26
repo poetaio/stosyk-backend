@@ -1,8 +1,14 @@
-const { Option } = require("../../models");
+const { Option, StudentOption} = require("../../models");
 
 class OptionService {
     async create(value, isRight) {
         return await Option.create({ value, isRight });
+    }
+
+    async existsStudentAnswer(studentId, optionId) {
+        return !!await StudentOption.count({
+            where: { studentId, optionId }
+        });
     }
 
     async getAll({ gapId }) {

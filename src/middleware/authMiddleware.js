@@ -28,9 +28,8 @@ module.exports = (...userRole) => {
             }
 
             // put user (id + role) to context
-            const newContext = {...context};
-            newContext.user = user;
-            return await endpoint.resolve(parent, args, newContext);
+            context.user = user;
+            return await endpoint.resolve(parent, args, context);
         }
     })
 };
