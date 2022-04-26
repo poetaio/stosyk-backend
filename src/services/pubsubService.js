@@ -5,9 +5,11 @@ class PubsubService {
         return pubsub.asyncIterator([eventNameFactory.lessonStatusChangedEventName(lessonId, studentId)]);
     }
 
-    async publishOnLessonStatusChanged(pubsub, lessonId, studentId, payload) {
+    async publishOnLessonStatusChanged(pubsub, lessonId, payload) {
         // payload: { lessonId: lessonID, status: "ACTIVE" }
-        return await pubsub.publish(eventNameFactory.lessonStatusChangedEventName(lessonId, studentId), payload);
+        return await pubsub.publish(eventNameFactory.lessonStatusChangedEventName(lessonId), {
+            lessonStatusChanged: payload
+        });
     }
 
     async subscribeOnPresentStudentsChanged(pubsub, userId, lessonId) {
