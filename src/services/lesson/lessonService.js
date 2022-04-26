@@ -1,4 +1,6 @@
-const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, Student, lessonGapsInclude} = require('../../models');
+const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, Student, lessonGapsInclude,
+    lessonCorrectAnswersInclude
+} = require('../../models');
 const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
@@ -7,6 +9,7 @@ const optionService = require("./optionService");
 const pubsubService = require("../pubsubService");
 const Sequelize = require('sequelize');
 const studentService = require("../user/studentService");
+const lessonAnswersService = require("./lessonAnswersService");
 const { Op } = Sequelize;
 
 
@@ -54,7 +57,6 @@ class LessonService {
             }
         });
     }
-
 
     // async deleteByIdOld(lessonId) {
     //     const [ deletedLessons ] = await sequelize.query(DELETE_LESSON_BY_ID, {
@@ -345,6 +347,15 @@ class LessonService {
         return await pubsubService.subscribeOnStudentsAnswersChanged(pubsub, lessonId, teacherId);
     }
 
+    async subscribeOnCorrectAnswersShown(pubsub, lessonId, studentId) {
+        if (!await this.studentLessonExists(lessonId, studentId) || !await this.existsActiveByLessonId(lessonId)) {
+            throw new NotFoundError(`No lesson ${lessonId} of such student ${studentId}`);
+        }
+
+        setTimeout(async () => await pubsubService.publishOnTeacherShowedRightAnswers(pubsub, lessonId, studentId,
+            await lessonAnswersService.getShownAnswers(lessonId)), 0);
+        return await pubsubService.subscribeOnTeacherShowedRightAnswers(pubsub, lessonId, studentId)
+    }
 }
 
 module.exports = new LessonService();
