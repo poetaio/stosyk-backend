@@ -121,8 +121,10 @@ class TaskService {
                         association: 'taskListLesson',
                         where,
                         required
-                    }
-                }
+                    },
+                    required: true
+                },
+                required: true
             }
         });
     }

@@ -42,7 +42,8 @@ class GapService {
                     association: 'sentenceGapSentence',
                     where,
                     required
-                }
+                },
+                required: true
             }
         });
     }
@@ -55,13 +56,30 @@ class GapService {
 
         const options = await optionService.getAll({ gapId });
         for (let { optionId, value } of options) {
-            if (await optionService.existsStudentAnswer(studentId, optionId))
+            if (await optionService.existsStudentAnswer(studentId, optionId)) {
                 return {
                     optionId, value
                 };
+            }
         }
 
         return null;
+    }
+
+    async getStudentsAnswers(gapId) {
+        const options = await optionService.getAllWithAnswersByGapId(gapId);
+        const studentsAnswers = [];
+        for (let { optionId, value, optionStudents } of options) {
+            for (let { studentId } of optionStudents || []) {
+                studentsAnswers.push({
+                    option: {
+                        optionId, value
+                    },
+                    studentId
+                })
+            }
+        }
+        return studentsAnswers;
     }
 }
 

@@ -28,8 +28,26 @@ class OptionService {
                     association: 'gapOptionGap',
                     where,
                     required
-                }
+                },
+                required: true
             }
+        });
+    }
+
+    async getAllWithAnswersByGapId(gapId) {
+        return await Option.findAll({
+            include: [
+                {
+                    association: 'optionGapOption',
+                    include: {
+                        association: 'gapOptionGap',
+                        where: { gapId },
+                        required: true
+                    },
+                    required: true
+                },
+                'optionStudents'
+            ]
         });
     }
 }

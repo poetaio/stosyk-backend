@@ -68,39 +68,27 @@ class LessonController {
         return await lessonService.joinLesson(lessonId, student.studentId);
     }
 
-    async setAnswer({lessonId, answer: {optionId}}, {user: {userId}}, ) {
+    async setAnswer({lessonId, answer: {optionId}}, { pubsub, user: {userId}}, ) {
         const student = await studentService.findOneByUserId(userId);
 
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return lessonService.setAnswer(lessonId, student.studentId, optionId)
+        return await lessonService.setAnswer(pubsub, lessonId, student.studentId, optionId)
     }
 
     async presentStudentsChanged({ lessonId }, { pubsub }) {
         return pubsub.asyncIterator([`PresentStudentsChanged${lessonId}`]);
-        // return [{
-        //     id: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-        //     name: 'Jordgje'
-        // }];
     }
 
-    async studentAnswerChanged({ lessonId }, { pubsub }) {
-        return pubsub.asyncIterator([`StudentAnswerChanged${lessonId}`]);
-        // return [{
-        //     taskId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-        //     sentences: [{
-        //         sentenceId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-        //         gaps: [{
-        //             gapId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-        //             studentAnswers: [{
-        //                 studentId: '59d9c6c4-aa93-40e7-ba30-7de589766e82',
-        //                 optionId: '59d9c6c4-aa93-40e7-ba30-7de589766e82'
-        //             }]
-        //         }]
-        //     }]
-        // }];
+    async studentAnswersChanged({ lessonId }, { pubsub, user: { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await lessonService.subscribeOnStudentAnswersChanged(pubsub, lessonId, teacher.teacherId);
     }
 
     async lessonStatusChanged({ lessonId }, { pubsub }) {

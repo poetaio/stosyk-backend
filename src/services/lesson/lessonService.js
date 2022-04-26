@@ -1,10 +1,11 @@
-const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude
-} = require('../../models');
+const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, Student, lessonGapsInclude} = require('../../models');
 const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
+const gapService = require("./gapService");
+const optionService = require("./optionService");
+const pubsubService = require("../pubsubService");
 const Sequelize = require('sequelize');
-const {pubsubService} = require("../index");
 const { Op } = Sequelize;
 
 
@@ -93,18 +94,6 @@ class LessonService {
 
         return true;
     }
-
-    // async deleteByTeacherIdOld(teacherId) {
-    //     const [ deletedLessons ] = await sequelize.query(DELETE_LESSON_BY_TEACHER_ID, {
-    //         replacements: { teacherId }
-    //     });
-    //
-    //     for (let { lessonId } of deletedLessons) {
-    //         await taskService.deleteByLessonId(lessonId);
-    //     }
-    //
-    //     return !!deletedLessons.length;
-    // }
 
     async deleteByTeacherId(teacherId) {
         const lessons = await Lesson.findAll({
@@ -269,17 +258,25 @@ class LessonService {
        return (!!lessonStudent);
     }
 
-    async setAnswer(lessonId, studentId, optionId){
+    async setAnswer(pubsub, lessonId, studentId, optionId){
         if(!await this.studentLessonExists(lessonId, studentId)){
             throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
         }
 
-        //todo: add check if option belongs to lesson
+        // todo: add check if option belongs to lesson
+        if (await optionService.existsStudentAnswer(studentId, optionId)) {
+            throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
+        }
 
         const studentOption = await StudentOption.create({
             optionId,
             studentId
-        })
+        });
+
+        const teacher = await teacherService.findOneByLessonId(lessonId);
+        await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
+            await this.getStudentsAnswers(lessonId));
+
         return (!!studentOption);
     }
 
@@ -294,6 +291,41 @@ class LessonService {
         // todo: make one db request with custom error messages
 
         return await this.deleteById(lessonId);
+    }
+
+    async getStudentsAnswers(lessonId) {
+        const lesson = await Lesson.findOne({
+            where: { lessonId },
+            include: lessonGapsInclude
+        });
+
+        const tasks = [];
+
+        for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
+            const newTask = { taskId: task.taskId, sentences: [] };
+            for (let { taskSentenceSentence : sentence } of task.taskTaskSentences) {
+                const newSentence = { sentenceId: sentence.sentenceId, gaps: [] };
+                for (let { sentenceGapGap : gap } of sentence.sentenceSentenceGaps) {
+                    const newGap = { gapId: gap.gapId };
+                    newGap.studentsAnswers = await gapService.getStudentsAnswers(gap.gapId);
+                    newSentence.gaps.push(newGap);
+                }
+                newTask.sentences.push(newSentence);
+            }
+            tasks.push(newTask);
+        }
+
+        return tasks;
+    }
+
+    async subscribeOnStudentAnswersChanged(pubsub, lessonId, teacherId) {
+        if (!await this.teacherLessonExists(lessonId, teacherId)) {
+            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
+        }
+
+        setTimeout(async () => await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacherId,
+            await this.getStudentsAnswers(lessonId)), 0);
+        return await pubsubService.subscribeOnStudentsAnswersChanged(pubsub, lessonId, teacherId);
     }
 }
 

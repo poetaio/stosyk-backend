@@ -24,7 +24,9 @@ class PubsubService {
     }
 
     async publishOnStudentsAnswersChanged(pubsub, lessonId, teacherId, payload) {
-        return pubsub.publish(eventNameFactory.studentsAnswersChangedEventName(lessonId, teacherId), payload);
+        return await pubsub.publish(eventNameFactory.studentsAnswersChangedEventName(lessonId, teacherId), {
+            studentAnswersChanged: payload
+        });
     }
 
     async subscribeOnTeacherShowedRightAnswers(pubsub, lessonId, studentId) {
@@ -32,7 +34,7 @@ class PubsubService {
     }
 
     async publishOnTeacherShowedRightAnswers(pubsub, lessonId, payload) {
-        return pubsub.publish(eventNameFactory.teacherShowedAnswersEventName(lessonId), payload);
+        return await pubsub.publish(eventNameFactory.teacherShowedAnswersEventName(lessonId), payload);
     }
 }
 
