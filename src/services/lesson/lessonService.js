@@ -55,6 +55,7 @@ class LessonService {
         });
     }
 
+
     // async deleteByIdOld(lessonId) {
     //     const [ deletedLessons ] = await sequelize.query(DELETE_LESSON_BY_ID, {
     //         replacements: { lessonId }
@@ -251,7 +252,7 @@ class LessonService {
         return !!upd[0];
     }
 
-    async joinLesson(lessonId, studentId) {
+    async joinLesson(pubsub, lessonId, studentId) {
        if(!await this.lessonExists(lessonId)){
            throw new NotFoundError(`No lesson ${lessonId} found`);
        }
@@ -265,9 +266,12 @@ class LessonService {
            studentId
        });
 
-       // for (userId of every person on the lesson)
-       // await pubsubService.publishOnPresentStudentsChanged(lessonId, userId, this.getStudents(lessonId));
-
+       const teacher = await teacherService.findOneByLessonId(lessonId)
+        const students = await studentService.studentsLesson(lessonId)
+        for(let student of students){
+            await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, student.userId, students)
+        }
+        await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
        return (!!lessonStudent);
     }
 
@@ -340,6 +344,7 @@ class LessonService {
             await this.getStudentsAnswers(lessonId)), 0);
         return await pubsubService.subscribeOnStudentsAnswersChanged(pubsub, lessonId, teacherId);
     }
+
 }
 
 module.exports = new LessonService();

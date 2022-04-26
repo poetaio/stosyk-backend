@@ -18,7 +18,8 @@ class PubsubService {
 
     async publishOnPresentStudentsChanged(pubsub, lessonId, userId, payload) {
         // payload: [ { studentId: "sdfsdfsd", name: "sfsdf" } ]
-        return await pubsub.publish(eventNameFactory.presentStudentsChangedEventName(lessonId, userId), payload);
+        return await pubsub.publish(eventNameFactory.presentStudentsChangedEventName(lessonId, userId),
+            {presentStudentsChanged: payload});
     }
 
     async subscribeOnStudentsAnswersChanged(pubsub, lessonId, teacherId) {
