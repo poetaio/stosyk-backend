@@ -1,20 +1,20 @@
 const {EventNameEnum} = require("../enums");
 
 class EventNameFactory {
-    lessonStatusChangedEventName(lessonId) {
-        return `${EventNameEnum.LESSON_STATUS_CHANGED}${lessonId}`
+    lessonStatusChangedEventName(lessonId, studentId) {
+        return `${EventNameEnum.LESSON_STATUS_CHANGED}${lessonId}${studentId}`;
     }
 
-    presentStudentsChangedEventName(lessonId) {
-        return `${EventNameEnum.PRESENT_STUDENTS_CHANGED}${lessonId}`
+    presentStudentsChangedEventName(lessonId, userId) {
+        return `${EventNameEnum.PRESENT_STUDENTS_CHANGED}${lessonId}${userId}`;
     }
 
-    studentsAnswersChangedEventName(lessonId) {
-        return `${EventNameEnum.STUDENTS_ANSWERS_CHANGED}${lessonId}`
+    studentsAnswersChangedEventName(lessonId, teacherId) {
+        return `${EventNameEnum.STUDENTS_ANSWERS_CHANGED}${lessonId}${teacherId}`;
     }
 
-    teacherShowedAnswersEventName(lessonId) {
-        return `${EventNameEnum.TEACHER_SHOWED_ANSWERS}${lessonId}`
+    teacherShowedAnswersEventName(lessonId, studentId) {
+        return `${EventNameEnum.TEACHER_SHOWED_ANSWERS}${lessonId}${studentId}`;
     }
 }
 

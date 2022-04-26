@@ -4,6 +4,7 @@ const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = re
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
 const Sequelize = require('sequelize');
+const {pubsubService} = require("../index");
 const { Op } = Sequelize;
 
 
@@ -260,7 +261,11 @@ class LessonService {
        const lessonStudent = await LessonStudent.create({
            lessonId,
            studentId
-       })
+       });
+
+       // for (userId of every person on the lesson)
+       // await pubsubService.publishOnPresentStudentsChanged(lessonId, userId, this.getStudents(lessonId));
+
        return (!!lessonStudent);
     }
 

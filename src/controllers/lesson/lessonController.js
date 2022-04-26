@@ -104,7 +104,7 @@ class LessonController {
     }
 
     async lessonStatusChanged({ lessonId }, { pubsub }) {
-        return pubsub.asyncIterator([`LessonStatusChanged${lessonId}`]);
+        return pubsubServi;
     }
 
     async correctAnswerShown({ lessonId }, { pubsub }) {

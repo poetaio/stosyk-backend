@@ -1,32 +1,34 @@
 const {eventNameFactory} = require("../utils");
 
 class PubsubService {
-    async subscribeOnLessonStatusChanged(pubsub, lessonId) {
-        return pubsub.asyncIterator([eventNameFactory.lessonStatusChangedEventName(lessonId)]);
+    async subscribeOnLessonStatusChanged(pubsub, lessonId, studentId) {
+        return pubsub.asyncIterator([eventNameFactory.lessonStatusChangedEventName(lessonId, studentId)]);
     }
 
-    async publishOnLessonStatusChanged(pubsub, lessonId, payload) {
-        return await pubsub.publish(eventNameFactory.lessonStatusChangedEventName(lessonId), payload);
+    async publishOnLessonStatusChanged(pubsub, lessonId, studentId, payload) {
+        // payload: { lessonId: lessonID, status: "ACTIVE" }
+        return await pubsub.publish(eventNameFactory.lessonStatusChangedEventName(lessonId, studentId), payload);
     }
 
-    async subscribeOnPresentStudentsChanged(pubsub, lessonId) {
-        return pubsub.asyncIterator([eventNameFactory.presentStudentsChangedEventName(lessonId)]);
+    async subscribeOnPresentStudentsChanged(pubsub, userId, lessonId) {
+        return pubsub.asyncIterator([eventNameFactory.presentStudentsChangedEventName(lessonId, userId)]);
     }
 
-    async publishOnPresentStudentsChanged(pubsub, lessonId, payload) {
-        return await pubsub.publish(eventNameFactory.presentStudentsChangedEventName(lessonId), payload);
+    async publishOnPresentStudentsChanged(pubsub, lessonId, userId, payload) {
+        // payload: [ { studentId: "sdfsdfsd", name: "sfsdf" } ]
+        return await pubsub.publish(eventNameFactory.presentStudentsChangedEventName(lessonId, userId), payload);
     }
 
-    async subscribeOnStudentsAnswersChanged(pubsub, lessonId) {
-        return pubsub.asyncIterator([eventNameFactory.studentsAnswersChangedEventName(lessonId)]);
+    async subscribeOnStudentsAnswersChanged(pubsub, lessonId, teacherId) {
+        return pubsub.asyncIterator([eventNameFactory.studentsAnswersChangedEventName(lessonId, teacherId)]);
     }
 
-    async publishOnStudentsAnswersChanged(pubsub, lessonId, payload) {
-        return pubsub.publish(eventNameFactory.studentsAnswersChangedEventName(lessonId), payload);
+    async publishOnStudentsAnswersChanged(pubsub, lessonId, teacherId, payload) {
+        return pubsub.publish(eventNameFactory.studentsAnswersChangedEventName(lessonId, teacherId), payload);
     }
 
-    async subscribeOnTeacherShowedRightAnswers(pubsub, lessonId) {
-        return pubsub.asyncIterator([eventNameFactory.teacherShowedAnswersEventName(lessonId)]);
+    async subscribeOnTeacherShowedRightAnswers(pubsub, lessonId, studentId) {
+        return pubsub.asyncIterator([eventNameFactory.teacherShowedAnswersEventName(lessonId, studentId)]);
     }
 
     async publishOnTeacherShowedRightAnswers(pubsub, lessonId, payload) {
