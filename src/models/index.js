@@ -1,106 +1,307 @@
-const sequelize = require('../services/dbService');
 const { DataTypes } = require('sequelize');
+const sequelize = require('./sequelize');
+const queries = require('./queries');
+const includes = require('./includes');
 
-const User = require('./user.model')(sequelize, DataTypes);
+const {
+    Account,
+    User,
+    Teacher,
+    Student
+} = require('./user')(sequelize, DataTypes);
 
 const {
     Lesson,
+    TaskList,
     Task,
     Sentence,
+    Gap,
     Option
-} = require('./lesson_constructor/index')(sequelize, DataTypes);
+} = require('./lesson')(sequelize, DataTypes);
 
 const {
-    ActiveLesson,
-    ActiveTask,
-    ActiveSentence,
-    ActiveOption,
-    StudentAnswerSheet,
-    StudentAnswer
-} = require('./lesson_active/index')(sequelize, DataTypes);
+    LessonStudent,
+    LessonTeacher,
+    TaskListTask,
+    TaskSentence,
+    SentenceGap,
+    GapOption,
+    StudentOption,
+} = require('./relations')(sequelize, DataTypes);
 
+//User-Account One-to-One relationship
 
-// lesson constructor relations
-User.hasMany(Lesson);
-Lesson.belongsTo(User, {
-    foreignKey: "authorId",
-    as: "author"
+User.hasOne(Account, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'account'
+});
+Account.belongsTo(User, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'user'
 });
 
-Lesson.hasMany(Task);
-Task.belongsTo(Lesson);
+//User-Teacher One-to-One relationship
 
-Task.hasMany(Sentence);
-Sentence.belongsTo(Task);
-
-Sentence.hasMany(Option);
-Option.belongsTo(Sentence);
-
-Sentence.hasOne(Option, {
-    foreignKey: 'rightOptionId'
-});
-Option.belongsTo(Sentence, {
-    foreignKey: 'rightOptionId'
-});
-
-// active lesson relations
-Lesson.hasMany(ActiveLesson, {
-    foreignKey: "lessonMarkupId",
-});
-ActiveLesson.belongsTo(Lesson, {
-    foreignKey: "lessonMarkupId",
+User.hasOne(Teacher, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'teacher'
+})
+Teacher.belongsTo(User, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'user'
 });
 
-User.hasMany(ActiveLesson, {
-    foreignKey: "teacherId"
-});
-ActiveLesson.belongsTo(User, {
-    foreignKey: "teacherId"
-});
+//User-Student One-to-One relationship
 
-ActiveLesson.hasMany(ActiveTask);
-ActiveTask.belongsTo(ActiveLesson);
-
-ActiveTask.hasMany(ActiveSentence);
-ActiveSentence.belongsTo(ActiveTask);
-
-ActiveOption.hasOne(ActiveSentence, {
-    foreignKey: "rightOptionId"
-});
-ActiveSentence.belongsTo(ActiveOption, {
-    foreignKey: "rightOptionId"
+User.hasOne(Student, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'student'
+})
+Student.belongsTo(User, {
+    foreignKey: {
+        name: 'userId',
+        unique: true
+    },
+    as: 'user'
 });
 
-// student relations
-User.belongsToMany(ActiveLesson, {
-    through: StudentAnswerSheet,
-    as: "activeLessons",
+//Teacher-Lesson One-to-Many relationship
+
+Teacher.hasMany(LessonTeacher, {
+    foreignKey: 'teacherId',
+    as: 'teacherLessonTeachers'
+});
+LessonTeacher.belongsTo(Teacher, {
+    foreignKey: 'teacherId',
+    as: 'lessonTeacherTeacher'
+});
+Lesson.hasOne(LessonTeacher, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true,
+    },
+    as: 'lessonLessonTeacher',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+LessonTeacher.belongsTo(Lesson, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true,
+    },
+    as: 'lessonTeacherLesson',
+});
+
+//Lesson-Task list One-to-One relationship
+
+Lesson.hasOne(TaskList, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true
+    },
+    as: 'lessonTaskList',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+})
+TaskList.belongsTo(Lesson, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true
+    },
+    as: 'taskListLesson'
+});
+
+//TaskList-Task One-to-Many relationship
+
+TaskList.hasMany(TaskListTask, {
+    foreignKey: 'taskListId',
+    as: 'taskListTaskListTasks',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+TaskListTask.belongsTo(TaskList, {
+    foreignKey: 'taskListId',
+    as: 'taskListTaskTaskList'
+});
+Task.hasOne(TaskListTask, {
+    foreignKey: {
+        name: 'taskId',
+        unique: true
+    },
+    as: 'taskTaskListTask',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+TaskListTask.belongsTo(Task, {
+    foreignKey: {
+        name: 'taskId',
+        unique: true
+    },
+    as: 'taskListTaskTask'
+});
+
+//Task-Sentence One-to-Many relationship
+
+Task.hasMany(TaskSentence, {
+    foreignKey: 'taskId',
+    as: 'taskTaskSentences',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+TaskSentence.belongsTo(Task, {
+    foreignKey: 'taskId',
+    as: 'taskSentenceTask'
+});
+Sentence.hasOne(TaskSentence, {
+    foreignKey: {
+        name: 'sentenceId',
+        unique: true
+    },
+    as: 'sentenceTaskSentence',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+TaskSentence.belongsTo(Sentence, {
+    foreignKey: {
+        name: 'sentenceId',
+        unique: true
+    },
+    as: 'taskSentenceSentence'
+});
+
+//Sentence-Gap One-to-Many relationship
+
+Sentence.hasMany(SentenceGap, {
+    foreignKey: 'sentenceId',
+    as: 'sentenceSentenceGaps',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+SentenceGap.belongsTo(Sentence, {
+    foreignKey: 'sentenceId',
+    as: 'sentenceGapSentence'
+});
+Gap.hasOne(SentenceGap, {
+    foreignKey: {
+        name: 'gapId',
+        unique: true
+    },
+    as: 'gapSentenceGap',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+SentenceGap.belongsTo(Gap, {
+    foreignKey: {
+        name: 'gapId',
+        unique: true
+    },
+    as: 'sentenceGapGap'
+});
+
+//Gap-Answer One-to-Many relationship
+
+Gap.hasMany(GapOption, {
+    foreignKey: 'gapId',
+    as: 'gapGapOptions',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+GapOption.belongsTo(Gap, {
+    foreignKey: 'gapId',
+    as: 'gapOptionGap'
+});
+Option.hasOne(GapOption, {
+    foreignKey: {
+        name: 'optionId',
+        unique: true
+    },
+    as: 'optionGapOption',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+GapOption.belongsTo(Option, {
+    foreignKey: {
+        name: 'optionId',
+        unique: true
+    },
+    as: 'gapOptionOption'
+});
+
+//Student-Answers Many-to-Many relationship
+
+Student.belongsToMany(Option, {
+    through: StudentOption,
+    foreignKey: 'studentId',
+    as: 'studentOptions'
+});
+Option.belongsToMany(Student, {
+    through: StudentOption,
+    foreignKey: 'optionId',
+    as: 'optionStudents'
+});
+
+// Student-Lesson Many-to-Many relationship
+
+Student.belongsToMany(Lesson,{
+    through: LessonStudent,
     foreignKey: "studentId",
+    as: "studentLessons",
 });
-ActiveLesson.belongsToMany(User, {
-    through: StudentAnswerSheet,
-    as: "students",
-    foreignKey: "activeLessonId",
+Lesson.belongsToMany(Student,{
+    through: LessonStudent,
+    foreignKey: "lessonId",
+    as: "lessonStudents",
 });
 
-StudentAnswerSheet.hasMany(StudentAnswer);
-StudentAnswer.belongsTo(StudentAnswerSheet);
-
-StudentAnswer.hasOne(ActiveSentence);
-ActiveSentence.belongsTo(StudentAnswer);
-
-ActiveOption.hasMany(StudentAnswer, {
-    foreignKey: "chosenOptionId"
-});
-StudentAnswer.belongsTo(ActiveOption, {
-    foreignKey: "chosenOptionId"
-});
 
 module.exports = {
-    ActiveLesson,
-    ActiveTask,
-    ActiveSentence,
-    ActiveOption,
-    StudentAnswerSheet,
-    StudentAnswer
-}
+    sequelize,
+
+    Account,
+    User,
+    Teacher,
+    Student,
+
+    Lesson,
+    TaskList,
+    Task,
+    Sentence,
+    Gap,
+    Option,
+
+    LessonStudent,
+    LessonTeacher,
+    TaskListTask,
+    TaskSentence,
+    SentenceGap,
+    GapOption,
+    StudentOption,
+
+    ...queries,
+    ...includes
+};

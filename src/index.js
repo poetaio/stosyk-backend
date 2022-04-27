@@ -1,29 +1,27 @@
 require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { graphqlHTTP } = require("express-graphql");
+const { PubSub } = require("graphql-subscriptions");
 
-const PORT = process.env.PORT || 5000;
+// db init
+require('./models');
+const { sequelize } = require('./models');
 
-require('./models/index');
-const sequelize = require('./services/dbService');
+// servers
+const createExpressServer = require('./servers/createExpressServer');
+const createWSServer = require('./servers/createWSServer');
 
-const schema = require('./schemas/index')
+// object to manage events' publishing and subscriptions
+const pubsub = new PubSub();
 
-const handleError = require('./middleware/errorHandlingMiddleware');
-
-const app = express();
-
-app.use('/graphql', cors(), graphqlHTTP({
-    schema: schema,
-    customFormatErrorFn: err => handleError(err)
-}))
 
 const run = async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync({force: true});
-        app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
+        // await sequelize.sync({force: true});
+        await sequelize.sync();
+
+        // initiating servers
+        const expressServer = createExpressServer(pubsub);
+        createWSServer(expressServer, pubsub);
     } catch (e) {
         console.error(e);
     }

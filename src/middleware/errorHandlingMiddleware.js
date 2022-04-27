@@ -1,4 +1,11 @@
-module.exports = (err) => ({
-    message: err.message || 'Unknown error occurred',
-    status: (typeof err.originalError === "undefined") ? 500 : err.originalError.status || 500
-});
+const {BaseError} = require("../utils");
+
+module.exports = (req, res, err) => {
+    if (!(err?.originalError instanceof BaseError))
+        console.error(err);
+
+    const status = err?.originalError?.statusCode || 500;
+    res.status(status);
+
+    return err;
+};
