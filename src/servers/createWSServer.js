@@ -9,17 +9,15 @@ module.exports = (expressServer, pubsub) => {
     const wsServer = new WebSocketServer({
         server: expressServer,
         path: '/subscriptions',
-        // port: process.env.WS_PORT,
-        // port: 8889,
     }, () => console.log(`WebSocket server is running on http://localhost:8889/subscriptions`));
 
     useServer({
         schema,
         execute,
         subscribe,
-        context: { pubsub },
+        context: ({ connectionParams }) => ({ pubsub, authHeader: connectionParams.Authorization }),
         keepAlive: 10000
-        }, wsServer);
+    }, wsServer);
 
     return wsServer;
 };

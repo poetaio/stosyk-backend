@@ -31,7 +31,8 @@ class SentenceService {
                     association: 'taskSentenceTask',
                     where,
                     required
-                }
+                },
+                required: true
             }
         });
     }

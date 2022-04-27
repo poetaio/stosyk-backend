@@ -1,9 +1,15 @@
-const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude
+const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, Student, lessonGapsInclude,
+    lessonCorrectAnswersInclude
 } = require('../../models');
 const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
+const gapService = require("./gapService");
+const optionService = require("./optionService");
+const pubsubService = require("../pubsubService");
 const Sequelize = require('sequelize');
+const studentService = require("../user/studentService");
+const lessonAnswersService = require("./lessonAnswersService");
 const { Op } = Sequelize;
 
 
@@ -92,18 +98,6 @@ class LessonService {
 
         return true;
     }
-
-    // async deleteByTeacherIdOld(teacherId) {
-    //     const [ deletedLessons ] = await sequelize.query(DELETE_LESSON_BY_TEACHER_ID, {
-    //         replacements: { teacherId }
-    //     });
-    //
-    //     for (let { lessonId } of deletedLessons) {
-    //         await taskService.deleteByLessonId(lessonId);
-    //     }
-    //
-    //     return !!deletedLessons.length;
-    // }
 
     async deleteByTeacherId(teacherId) {
         const lessons = await Lesson.findAll({
@@ -207,7 +201,7 @@ class LessonService {
         return lesson;
     }
 
-    async startLesson(lessonId, teacherId) {
+    async startLesson(pubsub, lessonId, teacherId) {
         if (!await this.teacherLessonExists(lessonId, teacherId))
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
 
@@ -224,10 +218,16 @@ class LessonService {
             }
         });
 
+        if(upd[0]){
+            await pubsubService.publishLessonStarted(pubsub, lessonId, {
+                lessonId: lessonId, status:'ACTIVE'
+            });
+        }
+
         return !!upd[0];
     }
 
-    async finishLesson(lessonId, teacherId) {
+    async finishLesson(pubsub, lessonId, teacherId) {
         if (!await this.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
         }
@@ -235,7 +235,6 @@ class LessonService {
         if (await this.existsPendingByLessonId(lessonId)) {
             throw new ValidationError(`Lesson is already pending lessonId: ${lessonId}`);
         }
-        // todo: make one db request with custom error messages
 
         const upd = await Lesson.update({
             status: LessonStatusEnum.PENDING
@@ -245,10 +244,16 @@ class LessonService {
             }
         });
 
+        // if(upd[0]){
+        //     await pubsubService.publishLessonStarted(pubsub, lessonId, {
+        //         lessonId: lessonId, status:'PENDING'
+        //     });
+        // }
+
         return !!upd[0];
     }
 
-    async joinLesson(lessonId, studentId) {
+    async joinLesson(pubsub, lessonId, studentId) {
        if(!await this.lessonExists(lessonId)){
            throw new NotFoundError(`No lesson ${lessonId} found`);
        }
@@ -260,21 +265,36 @@ class LessonService {
        const lessonStudent = await LessonStudent.create({
            lessonId,
            studentId
-       })
+       });
+
+       const teacher = await teacherService.findOneByLessonId(lessonId)
+        const students = await studentService.studentsLesson(lessonId)
+        for(let student of students){
+            await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, student.userId, students)
+        }
+        await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
        return (!!lessonStudent);
     }
 
-    async setAnswer(lessonId, studentId, optionId){
+    async setAnswer(pubsub, lessonId, studentId, optionId){
         if(!await this.studentLessonExists(lessonId, studentId)){
             throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
         }
 
-        //todo: add check if option belongs to lesson
+        // todo: add check if option belongs to lesson
+        if (await optionService.existsStudentAnswer(studentId, optionId)) {
+            throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
+        }
 
         const studentOption = await StudentOption.create({
             optionId,
             studentId
-        })
+        });
+
+        const teacher = await teacherService.findOneByLessonId(lessonId);
+        await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
+            await this.getStudentsAnswers(lessonId));
+
         return (!!studentOption);
     }
 
@@ -286,9 +306,61 @@ class LessonService {
         if (await this.existsActiveByLessonId(lessonId)) {
            throw new ValidationError(`Cannot delete active lesson lessonId: ${lessonId}`);
         }
-        // todo: make one db request with custom error messages
 
         return await this.deleteById(lessonId);
+    }
+
+    async getStudentsAnswers(lessonId) {
+        const lesson = await Lesson.findOne({
+            where: { lessonId },
+            include: lessonGapsInclude
+        });
+
+        const tasks = [];
+
+        for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
+            const newTask = { taskId: task.taskId, sentences: [] };
+            for (let { taskSentenceSentence : sentence } of task.taskTaskSentences) {
+                const newSentence = { sentenceId: sentence.sentenceId, gaps: [] };
+                for (let { sentenceGapGap : gap } of sentence.sentenceSentenceGaps) {
+                    const newGap = { gapId: gap.gapId };
+                    newGap.studentsAnswers = await gapService.getStudentsAnswers(gap.gapId);
+                    newSentence.gaps.push(newGap);
+                }
+                newTask.sentences.push(newSentence);
+            }
+            tasks.push(newTask);
+        }
+
+        return tasks;
+    }
+
+    async subscribeOnStudentAnswersChanged(pubsub, lessonId, teacherId) {
+        if (!await this.teacherLessonExists(lessonId, teacherId)) {
+            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
+        }
+
+        setTimeout(async () => await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacherId,
+            await this.getStudentsAnswers(lessonId)), 0);
+        return await pubsubService.subscribeOnStudentsAnswersChanged(pubsub, lessonId, teacherId);
+    }
+
+    async subscribeOnCorrectAnswersShown(pubsub, lessonId, studentId) {
+        if (!await this.studentLessonExists(lessonId, studentId) || !await this.existsActiveByLessonId(lessonId)) {
+            throw new NotFoundError(`No lesson ${lessonId} of such student ${studentId}`);
+        }
+
+        setTimeout(async () => await pubsubService.publishOnTeacherShowedRightAnswers(pubsub, lessonId, studentId,
+            await lessonAnswersService.getShownAnswers(lessonId)), 0);
+        return await pubsubService.subscribeOnTeacherShowedRightAnswers(pubsub, lessonId, studentId)
+    }
+
+    async subscribeOnLessonStarted(pubsub, lessonId) {
+        if (await this.existsActiveByLessonId(lessonId)) {
+            throw new ValidationError(`Lesson ${lessonId} already started`)
+        }
+
+        return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
     }
 }
 

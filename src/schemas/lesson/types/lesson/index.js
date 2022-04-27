@@ -5,6 +5,7 @@ const LessonCorrectAnswersType = require('./LessonCorrectAnswers.type');
 const TeacherCountedLessonsType = require('./TeacherCountedLessons.type');
 const LessonsWhereType = require('./LessonsWhere.type');
 const LessonStatusEnumType = require('./LessonStatusEnum.type');
+const LessonStatusType = require('./LessonStatus.type')
 
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
     LessonCorrectAnswersType,
     TeacherCountedLessonsType,
     LessonsWhereType,
-    LessonStatusEnumType
+    LessonStatusEnumType,
+    LessonStatusType
 };

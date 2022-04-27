@@ -3,10 +3,14 @@ const {Task, Lesson, TaskSentence,
     DELETE_TASK_BY_LESSON_ID,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
-    DELETE_OPTIONS_BY_GAP_ID
+    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude
 } = require("../../models");
 const sentenceService = require('./sentenceService');
 const {DBError, NotFoundError, ValidationError, LessonStatusEnum} = require('../../utils');
+const lessonSevice = require('./lessonService');
+const studentService = require("../user/studentService");
+const pubsubService = require("../pubsubService");
+const lessonAnswersService = require("./lessonAnswersService");
 
 class TaskService {
     // todo: existsWithAnswerShown
@@ -66,7 +70,7 @@ class TaskService {
         });
     }
     
-    async showAnswers(taskId, teacherId) {
+    async showAnswers(pubsub, taskId, teacherId) {
         if (!await this.teacherTaskExists(taskId, teacherId)){
             throw new NotFoundError(`No task ${taskId} of such teacher ${teacherId}`);
         }
@@ -86,6 +90,18 @@ class TaskService {
                 taskId
             }
         });
+
+        if (upd[0]) {
+            const task = await Task.findOne({
+                where: { taskId },
+                include: taskWithLessonInclude
+            });
+            const lesson = task.taskTaskListTask.taskListTaskTaskList.taskListLesson;
+            const lessonAnswers = await lessonAnswersService.getShownAnswers(lesson.lessonId);
+            for (let { studentId } of await studentService.studentsLesson(lesson.lessonId)) {
+                await pubsubService.publishOnTeacherShowedRightAnswers(pubsub, lesson.lessonId, studentId, lessonAnswers);
+            }
+        }
 
         return !!upd[0];
     }
@@ -121,8 +137,10 @@ class TaskService {
                         association: 'taskListLesson',
                         where,
                         required
-                    }
-                }
+                    },
+                    required: true
+                },
+                required: true
             }
         });
     }

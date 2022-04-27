@@ -48,6 +48,16 @@ class TeacherService {
     async findOneByUserId(userId) {
         return await Teacher.findOne({ where: { userId } });
     }
+
+    async findOneByLessonId(lessonId) {
+        return await Teacher.findOne({
+            include: {
+                association: 'teacherLessonTeachers',
+                where: { lessonId },
+                required: true
+            }
+        });
+    }
 }
 
 

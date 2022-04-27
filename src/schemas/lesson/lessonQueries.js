@@ -3,7 +3,7 @@ const {StudentLessonType, TeacherCountedLessonsType,
 } = require("./types");
 const { lessonController } = require("../../controllers");
 const { GraphQLNonNull, GraphQLID } = require("graphql");
-const { authMiddleware } = require('../../middleware');
+const { authMiddleware, subscribeAuthMiddleware, resolveAuthMiddleware} = require('../../middleware');
 const { UserRoleEnum } = require("../../utils");
 
 
@@ -29,6 +29,6 @@ const studentLesson = {
 
 
 module.exports = {
-    teacherLessons: authMiddleware(UserRoleEnum.TEACHER)(teacherLessons),
-    studentLesson: authMiddleware(UserRoleEnum.STUDENT)(studentLesson),
+    teacherLessons: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherLessons),
+    studentLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLesson),
 };

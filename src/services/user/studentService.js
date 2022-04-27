@@ -13,6 +13,16 @@ class StudentService {
     async findOneByUserId(userId) {
         return await Student.findOne({ where: { userId } });
     }
+
+    async studentsLesson(lessonId){
+        return await Student.findAll({
+            include: {
+                association: 'studentLessons',
+                where: {lessonId},
+                required: true
+            }
+        })
+    }
 }
 
 

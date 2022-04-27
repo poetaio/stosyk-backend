@@ -8,13 +8,13 @@ class TaskController {
         return await taskService.getAll(parent);
     }
 
-    async showAnswers({ taskId }, { user: { userId } }) {
+    async showAnswers({ taskId }, { pubsub, user: { userId } }) {
         const teacher = await teacherService.findOneByUserId(userId);
 
         if (!teacher)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
 
-        return await taskService.showAnswers(taskId, teacher.teacherId)
+        return await taskService.showAnswers(pubsub, taskId, teacher.teacherId)
     }
 }
 

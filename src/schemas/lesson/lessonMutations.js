@@ -1,7 +1,7 @@
 const { lessonController, taskController} = require('../../controllers');
 const { LessonInputType, AnswerInputType } = require('./types');
 const { GraphQLBoolean, GraphQLID, GraphQLNonNull } = require("graphql");
-const {authMiddleware} = require("../../middleware");
+const {authMiddleware, resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
 
@@ -80,13 +80,13 @@ const setAnswer = {
 
 module.exports = {
     // teacher
-    createLesson: authMiddleware(UserRoleEnum.TEACHER)(createLesson),
-    startLesson: authMiddleware(UserRoleEnum.TEACHER)(startLesson),
-    finishLesson: authMiddleware(UserRoleEnum.TEACHER)(finishLesson),
-    showAnswers: authMiddleware(UserRoleEnum.TEACHER)(showAnswers),
-    deleteLesson: authMiddleware(UserRoleEnum.TEACHER)(deleteLesson),
+    createLesson: resolveAuthMiddleware(UserRoleEnum.TEACHER)(createLesson),
+    startLesson: resolveAuthMiddleware(UserRoleEnum.TEACHER)(startLesson),
+    finishLesson: resolveAuthMiddleware(UserRoleEnum.TEACHER)(finishLesson),
+    showAnswers: resolveAuthMiddleware(UserRoleEnum.TEACHER)(showAnswers),
+    deleteLesson: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteLesson),
 
     // student
-    joinLesson: authMiddleware(UserRoleEnum.STUDENT)(joinLesson),
-    setAnswer: authMiddleware(UserRoleEnum.STUDENT)(setAnswer),
+    joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),
+    setAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setAnswer),
 };
