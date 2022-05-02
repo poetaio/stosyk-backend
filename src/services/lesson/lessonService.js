@@ -335,6 +335,16 @@ class LessonService {
         return tasks;
     }
 
+    async setStudentCurrentPosition(pubsub, lessonId, taskId, student) {
+        if (!await this.studentLessonExists(lessonId, student.studentId)) {
+            throw new NotFoundError(`No lesson ${lessonId} of student ${student.studentId} found`);
+        }
+        const teacher = await teacherService.findOneByLessonId(lessonId)
+        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, {taskId, student})
+        return true;
+    }
+
+
     async subscribeOnStudentAnswersChanged(pubsub, lessonId, teacherId) {
         if (!await this.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
@@ -362,6 +372,7 @@ class LessonService {
 
         return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
     }
+
 }
 
 module.exports = new LessonService();
