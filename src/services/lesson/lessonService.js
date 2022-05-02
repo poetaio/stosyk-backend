@@ -134,11 +134,11 @@ class LessonService {
             await this.deleteByTeacherId(teacherId);
 
         const newLesson = await Lesson.create({name});
+        const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
         for (let {answerShown, sentences} of tasks) {
             const newTask = await taskService.create(answerShown, sentences);
 
-            const taskList = await TaskList.create({lessonId: newLesson.lessonId});
             await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
         }
 
