@@ -11,7 +11,7 @@ const Sequelize = require('sequelize');
 const studentService = require("../user/studentService");
 const lessonAnswersService = require("./lessonAnswersService");
 const { Op } = Sequelize;
-
+const store = require("store2");
 
 class LessonService {
     async teacherLessonExists(lessonId, teacherId){
@@ -244,6 +244,8 @@ class LessonService {
             }
         });
 
+        store.clear();
+
         // if(upd[0]){
         //     await pubsubService.publishLessonStarted(pubsub, lessonId, {
         //         lessonId: lessonId, status:'PENDING'
@@ -340,7 +342,18 @@ class LessonService {
             throw new NotFoundError(`No lesson ${lessonId} of student ${student.studentId} found`);
         }
         const teacher = await teacherService.findOneByLessonId(lessonId)
-        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, {taskId, student})
+        const studentsCurrentTask = store.get("CurrentPosition");
+        if(!studentsCurrentTask){
+            store('CurrentPosition', [{taskId, student}])
+        }else{
+            const newStudentsCurrentTask = studentsCurrentTask.map((el)=>({
+                ...el,
+                taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
+            }))
+            store('CurrentPosition', newStudentsCurrentTask)
+        }
+
+        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, store.get("CurrentPosition"))
         return true;
     }
 
