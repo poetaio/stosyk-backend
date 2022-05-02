@@ -1,7 +1,8 @@
 const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, Student, lessonGapsInclude,
-    lessonCorrectAnswersInclude
+    lessonCorrectAnswersInclude,
+    GapOption
 } = require('../../models');
-const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = require('../../utils');
+const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError, TaskTypeEnum} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
 const gapService = require("./gapService");
@@ -10,6 +11,7 @@ const pubsubService = require("../pubsubService");
 const Sequelize = require('sequelize');
 const studentService = require("../user/studentService");
 const lessonAnswersService = require("./lessonAnswersService");
+const {student} = require("../../../src.old/schemas/student/studentQueries");
 const { Op } = Sequelize;
 
 
@@ -123,8 +125,9 @@ class LessonService {
         for (let task of tasks) {
             for (let sentence of task.sentences) {
                 for (let gap of sentence.gaps) {
-                    if (!gap.options.some(x => x.isCorrect))
-                        throw new ValidationError(`No right option provided`);
+                    if (!gap.options.some(option => option.isCorrect)) {
+                        throw new ValidationError(`No correct option provided`);
+                    }
                 }
             }
         }
@@ -136,8 +139,8 @@ class LessonService {
         const newLesson = await Lesson.create({name});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
-        for (let {answerShown, sentences} of tasks) {
-            const newTask = await taskService.create(answerShown, sentences);
+        for (let { type, answerShown, sentences } of tasks) {
+            const newTask = await taskService.create(type, answerShown, sentences);
 
             await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
         }
@@ -196,7 +199,7 @@ class LessonService {
             where: {
                 lessonId,
             }
-        })
+        });
 
         return lesson;
     }
@@ -209,7 +212,6 @@ class LessonService {
             throw new ValidationError(`Lesson is already active lessonId: ${lessonId}`);
         }
 
-        // todo: make one db request with custom error messages
         const upd = await Lesson.update({
             status: LessonStatusEnum.ACTIVE
         }, {
@@ -276,26 +278,55 @@ class LessonService {
        return (!!lessonStudent);
     }
 
-    async setAnswer(pubsub, lessonId, studentId, optionId){
+    async setAnswer(pubsub, lessonId, taskId, gapId, studentId, optionId, studentInput){
         if(!await this.studentLessonExists(lessonId, studentId)){
             throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
         }
-
-        // todo: add check if option belongs to lesson
-        if (await optionService.existsStudentAnswer(studentId, optionId)) {
-            throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
+        if (!await this.existsActiveByLessonId(lessonId)) {
+            throw new ValidationError(`Lesson is not active ${lessonId}`);
+        }
+        const task = await taskService.getOneByIdAndLessonId(taskId, lessonId);
+        if (!task) {
+            throw new NotFoundError(`No task ${taskId} of lesson ${lessonId} found`)
         }
 
-        const studentOption = await StudentOption.create({
-            optionId,
-            studentId
-        });
+        if (task.type === TaskTypeEnum.MULTIPLE_CHOICE && optionId) {
+            // Exception: table name "optionGapOption->gapOptionGap->gapSent…ceGap->sentenceGapSente" specified more than once
+            // (too long alias name when joining table)
+            // if (!await optionService.existsByIdAndTaskId(optionId, taskId)) {
+            //     throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
+            // }
+            if (await optionService.existsStudentAnswer(studentId, optionId)) {
+                throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
+            }
+
+            await StudentOption.create({
+                optionId,
+                studentId
+            });
+        } else if (task.type === TaskTypeEnum.PLAIN_INPUT && gapId && studentInput) {
+            const correctOptions = await gapService.getCorrectOptions(gapId);
+
+            const isCorrect = correctOptions.map(option => option.value).includes(studentInput);
+
+            if (!await gapService.existsStudentAnswer(gapId, studentId)) {
+                let studentOption = await optionService.create(studentInput, isCorrect);
+                await GapOption.create({ optionId: studentOption.optionId, gapId });
+                await StudentOption.create({ studentId, optionId: studentOption.optionId });
+            } else {
+                const option = await optionService.getOneByGapIdAndStudentId(gapId, studentId);
+                const [updNum] = await optionService.updateById(option.optionId, studentInput, isCorrect);
+                if (!updNum) {
+                    throw new ValidationError(`Could not update student answer`);
+                }
+            }
+        } else throw new ValidationError(`Invalid input`);
 
         const teacher = await teacherService.findOneByLessonId(lessonId);
         await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
             await this.getStudentsAnswers(lessonId));
 
-        return (!!studentOption);
+        return true;
     }
 
     async deleteLesson(lessonId, teacherId) {
@@ -319,7 +350,7 @@ class LessonService {
         const tasks = [];
 
         for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
-            const newTask = { taskId: task.taskId, sentences: [] };
+            const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
             for (let { taskSentenceSentence : sentence } of task.taskTaskSentences) {
                 const newSentence = { sentenceId: sentence.sentenceId, gaps: [] };
                 for (let { sentenceGapGap : gap } of sentence.sentenceSentenceGaps) {

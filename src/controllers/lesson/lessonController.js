@@ -69,14 +69,14 @@ class LessonController {
         return await lessonService.joinLesson(pubsub, lessonId, student.studentId);
     }
 
-    async setAnswer({lessonId, answer: {optionId}}, { pubsub, user: {userId}}, ) {
+    async setAnswer({lessonId, answer: { taskId, gapId, optionId, answerInput }}, { pubsub, user: {userId}}, ) {
         const student = await studentService.findOneByUserId(userId);
 
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return await lessonService.setAnswer(pubsub, lessonId, student.studentId, optionId)
+        return await lessonService.setAnswer(pubsub, lessonId, taskId, gapId, student.studentId, optionId, answerInput)
     }
 
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {

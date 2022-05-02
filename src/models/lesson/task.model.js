@@ -1,3 +1,4 @@
+const { TaskTypeEnum } = require("../../utils");
 module.exports = (sequelize, DataTypes) => sequelize.define('task',
     {
         taskId: {
@@ -10,6 +11,11 @@ module.exports = (sequelize, DataTypes) => sequelize.define('task',
             allowNull: false,
             defaultValue: false
         },
+        type: {
+            type: DataTypes.ENUM(...Object.values(TaskTypeEnum)),
+            allowNull: false,
+            defaultValue: TaskTypeEnum.MULTIPLE_CHOICE
+        }
     },
     {
         // sequelize.models.Sentence

@@ -1,4 +1,4 @@
-const lessonTypeEnum = require("../../utils/enums/LessonType.enum");
+const { LessonStatusEnum } = require("../../utils");
 
 
 module.exports = (sequelize, DataTypes) => sequelize.define('lesson', {
@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define('lesson', {
         defaultValue: "Урок"
     },
     status: {
-        type: DataTypes.ENUM(...Object.values(lessonTypeEnum)),
-        defaultValue: lessonTypeEnum.PENDING
+        type: DataTypes.ENUM(...Object.values(LessonStatusEnum)),
+        defaultValue: LessonStatusEnum.PENDING
     }
 });
