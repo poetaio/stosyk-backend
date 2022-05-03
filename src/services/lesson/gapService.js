@@ -1,7 +1,5 @@
 const {Gap, GapOption, gapExistsByGapIdAndStudentIdInclude} = require("../../models");
 const optionService = require('./optionService');
-const {NotFoundError} = require("../../utils");
-const Sequelize = require("sequelize");
 
 class GapService {
     // student is on lesson, which gap belongs to
@@ -13,11 +11,30 @@ class GapService {
         });
     }
 
+    async existsStudentAnswer(gapId, studentId) {
+        return !!await Gap.count({
+            where: { gapId },
+            include: {
+                association: "gapGapOptions",
+                include: {
+                    association: "gapOptionOption",
+                    include: {
+                        association: "optionStudents",
+                        where: { studentId },
+                        required: true
+                    },
+                    required: true
+                },
+                required: true
+            }
+        });
+    }
+
     async create(position, options) {
         const gap = await Gap.create({ position });
 
-        for (let { value, isRight } of options) {
-            const newOption = await optionService.create(value, isRight);
+        for (let { value, isCorrect } of options) {
+            const newOption = await optionService.create(value, isCorrect);
 
             await GapOption.create({ gapId: gap.gapId, optionId: newOption.optionId });
         }

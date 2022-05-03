@@ -5,6 +5,7 @@ const TaskInputType = require('./Task.input.type');
 const TaskCorrectAnswerType = require('./TaskCorrectAnswer.type');
 const AttachmentInputType = require("./Attachment.input.type");
 const AttachmentType = require("./Attachment.type");
+const StudentCurrentTaskType = require('./StudentCurrrentTask.type')
 
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
     TaskInputType,
     TaskCorrectAnswerType,
     AttachmentInputType,
-    AttachmentType
+    AttachmentType,
+    StudentCurrentTaskType
 };

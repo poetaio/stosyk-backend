@@ -1,4 +1,7 @@
-const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, lessonGapsInclude } = require('../../models');
+const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, Student, lessonGapsInclude,
+    lessonCorrectAnswersInclude,
+    Option
+} = require('../../models');
 const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
@@ -9,7 +12,7 @@ const Sequelize = require('sequelize');
 const studentService = require("../user/studentService");
 const lessonAnswersService = require("./lessonAnswersService");
 const { Op } = Sequelize;
-
+const store = require("store2");
 
 class LessonService {
     async teacherLessonExists(lessonId, teacherId){
@@ -120,11 +123,11 @@ class LessonService {
             await this.deleteByTeacherId(teacherId);
 
         const newLesson = await Lesson.create({name});
+        const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
         for (let {answerShown, sentences, attachments} of tasks) {
             const newTask = await taskService.create(answerShown, sentences, attachments);
 
-            const taskList = await TaskList.create({lessonId: newLesson.lessonId});
             await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
         }
 
@@ -230,6 +233,8 @@ class LessonService {
             }
         });
 
+        store.clear();
+
         // if(upd[0]){
         //     await pubsubService.publishLessonStarted(pubsub, lessonId, {
         //         lessonId: lessonId, status:'PENDING'
@@ -262,8 +267,8 @@ class LessonService {
        return (!!lessonStudent);
     }
 
-    async setAnswer(pubsub, lessonId, studentId, optionId){
-        if(!await this.studentLessonExists(lessonId, studentId)){
+    async setAnswer(pubsub, lessonId, gapId, studentId, optionId){
+        if (!await this.studentLessonExists(lessonId, studentId)) {
             throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
         }
 
@@ -272,16 +277,34 @@ class LessonService {
             throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
         }
 
-        const studentOption = await StudentOption.create({
-            optionId,
-            studentId
-        });
+        // updating student-option if option exists
+        if (await gapService.existsStudentAnswer(gapId, studentId)) {
+            await StudentOption.update({
+                    optionId
+                }, {
+                where: { studentId },
+                include: {
+                    model: Option,
+                    include: {
+                        association: "optionGapOption",
+                        where: { gapId },
+                        required: true
+                    },
+                    required: true
+                }
+            });
+        } else {
+            await StudentOption.create({
+                optionId,
+                studentId
+            });
+        }
 
         const teacher = await teacherService.findOneByLessonId(lessonId);
         await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
             await this.getStudentsAnswers(lessonId));
 
-        return (!!studentOption);
+        return true;
     }
 
     async deleteLesson(lessonId, teacherId) {
@@ -321,6 +344,27 @@ class LessonService {
         return tasks;
     }
 
+    async setStudentCurrentPosition(pubsub, lessonId, taskId, student) {
+        if (!await this.studentLessonExists(lessonId, student.studentId)) {
+            throw new NotFoundError(`No lesson ${lessonId} of student ${student.studentId} found`);
+        }
+        const teacher = await teacherService.findOneByLessonId(lessonId)
+        const studentsCurrentTask = store.get("CurrentPosition");
+        if(!studentsCurrentTask){
+            store('CurrentPosition', [{taskId, student}])
+        }else{
+            const newStudentsCurrentTask = studentsCurrentTask.map((el)=>({
+                ...el,
+                taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
+            }))
+            store('CurrentPosition', newStudentsCurrentTask)
+        }
+
+        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, store.get("CurrentPosition"))
+        return true;
+    }
+
+
     async subscribeOnStudentAnswersChanged(pubsub, lessonId, teacherId) {
         if (!await this.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
@@ -348,6 +392,7 @@ class LessonService {
 
         return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
     }
+
 }
 
 module.exports = new LessonService();

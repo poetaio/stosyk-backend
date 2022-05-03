@@ -1,8 +1,8 @@
 const { Option, StudentOption} = require("../../models");
 
 class OptionService {
-    async create(value, isRight) {
-        return await Option.create({ value, isRight });
+    async create(value, isCorrect) {
+        return await Option.create({ value, isCorrect });
     }
 
     async existsStudentAnswer(studentId, optionId) {

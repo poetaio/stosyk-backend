@@ -69,14 +69,32 @@ class LessonController {
         return await lessonService.joinLesson(pubsub, lessonId, student.studentId);
     }
 
-    async setAnswer({lessonId, answer: {optionId}}, { pubsub, user: {userId}}, ) {
+    async setStudentCurrentPosition({lessonId, taskId}, {pubsub, user: {userId}}){
+        const student = await studentService.findOneByUserId(userId);
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return await lessonService.setStudentCurrentPosition(pubsub, lessonId, taskId, student);
+    }
+
+    async getStudentCurrentPosition({lessonId}, {pubsub, user: {userId}}){
+        const teacher = await teacherService.findOneByUserId(userId);
+        if(!teacher){
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+        }
+
+        return await pubsubService.subscribeOnStudentPosition(pubsub, teacher.teacherId, lessonId)
+    }
+
+    async setAnswer({lessonId, answer: { gapId, optionId }}, { pubsub, user: {userId}}, ) {
         const student = await studentService.findOneByUserId(userId);
 
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return await lessonService.setAnswer(pubsub, lessonId, student.studentId, optionId)
+        return await lessonService.setAnswer(pubsub, lessonId, gapId, student.studentId, optionId)
     }
 
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {
