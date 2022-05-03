@@ -1,5 +1,6 @@
 const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, Student, lessonGapsInclude,
-    lessonCorrectAnswersInclude
+    lessonCorrectAnswersInclude,
+    Option
 } = require('../../models');
 const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = require('../../utils');
 const teacherService = require('../user/teacherService');
@@ -134,11 +135,11 @@ class LessonService {
             await this.deleteByTeacherId(teacherId);
 
         const newLesson = await Lesson.create({name});
+        const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
         for (let {answerShown, sentences} of tasks) {
             const newTask = await taskService.create(answerShown, sentences);
 
-            const taskList = await TaskList.create({lessonId: newLesson.lessonId});
             await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
         }
 
@@ -278,8 +279,8 @@ class LessonService {
        return (!!lessonStudent);
     }
 
-    async setAnswer(pubsub, lessonId, studentId, optionId){
-        if(!await this.studentLessonExists(lessonId, studentId)){
+    async setAnswer(pubsub, lessonId, gapId, studentId, optionId){
+        if (!await this.studentLessonExists(lessonId, studentId)) {
             throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
         }
 
@@ -288,16 +289,34 @@ class LessonService {
             throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
         }
 
-        const studentOption = await StudentOption.create({
-            optionId,
-            studentId
-        });
+        // updating student-option if option exists
+        if (await gapService.existsStudentAnswer(gapId, studentId)) {
+            await StudentOption.update({
+                    optionId
+                }, {
+                where: { studentId },
+                include: {
+                    model: Option,
+                    include: {
+                        association: "optionGapOption",
+                        where: { gapId },
+                        required: true
+                    },
+                    required: true
+                }
+            });
+        } else {
+            await StudentOption.create({
+                optionId,
+                studentId
+            });
+        }
 
         const teacher = await teacherService.findOneByLessonId(lessonId);
         await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
             await this.getStudentsAnswers(lessonId));
 
-        return (!!studentOption);
+        return true;
     }
 
     async deleteLesson(lessonId, teacherId) {
