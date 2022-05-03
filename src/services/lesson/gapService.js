@@ -11,6 +11,25 @@ class GapService {
         });
     }
 
+    async existsStudentAnswer(gapId, studentId) {
+        return !!await Gap.count({
+            where: { gapId },
+            include: {
+                association: "gapGapOptions",
+                include: {
+                    association: "gapOptionOption",
+                    include: {
+                        association: "optionStudents",
+                        where: { studentId },
+                        required: true
+                    },
+                    required: true
+                },
+                required: true
+            }
+        });
+    }
+
     async create(position, options) {
         const gap = await Gap.create({ position });
 
