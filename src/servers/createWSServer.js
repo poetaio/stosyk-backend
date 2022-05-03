@@ -15,7 +15,7 @@ module.exports = (expressServer, pubsub) => {
         schema,
         execute,
         subscribe,
-        context: ({ connectionParams }) => ({ pubsub, authHeader: connectionParams.Authorization }),
+        context: ({ connectionParams }) => ({ pubsub, authHeader: connectionParams?.Authorization }),
         keepAlive: 10000
     }, wsServer);
 
