@@ -86,11 +86,11 @@ class GapService {
     async getStudentsAnswers(gapId) {
         const options = await optionService.getAllWithAnswersByGapId(gapId);
         const studentsAnswers = [];
-        for (let { optionId, value, optionStudents } of options) {
+        for (let { optionId, value, isCorrect, optionStudents } of options) {
             for (let { studentId } of optionStudents || []) {
                 studentsAnswers.push({
                     option: {
-                        optionId, value
+                        optionId, value, isCorrect
                     },
                     studentId
                 })
