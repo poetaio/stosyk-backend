@@ -47,7 +47,7 @@ const correctAnswersShown = {
 }
 
 const getStudentCurrentPosition = {
-    type: GraphQLList(StudentCurrentTaskType),
+    type: GraphQLNonNull(GraphQLList(StudentCurrentTaskType)),
     name: 'getStudentCurrentPosition',
     description: 'Get Student Current Position',
     args: {
