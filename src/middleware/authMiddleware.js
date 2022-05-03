@@ -13,7 +13,7 @@ const parseRestRequest = async (req, res, next) => {
         // parse token header -> user object
         user = jwt.verify(token, process.env.JWT_SECRET);
         // check role
-        if (!UserRoleEnum.TEACHER.includes(user.role)) {
+        if (!UserRoleEnum.TEACHER===(user.role)) {
             throw new UnauthorizedError('Unauthorized');
         }
     } catch (e) {

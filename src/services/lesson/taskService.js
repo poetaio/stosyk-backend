@@ -3,11 +3,10 @@ const {Task, Lesson, TaskSentence,
     DELETE_TASK_BY_LESSON_ID,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
-    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, Sentence, TaskAttachments
+    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments
 } = require("../../models");
 const sentenceService = require('./sentenceService');
-const {DBError, NotFoundError, ValidationError, LessonStatusEnum} = require('../../utils');
-const lessonSevice = require('./lessonService');
+const { NotFoundError, ValidationError, LessonStatusEnum } = require('../../utils');
 const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
@@ -69,7 +68,7 @@ class TaskService {
             }
         });
     }
-    
+
     async showAnswers(pubsub, taskId, teacherId) {
         if (!await this.teacherTaskExists(taskId, teacherId)){
             throw new NotFoundError(`No task ${taskId} of such teacher ${teacherId}`);
@@ -105,7 +104,7 @@ class TaskService {
 
         return !!upd[0];
     }
-    
+
     async create(answerShown, sentences, attachments) {
         const task = await Task.create({ answerShown });
         const taskId = task.taskId;
@@ -134,7 +133,7 @@ class TaskService {
         }
 
         return await Task.findAll({
-            include: [ {
+            include: {
                 association: 'taskTaskListTask',
                 include: {
                     association: 'taskListTaskTaskList',
@@ -146,11 +145,8 @@ class TaskService {
                     required: true
                 },
                 required: true
-            }, "taskAttachments" ]
-        }).then(res => res.map(task => {
-            task.attachments = task.taskAttachments
-            return task;
-        }));
+            }
+        });
     }
 
     async deleteByLessonId(lessonId) {

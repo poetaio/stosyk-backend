@@ -1,6 +1,6 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLList, GraphQLID} = require("graphql");
 const { TeacherSentenceType } = require("../sentence");
-const { sentenceController } = require("../../../../controllers");
+const { sentenceController, attachmentController} = require("../../../../controllers");
 const AttachmentType = require("./Attachment.type");
 
 module.exports = new GraphQLObjectType({
@@ -15,7 +15,9 @@ module.exports = new GraphQLObjectType({
                 await sentenceController.getSentences(parent, args, context)
         },
         attachments: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AttachmentType)))
+            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AttachmentType))),
+            resolve: async (parent, args, context) =>
+                await attachmentController.getAttachments(parent, args, context)
         }
     }
 });
