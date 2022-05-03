@@ -1,8 +1,8 @@
 const {GraphQLList, GraphQLNonNull, GraphQLID} = require("graphql");
-const { TaskStudentsAnswersType, TeacherLessonType, LessonCorrectAnswersType, LessonStatusType} = require('./types');
+const { TaskStudentsAnswersType, LessonCorrectAnswersType, LessonStatusType} = require('./types');
 const { StudentType } = require('../user/types');
 const { lessonController } = require('../../controllers');
-const {authMiddleware, subscribeAuthMiddleware} = require("../../middleware");
+const { subscribeAuthMiddleware } = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
 const presentStudentsChanged = {

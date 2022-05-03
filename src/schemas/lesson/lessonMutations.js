@@ -1,7 +1,7 @@
 const { lessonController, taskController} = require('../../controllers');
 const { LessonInputType, AnswerInputType } = require('./types');
 const { GraphQLBoolean, GraphQLID, GraphQLNonNull } = require("graphql");
-const {authMiddleware, resolveAuthMiddleware} = require("../../middleware");
+const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
 

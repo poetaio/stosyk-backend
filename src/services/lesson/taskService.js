@@ -3,7 +3,7 @@ const {Task, Lesson, TaskSentence,
     DELETE_TASK_BY_LESSON_ID,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
-    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude
+    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, Sentence, TaskAttachments
 } = require("../../models");
 const sentenceService = require('./sentenceService');
 const {DBError, NotFoundError, ValidationError, LessonStatusEnum} = require('../../utils');
@@ -106,13 +106,18 @@ class TaskService {
         return !!upd[0];
     }
     
-    async create(answerShown, sentences) {
+    async create(answerShown, sentences, attachments) {
         const task = await Task.create({ answerShown });
+        const taskId = task.taskId;
 
         for (let { index, text, gaps } of sentences) {
             const newSentence = await sentenceService.create(index, text, gaps);
 
-            await TaskSentence.create({ taskId: task.taskId, sentenceId: newSentence.sentenceId });
+            await TaskSentence.create({ taskId, sentenceId: newSentence.sentenceId });
+        }
+
+        for (let {link, title, contentType} of attachments) {
+            await TaskAttachments.create({ taskId, link, title, contentType});
         }
 
         return task;
@@ -129,7 +134,7 @@ class TaskService {
         }
 
         return await Task.findAll({
-            include: {
+            include: [ {
                 association: 'taskTaskListTask',
                 include: {
                     association: 'taskListTaskTaskList',
@@ -141,8 +146,11 @@ class TaskService {
                     required: true
                 },
                 required: true
-            }
-        });
+            }, "taskAttachments" ]
+        }).then(res => res.map(task => {
+            task.attachments = task.taskAttachments
+            return task;
+        }));
     }
 
     async deleteByLessonId(lessonId) {

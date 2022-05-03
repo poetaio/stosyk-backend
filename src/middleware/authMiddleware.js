@@ -1,5 +1,27 @@
-const { httpStatusCodes, UnauthorizedError, NotFoundError} = require("../utils");
+const {UnauthorizedError, UserRoleEnum} = require("../utils");
 const jwt = require('jsonwebtoken');
+
+const parseRestRequest = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization.split(' ')[1];
+
+        if (!token) {
+            throw new UnauthorizedError('Invalid token');
+        }
+
+        let user;
+        // parse token header -> user object
+        user = jwt.verify(token, process.env.JWT_SECRET);
+        // check role
+        if (!UserRoleEnum.TEACHER.includes(user.role)) {
+            throw new UnauthorizedError('Unauthorized');
+        }
+    } catch (e) {
+        return res.status(403).json(e.message);
+    }
+
+    return next();
+}
 
 const parseRequest = async (userRoles, callback, parent, args, context) => {
     const { authHeader } = context;
@@ -45,5 +67,6 @@ const subscribeAuthMiddleware = (...userRoles) => {
 
 module.exports = {
     resolveAuthMiddleware,
-    subscribeAuthMiddleware
+    subscribeAuthMiddleware,
+    parseRestRequest
 }

@@ -1,4 +1,4 @@
-const { lessonService, studentService, userService} = require('../../services')
+const { lessonService, studentService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {pubsubService} = require('../../services');

@@ -1,6 +1,4 @@
-const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, Student, lessonGapsInclude,
-    lessonCorrectAnswersInclude
-} = require('../../models');
+const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, lessonGapsInclude } = require('../../models');
 const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
@@ -57,18 +55,6 @@ class LessonService {
             }
         });
     }
-
-    // async deleteByIdOld(lessonId) {
-    //     const [ deletedLessons ] = await sequelize.query(DELETE_LESSON_BY_ID, {
-    //         replacements: { lessonId }
-    //     });
-    //
-    //     for (let { lessonId } of deletedLessons) {
-    //         await taskService.deleteByLessonId(lessonId);
-    //     }
-    //
-    //     return !!deletedLessons.length;
-    // }
 
     async deleteById(lessonId) {
         const lesson = await Lesson.findOne({
@@ -135,8 +121,8 @@ class LessonService {
 
         const newLesson = await Lesson.create({name});
 
-        for (let {answerShown, sentences} of tasks) {
-            const newTask = await taskService.create(answerShown, sentences);
+        for (let {answerShown, sentences, attachments} of tasks) {
+            const newTask = await taskService.create(answerShown, sentences, attachments);
 
             const taskList = await TaskList.create({lessonId: newLesson.lessonId});
             await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
