@@ -59,18 +59,6 @@ class LessonService {
         });
     }
 
-    // async deleteByIdOld(lessonId) {
-    //     const [ deletedLessons ] = await sequelize.query(DELETE_LESSON_BY_ID, {
-    //         replacements: { lessonId }
-    //     });
-    //
-    //     for (let { lessonId } of deletedLessons) {
-    //         await taskService.deleteByLessonId(lessonId);
-    //     }
-    //
-    //     return !!deletedLessons.length;
-    // }
-
     async deleteById(lessonId) {
         const lesson = await Lesson.findOne({
             where: { lessonId },
@@ -137,8 +125,8 @@ class LessonService {
         const newLesson = await Lesson.create({name});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
-        for (let {answerShown, sentences} of tasks) {
-            const newTask = await taskService.create(answerShown, sentences);
+        for (let {answerShown, sentences, attachments} of tasks) {
+            const newTask = await taskService.create(answerShown, sentences, attachments);
 
             await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
         }
