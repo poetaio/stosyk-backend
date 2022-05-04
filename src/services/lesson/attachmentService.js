@@ -7,7 +7,7 @@ class AttachmentService {
             where.taskId = taskId;
         }
 
-        return await TaskAttachments.findAll();
+        return await TaskAttachments.findAll({where});
     }
 
 
