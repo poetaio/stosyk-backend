@@ -1,5 +1,6 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLList, GraphQLID} = require("graphql");
 const { StudentSentenceType } = require("../sentence");
+const TaskTypeEnumType = require("./TaskTypeEnum.type");
 const { sentenceController, attachmentController} = require("../../../../controllers");
 const AttachmentType = require("./Attachment.type");
 
@@ -8,6 +9,7 @@ module.exports = new GraphQLObjectType({
     description: 'Student Task Type',
     fields: {
         taskId: { type: GraphQLNonNull(GraphQLID) },
+        type: { type: GraphQLNonNull(TaskTypeEnumType) },
         answersShown: { type: GraphQLNonNull(GraphQLBoolean) },
         sentences: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentSentenceType))),

@@ -6,7 +6,7 @@ const {Task, Lesson, TaskSentence,
     DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments
 } = require("../../models");
 const sentenceService = require('./sentenceService');
-const { NotFoundError, ValidationError, LessonStatusEnum } = require('../../utils');
+const {DBError, NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum} = require('../../utils');
 const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
@@ -105,8 +105,8 @@ class TaskService {
         return !!upd[0];
     }
 
-    async create(answerShown, sentences, attachments) {
-        const task = await Task.create({ answerShown });
+    async create(type, answerShown, sentences, attachments) {
+        const task = await Task.create({ type, answerShown });
         const taskId = task.taskId;
 
         for (let { index, text, gaps } of sentences) {
@@ -193,6 +193,31 @@ class TaskService {
                 }
             }
         }
+    }
+
+    async getOneById(taskId) {
+        return await Task.findOne({
+            where: { taskId }
+        });
+    }
+
+    async getOneByIdAndLessonId(taskId, lessonId) {
+        return await Task.findOne({
+            where: { taskId },
+            include: {
+                association: "taskTaskListTask",
+                include: {
+                    association: "taskListTaskTaskList",
+                    include: {
+                        association: "taskListLesson",
+                        where: { lessonId },
+                        required: true,
+                    },
+                    required: true,
+                },
+                required: true,
+            }
+        });
     }
 }
 
