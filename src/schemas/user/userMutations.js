@@ -1,8 +1,7 @@
 const {  GraphQLString, GraphQLNonNull} = require("graphql");
 const { teacherController, studentController, accountController } =require('../../controllers');
 const { TeacherInputType, TokenType} = require("./types");
-const {resolveAuthMiddleware} = require("../../middleware");
-const {UserRoleEnum} = require("../../utils");
+const { resolveUserIdParsingMiddleware } = require("../../middleware");
 
 
 const createAnonymousTeacher = {
@@ -45,7 +44,7 @@ const createAnonymousStudent = {
 
 module.exports = {
     createAnonymousTeacher,
-    registerTeacher: resolveAuthMiddleware(UserRoleEnum.TEACHER)(registerTeacher),
+    registerTeacher: resolveUserIdParsingMiddleware(registerTeacher),
     loginTeacher,
     createAnonymousStudent
 };

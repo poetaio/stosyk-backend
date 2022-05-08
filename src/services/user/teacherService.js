@@ -1,4 +1,4 @@
-const { Teacher } = require('../../models');
+const { Teacher, User, Account} = require('../../models');
 const {UserRoleEnum, UserTypeEnum, hashPassword} = require("../../utils");
 
 
@@ -42,6 +42,26 @@ class TeacherService {
                 }
             }
         );
+    }
+
+    async updateAnonymousTeacherToRegistered(userId, email, password) {
+        const passwordHash = await hashPassword(password);
+
+        await User.update({
+                type: UserTypeEnum.REGISTERED,
+            },
+            {
+                where: {
+                    userId
+                }
+            }
+        );
+
+        await Account.create({
+            login: email,
+            passwordHash,
+            userId
+        })
     }
 
     async findOneByUserId(userId) {

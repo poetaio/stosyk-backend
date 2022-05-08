@@ -49,6 +49,23 @@ const parseRequest = async (userRoles, callback, parent, args, context) => {
     return await callback(parent, args, context);
 };
 
+const parseRequestForUserId = async (callback, parent, args, context) => {
+    const {authHeader} = context;
+    const token = authHeader?.split(' ')[1];
+
+    if (token) {
+        let user;
+        try {
+            // parse token header -> user object
+            user = jwt.verify(token, process.env.JWT_SECRET);
+            context.userId = user.userId;
+        } catch (e) {
+            return await callback(parent, args, context);
+        }
+    }
+    return await callback(parent, args, context);
+};
+
 const resolveAuthMiddleware = (...userRoles) => {
     return (endpoint) => ({
         ...endpoint,
@@ -56,6 +73,12 @@ const resolveAuthMiddleware = (...userRoles) => {
         resolve: async (parent, args, context) => await parseRequest(userRoles, endpoint.resolve, parent, args, context),
     });
 }
+
+const resolveUserIdParsingMiddleware = (endpoint) => ({
+        ...endpoint,
+        // change resolve
+        resolve: async (parent, args, context) => await parseRequestForUserId(endpoint.resolve, parent, args, context),
+    });
 
 const subscribeAuthMiddleware = (...userRoles) => {
     return (endpoint) => ({
@@ -68,5 +91,6 @@ const subscribeAuthMiddleware = (...userRoles) => {
 module.exports = {
     resolveAuthMiddleware,
     subscribeAuthMiddleware,
-    parseRestRequest
+    parseRestRequest,
+    resolveUserIdParsingMiddleware
 }
