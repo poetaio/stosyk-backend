@@ -1,5 +1,5 @@
 const { GraphQLBoolean } = require("graphql");
-const { userController } = require('../../controllers');
+const { userController} = require('../../controllers');
 const {authMiddleware, resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
@@ -17,8 +17,16 @@ const checkStudentAuth = {
     resolve: async (parent, args, context) => await userController.checkStudentAuth(args, context)
 };
 
+const isUserRegistered = {
+    type: GraphQLBoolean,
+    name: 'isUserRegistered',
+    description: 'Is user registered',
+    resolve: async (parent, args, context) => await userController.isRegistered(context)
+}
+
 
 module.exports = {
     checkTeacherAuth: resolveAuthMiddleware(UserRoleEnum.TEACHER)(checkTeacherAuth),
     checkStudentAuth: resolveAuthMiddleware(UserRoleEnum.STUDENT)(checkStudentAuth),
+    isUserRegistered: resolveAuthMiddleware(UserRoleEnum.TEACHER)(isUserRegistered)
 };
