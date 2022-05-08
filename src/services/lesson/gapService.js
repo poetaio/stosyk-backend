@@ -71,7 +71,7 @@ class GapService {
         //     throw new NotFoundError(`Gap of lesson of such student not found gapId: ${gapId}, studentId: ${studentId}`)
         // }
 
-        const options = await optionService.getAll({ gapId });
+        const options = await optionService.getAllWithAnswersByGapId(gapId);
         for (let { optionId, value } of options) {
             if (await optionService.existsStudentAnswer(studentId, optionId)) {
                 return {
@@ -86,17 +86,40 @@ class GapService {
     async getStudentsAnswers(gapId) {
         const options = await optionService.getAllWithAnswersByGapId(gapId);
         const studentsAnswers = [];
-        for (let { optionId, value, optionStudents } of options) {
+        for (let { optionId, value, isCorrect, optionStudents } of options) {
             for (let { studentId } of optionStudents || []) {
                 studentsAnswers.push({
                     option: {
-                        optionId, value
+                        optionId, value, isCorrect
                     },
                     studentId
                 })
             }
         }
         return studentsAnswers;
+    }
+
+    async existsStudentAnswer(gapId, studentId) {
+        return !!await Gap.count({
+            where: { gapId },
+            include: {
+                association: "gapGapOptions",
+                include: {
+                    association: "gapOptionOption",
+                    include: {
+                        association: "optionStudents",
+                        where: { studentId },
+                        required: true,
+                    },
+                    required: true,
+                },
+                required: true,
+            }
+        })
+    }
+
+    async getCorrectOptions(gapId) {
+        return await optionService.getAllCorrectByGapId(gapId);
     }
 }
 

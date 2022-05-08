@@ -3,7 +3,7 @@ const {StudentLessonType, TeacherCountedLessonsType,
 } = require("./types");
 const { lessonController } = require("../../controllers");
 const { GraphQLNonNull, GraphQLID } = require("graphql");
-const { authMiddleware, subscribeAuthMiddleware, resolveAuthMiddleware} = require('../../middleware');
+const { resolveAuthMiddleware} = require('../../middleware');
 const { UserRoleEnum } = require("../../utils");
 
 

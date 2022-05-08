@@ -1,13 +1,24 @@
-const { accountService, tokenService, teacherService} = require('../../services')
+const { accountService, tokenService, teacherService, userService} = require('../../services')
 const bcrypt = require('bcrypt');
 const {UnauthorizedError, ValidationError} = require("../../utils");
+const {REGISTERED} = require("../../utils/enums/UserType.enum");
 
 class AccountController {
-    async registerTeacher({ teacher: { email, password } }) {
+    async registerTeacher({ teacher: { email, password } }, { userId }) {
+        const user = await userService.findOneByUserId(userId);
+        if (user.type === REGISTERED)
+            throw new ValidationError(`User is already registered`);
+
         if (await accountService.existsByLogin(email))
             throw new ValidationError(`User with login ${email} already exists`);
 
-        const userId = await teacherService.create(email, password);
+        if (userId) {
+            // const teacher = await teacherService.findOneByUserId(userId);
+            await teacherService.updateAnonymousTeacherToRegistered(userId, email, password);
+        } else {
+            const userToProceed = await teacherService.create(email, password);
+            userId = userToProceed.user.userId;
+        }
 
         const token = await tokenService.createTeacherToken(userId);
         return { token };
@@ -26,4 +37,4 @@ class AccountController {
 }
 
 
-module.exports = new AccountController();
+    module.exports = new AccountController();

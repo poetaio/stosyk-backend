@@ -1,6 +1,6 @@
 const { GraphQLBoolean } = require("graphql");
-const { userController} = require('../../controllers');
-const {authMiddleware, resolveAuthMiddleware} = require("../../middleware");
+const { userController } = require('../../controllers');
+const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
 const checkTeacherAuth = {

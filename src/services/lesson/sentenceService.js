@@ -1,5 +1,9 @@
-const { Sentence, SentenceGap } = require("../../models");
+const { Sentence, SentenceGap, multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
+    plainInputSentencesCorrectAnswersByTaskIdInclude
+} = require("../../models");
 const gapService = require('./gapService');
+const {Sequelize} = require("sequelize");
+const { Op } = require("sequelize");
 
 class SentenceService {
     async create(index, text, gaps) {
@@ -34,6 +38,18 @@ class SentenceService {
                 },
                 required: true
             }
+        });
+    }
+
+    async getPlainInputSentencesByTaskId(taskId) {
+        return await Sentence.findAll({
+            include: plainInputSentencesCorrectAnswersByTaskIdInclude(taskId)
+        });
+    }
+
+    async getMultipleChoiceSentencesCorrectAnswersByTaskId(taskId) {
+        return await Sentence.findAll({
+            include: multipleChoiceSentenceCorrectAnswersByTaskIdInclude(taskId)
         });
     }
 }

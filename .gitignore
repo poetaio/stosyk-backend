@@ -135,3 +135,5 @@ dist
 .pnp.*
 
 src.old
+
+.env

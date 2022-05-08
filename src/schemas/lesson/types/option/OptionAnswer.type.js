@@ -1,4 +1,4 @@
-const { GraphQLNonNull, GraphQLString, GraphQLID, GraphQLObjectType} = require("graphql");
+const { GraphQLNonNull, GraphQLString, GraphQLID, GraphQLObjectType, GraphQLBoolean} = require("graphql");
 
 
 module.exports = new GraphQLObjectType({
@@ -6,6 +6,7 @@ module.exports = new GraphQLObjectType({
     description: "Option Answer type",
     fields: {
         optionId: { type: GraphQLNonNull(GraphQLID) },
-        value: { type: GraphQLNonNull(GraphQLString) }
+        value: { type: GraphQLNonNull(GraphQLString) },
+        isCorrect: { type: GraphQLNonNull(GraphQLBoolean) }
     }
 });
