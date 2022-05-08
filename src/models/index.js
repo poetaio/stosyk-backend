@@ -265,6 +265,13 @@ Option.belongsToMany(Student, {
     as: 'optionStudents'
 });
 
+StudentOption.belongsTo(Option, {
+    foreignKey: 'optionId',
+});
+StudentOption.belongsTo(Student, {
+    foreignKey: 'studentId',
+});
+
 // Student-Lesson Many-to-Many relationship
 
 Student.belongsToMany(Lesson,{

@@ -289,9 +289,7 @@ class LessonService {
 
         // updating student-option if option exists
         if (await gapService.existsStudentAnswer(gapId, studentId)) {
-            await StudentOption.update({
-                    optionId
-                }, {
+            const previousAnswer = await StudentOption.findOne({
                 where: { studentId },
                 include: {
                     model: Option,
@@ -302,6 +300,12 @@ class LessonService {
                     },
                     required: true
                 }
+            });
+
+            await StudentOption.update({
+                    optionId
+                }, {
+                where: { studentOptionId: previousAnswer.studentOptionId },
             });
         } else {
             await StudentOption.create({
