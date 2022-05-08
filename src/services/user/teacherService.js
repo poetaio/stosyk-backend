@@ -1,6 +1,5 @@
-const { Teacher, User} = require('../../models');
+const { Teacher } = require('../../models');
 const {UserRoleEnum, UserTypeEnum, hashPassword} = require("../../utils");
-const bcrypt = require('bcrypt');
 
 
 class TeacherService {
@@ -42,7 +41,7 @@ class TeacherService {
                     include: 'account'
                 }
             }
-        ).then(({ user }) => user.userId);
+        );
     }
 
     async findOneByUserId(userId) {
