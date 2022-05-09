@@ -117,6 +117,27 @@ class OptionService {
         });
     }
 
+    async getOneStudentAnswerByGapId(gapId, studentId) {
+        return await Option.findAll({
+            include: [
+                {
+                    association: 'optionGapOption',
+                    include: {
+                        association: 'gapOptionGap',
+                        where: { gapId },
+                        required: true
+                    },
+                    required: true
+                },
+                {
+                    association: 'optionStudents',
+                    where: {studentId},
+                    required: true
+                }
+            ]
+        });
+    }
+
     async existsByIdAndTaskId(optionId, taskId) {
         return !!await Option.count({
             where: { optionId },
