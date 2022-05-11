@@ -411,6 +411,32 @@ class LessonService {
         return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
     }
 
+    async studentLeaveLesson(pubsub, lessonId, studentId) {
+        if(!await this.lessonExists(lessonId)){
+            throw new NotFoundError(`No lesson ${lessonId} found`);
+        }
+
+        if (!await this.studentLessonExists(lessonId, studentId)){
+            throw new ValidationError(`Student ${studentId} is not on lesson ${lessonId}`);
+        }
+
+        const lessonStudent = await LessonStudent.destroy({
+            where: {
+                lessonId,
+                studentId
+            }
+        })
+
+        const teacher = await teacherService.findOneByLessonId(lessonId)
+        const students = await studentService.studentsLesson(lessonId)
+        for(let student of students){
+            await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, student.userId, students)
+        }
+        await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
+
+        return !!lessonStudent
+    }
+
 }
 
 module.exports = new LessonService();

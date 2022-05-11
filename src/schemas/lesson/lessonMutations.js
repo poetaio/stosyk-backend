@@ -88,6 +88,16 @@ const setStudentCurrentPosition = {
     resolve: async (parent, args, context) => await lessonController.setStudentCurrentPosition(args, context)
 }
 
+const studentLeaveLesson = {
+    type: GraphQLBoolean,
+    name: 'studentLeaveLesson',
+    description: 'Student Leave Lesson',
+    args: {
+        lessonId: {type: GraphQLNonNull(GraphQLID)}
+    },
+    resolve: async  (parent, args, context) => await lessonController.studentLeaveLesson(args, context)
+}
+
 
 module.exports = {
     // teacher
@@ -101,4 +111,5 @@ module.exports = {
     joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),
     setAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setAnswer),
     setStudentCurrentPosition: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setStudentCurrentPosition),
+    studentLeaveLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLeaveLesson)
 };
