@@ -5,15 +5,13 @@ const {REGISTERED} = require("../../utils/enums/UserType.enum");
 
 class AccountController {
     async registerTeacher({ teacher: { email, password } }, { userId }) {
-        const user = await userService.findOneByUserId(userId);
-        if (user.type === REGISTERED)
-            throw new ValidationError(`User is already registered`);
-
         if (await accountService.existsByLogin(email))
             throw new ValidationError(`User with login ${email} already exists`);
 
         if (userId) {
-            // const teacher = await teacherService.findOneByUserId(userId);
+            const user = await userService.findOneByUserId(userId);
+            if (user.type === REGISTERED)
+                throw new ValidationError(`User is already registered`);
             await teacherService.updateAnonymousTeacherToRegistered(userId, email, password);
         } else {
             const userToProceed = await teacherService.create(email, password);
