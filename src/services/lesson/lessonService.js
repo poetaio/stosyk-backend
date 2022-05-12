@@ -411,6 +411,34 @@ class LessonService {
         return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
     }
 
+    async studentGetAnswers(lessonId, studentId){
+        if (!await this.existsActiveByLessonId(lessonId)) {
+            throw new ValidationError(`Lesson ${lessonId} already started`)
+        }
+        const lesson = await Lesson.findOne({
+            where: { lessonId },
+            include: lessonGapsInclude
+        });
+
+        const tasks = [];
+
+        for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
+            const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
+            for (let { taskSentenceSentence : sentence } of task.taskTaskSentences) {
+                const newSentence = { sentenceId: sentence.sentenceId, gaps: [] };
+                for (let { sentenceGapGap : gap } of sentence.sentenceSentenceGaps) {
+                    const newGap = { gapId: gap.gapId };
+                    newGap.studentsAnswers = await gapService.studentGetAnswer(gap.gapId, studentId);
+                    newSentence.gaps.push(newGap);
+                }
+                newTask.sentences.push(newSentence);
+            }
+            tasks.push(newTask);
+        }
+
+        return tasks;
+    }
+
 }
 
 module.exports = new LessonService();

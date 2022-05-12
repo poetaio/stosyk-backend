@@ -99,6 +99,22 @@ class GapService {
         return studentsAnswers;
     }
 
+    async studentGetAnswer(gapId, studentId){
+        const options = await optionService.getOneStudentAnswerByGapId(gapId, studentId);
+        const studentsAnswers = [];
+        for (let { optionId, value, isCorrect, optionStudents } of options) {
+            for (let { studentId } of optionStudents || []) {
+                studentsAnswers.push({
+                    option: {
+                        optionId, value, isCorrect
+                    },
+                    studentId
+                })
+            }
+        }
+        return studentsAnswers;
+    }
+
     async existsStudentAnswer(gapId, studentId) {
         return !!await Gap.count({
             where: { gapId },
