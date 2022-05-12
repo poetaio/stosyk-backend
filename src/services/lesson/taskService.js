@@ -3,11 +3,10 @@ const {Task, Lesson, TaskSentence,
     DELETE_TASK_BY_LESSON_ID,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
-    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude
+    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments
 } = require("../../models");
 const sentenceService = require('./sentenceService');
-const {DBError, NotFoundError, ValidationError, LessonStatusEnum} = require('../../utils');
-const lessonSevice = require('./lessonService');
+const {DBError, NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum} = require('../../utils');
 const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
@@ -69,7 +68,7 @@ class TaskService {
             }
         });
     }
-    
+
     async showAnswers(pubsub, taskId, teacherId) {
         if (!await this.teacherTaskExists(taskId, teacherId)){
             throw new NotFoundError(`No task ${taskId} of such teacher ${teacherId}`);
@@ -105,14 +104,19 @@ class TaskService {
 
         return !!upd[0];
     }
-    
-    async create(answerShown, sentences) {
-        const task = await Task.create({ answerShown });
+
+    async create(type, answerShown, sentences, attachments) {
+        const task = await Task.create({ type, answerShown });
+        const taskId = task.taskId;
 
         for (let { index, text, gaps } of sentences) {
             const newSentence = await sentenceService.create(index, text, gaps);
 
-            await TaskSentence.create({ taskId: task.taskId, sentenceId: newSentence.sentenceId });
+            await TaskSentence.create({ taskId, sentenceId: newSentence.sentenceId });
+        }
+
+        for (let {link, title, contentType} of attachments) {
+            await TaskAttachments.create({ taskId, link, title, contentType});
         }
 
         return task;
@@ -189,6 +193,31 @@ class TaskService {
                 }
             }
         }
+    }
+
+    async getOneById(taskId) {
+        return await Task.findOne({
+            where: { taskId }
+        });
+    }
+
+    async getOneByIdAndLessonId(taskId, lessonId) {
+        return await Task.findOne({
+            where: { taskId },
+            include: {
+                association: "taskTaskListTask",
+                include: {
+                    association: "taskListTaskTaskList",
+                    include: {
+                        association: "taskListLesson",
+                        where: { lessonId },
+                        required: true,
+                    },
+                    required: true,
+                },
+                required: true,
+            }
+        });
     }
 }
 

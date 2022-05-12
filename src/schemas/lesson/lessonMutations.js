@@ -1,7 +1,7 @@
 const { lessonController, taskController} = require('../../controllers');
-const { LessonInputType, AnswerInputType } = require('./types');
-const { GraphQLBoolean, GraphQLID, GraphQLNonNull } = require("graphql");
-const {authMiddleware, resolveAuthMiddleware} = require("../../middleware");
+const { LessonInputType, AnswerInputType, TaskStudentsAnswersType} = require('./types');
+const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLList} = require("graphql");
+const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
 
@@ -77,6 +77,27 @@ const setAnswer = {
     resolve: async (parent, args, context) => await lessonController.setAnswer(args, context)
 }
 
+const setStudentCurrentPosition = {
+    type: GraphQLBoolean,
+    name: 'setStudentCurrentPosition',
+    description: 'Set Student Current Position',
+    args:{
+        lessonId: { type: GraphQLNonNull(GraphQLID) },
+        taskId: { type: GraphQLNonNull(GraphQLID) }
+    },
+    resolve: async (parent, args, context) => await lessonController.setStudentCurrentPosition(args, context)
+}
+
+const studentGetAnswers = {
+    type: GraphQLList(GraphQLNonNull(TaskStudentsAnswersType)),
+    name: "StudentGetAnswers",
+    description: "Student Get Answers",
+    args: {
+        lessonId: {type: GraphQLNonNull(GraphQLID)},
+    },
+    resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
+}
+
 
 module.exports = {
     // teacher
@@ -89,4 +110,6 @@ module.exports = {
     // student
     joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),
     setAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setAnswer),
+    setStudentCurrentPosition: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setStudentCurrentPosition),
+    studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers)
 };

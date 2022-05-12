@@ -5,7 +5,7 @@ module.exports = {
         association: 'taskListTaskListTasks',
         include: {
             association: 'taskListTaskTask',
-            include: {
+            include: [{
                 separate: true,
                 association: 'taskTaskSentences',
                 include: {
@@ -23,7 +23,7 @@ module.exports = {
                         }
                     }
                 }
-            }
+            }, "taskAttachments" ]
         }
     }
 };

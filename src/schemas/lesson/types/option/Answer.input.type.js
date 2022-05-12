@@ -1,4 +1,4 @@
-const { GraphQLNonNull, GraphQLID, GraphQLInputObjectType } = require("graphql");
+const { GraphQLNonNull, GraphQLID, GraphQLInputObjectType, GraphQLString} = require("graphql");
 
 
 module.exports = new GraphQLInputObjectType({
@@ -8,6 +8,7 @@ module.exports = new GraphQLInputObjectType({
         taskId: { type: GraphQLNonNull(GraphQLID) },
         sentenceId: { type: GraphQLNonNull(GraphQLID) },
         gapId: { type: GraphQLNonNull(GraphQLID) },
-        optionId: { type: GraphQLNonNull(GraphQLID) }
+        optionId: { type: GraphQLID },
+        answerInput: { type: GraphQLString}
     }
 });

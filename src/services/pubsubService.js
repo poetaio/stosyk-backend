@@ -6,7 +6,6 @@ class PubsubService {
     }
 
     async publishLessonStarted(pubsub, lessonId, payload) {
-        // payload: { lessonId: lessonID, status: "ACTIVE" }
         return await pubsub.publish(eventNameFactory.lessonStartedEventName(lessonId), {
             lessonStarted: payload
         });
@@ -17,7 +16,6 @@ class PubsubService {
     }
 
     async publishOnPresentStudentsChanged(pubsub, lessonId, userId, payload) {
-        // payload: [ { studentId: "sdfsdfsd", name: "sfsdf" } ]
         return await pubsub.publish(eventNameFactory.presentStudentsChangedEventName(lessonId, userId),
             {presentStudentsChanged: payload});
     }
@@ -39,6 +37,16 @@ class PubsubService {
     async publishOnTeacherShowedRightAnswers(pubsub, lessonId, studentId, payload) {
         return await pubsub.publish(eventNameFactory.teacherShowedAnswersEventName(lessonId, studentId), {
             correctAnswersShown: payload
+        });
+    }
+
+    async subscribeOnStudentPosition(pubsub, teacherId, lessonId){
+        return pubsub.asyncIterator([eventNameFactory.studentCurrentPositionChangedEventName(lessonId, teacherId)]);
+    }
+
+    async publishOnStudentPosition(pubsub, lessonId, teacherId, payload){
+        return await pubsub.publish(eventNameFactory.studentCurrentPositionChangedEventName(lessonId, teacherId),{
+            getStudentCurrentPosition: payload
         });
     }
 }
