@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define('taskAttachments', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
-    link: {
+    source: {
         type: DataTypes.STRING,
         allowNull: false
     },

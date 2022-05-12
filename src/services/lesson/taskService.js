@@ -115,8 +115,8 @@ class TaskService {
             await TaskSentence.create({ taskId, sentenceId: newSentence.sentenceId });
         }
 
-        for (let {link, title, contentType} of attachments) {
-            await TaskAttachments.create({ taskId, link, title, contentType});
+        for (let {source, title, contentType} of attachments) {
+            await TaskAttachments.create({ taskId, source, title, contentType});
         }
 
         return task;
