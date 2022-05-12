@@ -9,6 +9,7 @@ class SentenceService {
     async create(index, text, gaps) {
         const sentence = await Sentence.create({ index, text });
 
+        // create gap and connect to sentence
         for (let { position, options } of gaps) {
             const newGap = await gapService.create(position, options);
 

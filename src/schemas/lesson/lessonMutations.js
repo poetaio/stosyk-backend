@@ -1,5 +1,5 @@
 const { lessonController, taskController} = require('../../controllers');
-const { LessonInputType, AnswerInputType, TaskStudentsAnswersType} = require('./types');
+const { LessonInputType, AnswerInputType, TaskStudentsAnswersInterfaceType} = require('./types');
 const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLList} = require("graphql");
 const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
@@ -89,7 +89,7 @@ const setStudentCurrentPosition = {
 }
 
 const studentGetAnswers = {
-    type: GraphQLList(GraphQLNonNull(TaskStudentsAnswersType)),
+    type: GraphQLList(GraphQLNonNull(TaskStudentsAnswersInterfaceType)),
     name: "StudentGetAnswers",
     description: "Student Get Answers",
     args: {

@@ -7,7 +7,7 @@ const storageController = require('../controllers/storageController')
 
 const PORT = process.env.PORT || 5000;
 
-const schema = require('../schemas/index')
+const schema = require('../schemas')
 const { errorHandlingMiddleware, parseRestRequest} = require('../middleware');
 
 // шобы не сохранять локально файлы, все в памяти обрабатывается

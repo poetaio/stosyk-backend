@@ -33,6 +33,7 @@ class GapService {
     async create(position, options) {
         const gap = await Gap.create({ position });
 
+        // create option and connect to gap
         for (let { value, isCorrect } of options) {
             const newOption = await optionService.create(value, isCorrect);
 
