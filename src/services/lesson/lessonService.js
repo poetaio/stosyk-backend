@@ -382,15 +382,18 @@ class LessonService {
                 store.add(lessonId, [{taskId, student}])
             }
         }
-
-        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, store.get(lessonId))
+        const students = await studentService.studentsLesson(lessonId)
+        for(let student of students){
+            await pubsubService.publishOnStudentPosition(pubsub, lessonId, student.userId, store.get(lessonId))
+        }
+        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.userId, store.get(lessonId))
         return true;
     }
 
-    async getStudentCurrentPosition (pubsub, lessonId, teacherId){
-        setTimeout(async () => await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacherId,
+    async getStudentCurrentPosition (pubsub, lessonId, userId){
+        setTimeout(async () => await pubsubService.publishOnStudentPosition(pubsub, lessonId, userId,
                  store.get(lessonId) || [] ), 0)
-        return await pubsubService.subscribeOnStudentPosition(pubsub, teacherId, lessonId)
+        return await pubsubService.subscribeOnStudentPosition(pubsub, userId, lessonId)
     }
 
 

@@ -16,8 +16,8 @@ class EventNameFactory {
     teacherShowedAnswersEventName(lessonId, studentId) {
         return `${EventNameEnum.TEACHER_SHOWED_ANSWERS}${lessonId}${studentId}`;
     }
-    studentCurrentPositionChangedEventName(lessonId, teacherId) {
-        return `${EventNameEnum.STUDENT_CURRENT_POSITION}${lessonId}${teacherId}`;
+    studentCurrentPositionChangedEventName(lessonId, userId) {
+        return `${EventNameEnum.STUDENT_CURRENT_POSITION}${lessonId}${userId}`;
     }
 }
 
