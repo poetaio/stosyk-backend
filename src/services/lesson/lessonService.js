@@ -80,6 +80,8 @@ class LessonService {
             }
         }
 
+        // todo: delete attachments
+
         await lesson.destroy();
 
         return true;
@@ -93,7 +95,6 @@ class LessonService {
                     where: { teacherId },
                     required: true
                 },
-                lessonInclude
             ]
         })
 
@@ -107,26 +108,21 @@ class LessonService {
     async create({ name, tasks }, teacherId) {
         // check if right option exists for every gap
         for (let task of tasks) {
-            for (let sentence of task.sentences) {
-                for (let gap of sentence.gaps) {
-                    if (!gap.options.some(option => option.isCorrect)) {
-                        throw new ValidationError(`No correct option provided`);
-                    }
-                }
-            }
+            await taskService.checkForCorrectOptionPresence(task);
         }
 
-        // check anonymous
+        // check if anonymous, then delete all existing lessons
         if (await teacherService.existsAnonymousById(teacherId))
             await this.deleteByTeacherId(teacherId);
 
         const newLesson = await Lesson.create({name});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
-        for (let { type, answerShown, sentences, attachments } of tasks) {
-            const newTask = await taskService.create(type, answerShown, sentences, attachments);
+        // create and connect to lesson
+        for (const task of tasks) {
+            const taskId = await taskService.create(task);
 
-            await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
+            await TaskListTask.create({taskListId: taskList.taskListId, taskId});
         }
 
         await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
