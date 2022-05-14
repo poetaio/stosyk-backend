@@ -388,8 +388,10 @@ class LessonService {
     }
 
     async getStudentCurrentPosition (pubsub, lessonId, teacherId){
-        setTimeout(async ()=> await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacherId,
-            store.get("CurrentPosition")),0)
+        if(store.get("CurrentPosition")) {
+            setTimeout(async () => await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacherId,
+                store.get("CurrentPosition")), 0)
+        }
         return await pubsubService.subscribeOnStudentPosition(pubsub, teacherId, lessonId)
     }
 
