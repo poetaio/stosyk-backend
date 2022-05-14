@@ -84,7 +84,7 @@ class LessonController {
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
         }
 
-        return await pubsubService.subscribeOnStudentPosition(pubsub, teacher.teacherId, lessonId)
+       return await lessonService.getStudentCurrentPosition(pubsub, lessonId, teacher.teacherId)
     }
 
     async setAnswer({lessonId, answer: { taskId, gapId, optionId, answerInput }}, { pubsub, user: {userId}}, ) {
