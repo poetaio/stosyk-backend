@@ -367,23 +367,30 @@ class LessonService {
             throw new NotFoundError(`No lesson ${lessonId} of student ${student.studentId} found`);
         }
         const teacher = await teacherService.findOneByLessonId(lessonId)
-        const studentsCurrentTask = store.get("CurrentPosition");
+        const studentsCurrentTask = store.get(lessonId);
         if(!studentsCurrentTask){
-            store('CurrentPosition', [{taskId, student}])
-        }else{
-            const newStudentsCurrentTask = studentsCurrentTask.map((el)=>({
-            ...el,
-            taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
-        }))
-             if(JSON.stringify(newStudentsCurrentTask) === JSON.stringify(studentsCurrentTask)){
-                store.add('CurrentPosition', [{taskId, student}])
-        } else {
-                store('CurrentPosition', newStudentsCurrentTask)
-             }
+            store(lessonId, [{taskId, student}])
+        }else {
+            if (studentsCurrentTask.find(el => el.student.studentId === student.studentId)){
+                const newStudentsCurrentTask = studentsCurrentTask.map((el)=>({
+                        ...el,
+                        taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
+                    }))
+                store( lessonId, newStudentsCurrentTask)
+
+            }else {
+                store.add(lessonId, [{taskId, student}])
+            }
         }
 
-        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, store.get("CurrentPosition"))
+        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, store.get(lessonId))
         return true;
+    }
+
+    async getStudentCurrentPosition (pubsub, lessonId, teacherId){
+        setTimeout(async () => await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacherId,
+                 store.get(lessonId) || [] ), 0)
+        return await pubsubService.subscribeOnStudentPosition(pubsub, teacherId, lessonId)
     }
 
 
