@@ -367,31 +367,29 @@ class LessonService {
             throw new NotFoundError(`No lesson ${lessonId} of student ${student.studentId} found`);
         }
         const teacher = await teacherService.findOneByLessonId(lessonId)
-        const studentsCurrentTask = store.get("CurrentPosition");
+        const studentsCurrentTask = store.get(lessonId);
         if(!studentsCurrentTask){
-            store('CurrentPosition', [{taskId, student}])
+            store(lessonId, [{taskId, student}])
         }else {
             if (studentsCurrentTask.find(el => el.student.studentId === student.studentId)){
                 const newStudentsCurrentTask = studentsCurrentTask.map((el)=>({
                         ...el,
                         taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
                     }))
-                store('CurrentPosition', newStudentsCurrentTask)
+                store( lessonId, newStudentsCurrentTask)
 
             }else {
-                store.add('CurrentPosition', [{taskId, student}])
+                store.add(lessonId, [{taskId, student}])
             }
         }
 
-        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, store.get("CurrentPosition"))
+        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, store.get(lessonId))
         return true;
     }
 
     async getStudentCurrentPosition (pubsub, lessonId, teacherId){
-        if(store.get("CurrentPosition")) {
-            setTimeout(async () => await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacherId,
-                store.get("CurrentPosition")), 0)
-        }
+        setTimeout(async () => await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacherId,
+                 store.get(lessonId) || [] ), 0)
         return await pubsubService.subscribeOnStudentPosition(pubsub, teacherId, lessonId)
     }
 
