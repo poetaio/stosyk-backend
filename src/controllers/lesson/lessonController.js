@@ -79,12 +79,7 @@ class LessonController {
     }
 
     async getStudentCurrentPosition({lessonId}, {pubsub, user: {userId}}){
-        const teacher = await teacherService.findOneByUserId(userId);
-        if(!teacher){
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
-        }
-
-       return await lessonService.getStudentCurrentPosition(pubsub, lessonId, teacher.teacherId)
+       return await lessonService.getStudentCurrentPosition(pubsub, lessonId, userId)
     }
 
     async setAnswer({lessonId, answer: { taskId, gapId, optionId, answerInput }}, { pubsub, user: {userId}}, ) {
