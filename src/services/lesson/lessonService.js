@@ -372,10 +372,14 @@ class LessonService {
             store('CurrentPosition', [{taskId, student}])
         }else{
             const newStudentsCurrentTask = studentsCurrentTask.map((el)=>({
-                ...el,
-                taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
-            }))
-            store('CurrentPosition', newStudentsCurrentTask)
+            ...el,
+            taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
+        }))
+             if(JSON.stringify(newStudentsCurrentTask) === JSON.stringify(studentsCurrentTask)){
+                store.add('CurrentPosition', [{taskId, student}])
+        } else {
+                store('CurrentPosition', newStudentsCurrentTask)
+             }
         }
 
         await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, store.get("CurrentPosition"))
