@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const {graphqlHTTP} = require("express-graphql");
 const multer  = require("multer");
 
 const storageController = require('../controllers/storageController')
@@ -23,12 +22,6 @@ module.exports = (pubsub) => {
     // который потом сохраняется в attachments для таски
     app.post('/storage',  upload.single('file'), parseRestRequest, (req, res, next) =>
         storageController.uploadFileAndGetLink(req, res));
-
-    // app.use('/graphql', graphqlHTTP((req, res) => ({
-    //     schema,
-    //     context: { pubsub, authHeader: req.header('Authorization') },
-    //     customFormatErrorFn:  (err) => errorHandlingMiddleware(req, res, err)
-    // })));
 
     return [app, app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))];
 };
