@@ -21,8 +21,8 @@ const run = async () => {
         await sequelize.sync();
 
         // initiating servers
-        const expressServer = createExpressServer(pubsub);
-        createWSServer(expressServer, pubsub);
+        const [expressServer, httpServer] = createExpressServer(pubsub);
+        await createWSServer(httpServer, expressServer, pubsub);
     } catch (e) {
         console.error(e);
     }

@@ -24,11 +24,11 @@ module.exports = (pubsub) => {
     app.post('/storage',  upload.single('file'), parseRestRequest, (req, res, next) =>
         storageController.uploadFileAndGetLink(req, res));
 
-    app.use('/graphql', graphqlHTTP((req, res) => ({
-        schema,
-        context: { pubsub, authHeader: req.header('Authorization') },
-        customFormatErrorFn:  (err) => errorHandlingMiddleware(req, res, err)
-    })));
+    // app.use('/graphql', graphqlHTTP((req, res) => ({
+    //     schema,
+    //     context: { pubsub, authHeader: req.header('Authorization') },
+    //     customFormatErrorFn:  (err) => errorHandlingMiddleware(req, res, err)
+    // })));
 
-    return app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))
+    return [app, app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))];
 };
