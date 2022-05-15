@@ -28,7 +28,7 @@ const studentLesson = {
 };
 
 const studentGetAnswers = {
-    type: GraphQLList(GraphQLNonNull(TaskStudentsAnswersType)),
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskStudentsAnswersType))),
     name: "StudentGetAnswers",
     description: "Student Get Answers",
     args: {
