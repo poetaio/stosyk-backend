@@ -26,7 +26,7 @@ module.exports = async (httpServer, expressServer, pubsub) => {
     // Set up ApolloServer.
     const server = new ApolloServer({
         schema,
-        context: ({ connectionParams }) => ({ pubsub, authHeader: connectionParams?.Authorization }),
+        context: (({req}) => ({ pubsub, authHeader: req.headers.authorization })),
         formatError:  (err) => errorHandlingMiddleware(err),
         csrfPrevention: true,
         plugins: [
