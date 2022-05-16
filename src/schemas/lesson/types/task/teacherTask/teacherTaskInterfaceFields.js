@@ -12,6 +12,4 @@ module.exports = {
     },
     answersShown: { type: GraphQLNonNull(GraphQLBoolean) },
     type: { type: GraphQLNonNull(TaskTypeEnumType) },
-    // multipleChoice: { type: MultipleChoiceTeacherTaskType },
-    // plainInput: { type: PlainInputTeacherTaskType },
 };

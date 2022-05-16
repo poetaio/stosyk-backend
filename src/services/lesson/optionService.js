@@ -51,6 +51,28 @@ class OptionService {
         throw new ValidationError(`No such task type: ${taskType}`);
     }
 
+    async getAllFromQuestionForTeacher(questionId) {
+        return await Option.findAll({
+            include: {
+                association: 'optionGapOption',
+                include: {
+                    association: 'gapOptionGap',
+                    include: {
+                        association: 'gapSentenceGap',
+                        include: {
+                            association: 'sentenceGapSentence',
+                            where: { sentenceId: questionId },
+                            required: true,
+                        },
+                        required: true,
+                    },
+                    required: true
+                },
+                required: true
+            }
+        });
+    }
+
     async getAllForStudent({ gapId }) {
         const where = {};
         // if taskId is null, sentence will not have sentenceLessonSentence as child,

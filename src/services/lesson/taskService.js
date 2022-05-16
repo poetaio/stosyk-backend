@@ -6,7 +6,7 @@ const {Task, Lesson, TaskSentence,
     DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments
 } = require("../../models");
 const sentenceService = require('./sentenceService');
-const {DBError, NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum} = require('../../utils');
+const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum} = require('../../utils');
 const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
@@ -105,17 +105,45 @@ class TaskService {
         return !!upd[0];
     }
 
+    async getSentencesFromTypeObject(task) {
+        const { type } = task;
+
+        if (type === TaskTypeEnum.MULTIPLE_CHOICE) {
+            return task.multipleChoice.sentences;
+        } else if (type === TaskTypeEnum.PLAIN_INPUT) {
+            return task.plainInput.sentences;
+        }
+
+        const sentences = [];
+        // QA type: questions-answers
+        if (type === TaskTypeEnum.QA) {
+            // save other fields
+            for (let question of task.qa.questions) {
+                const options = question.answers.map(({ value, isCorrect }) => ({
+                    value, isCorrect
+                }));
+
+                const newSentence = {
+                    index: question.index,
+                    text: question.text,
+                    gaps: [{
+                        position: 0,
+                        options
+                    }],
+                };
+                sentences.push(newSentence);
+            }
+        } else throw new ValidationError(`No such task type: ${type}`);
+
+        return sentences;
+    }
+
     // task creation, accepts all types of task
     async create(task) {
         const {type, answerShown, attachments} = task;
 
-        // getting sentences from multipleChoice or plainInput depending on type
-        let sentences;
-        if (type === TaskTypeEnum.MULTIPLE_CHOICE) {
-            sentences = task.multipleChoice.sentences;
-        } else if (type === TaskTypeEnum.PLAIN_INPUT) {
-            sentences = task.plainInput.sentences;
-        } else throw new ValidationError(`No such task type: ${task.type}`);
+        // getting sentences from "type object" depending on type
+        let sentences = await this.getSentencesFromTypeObject(task);
 
         const createdTask = await Task.create({ type, answerShown });
         const {taskId} = createdTask;
@@ -238,6 +266,14 @@ class TaskService {
             sentences = task.multipleChoice.sentences;
         } else if (task.type === TaskTypeEnum.PLAIN_INPUT) {
             sentences = task.plainInput.sentences;
+        } else if (task.type === TaskTypeEnum.QA) {
+            const questions = task.qa.questions;
+            for (let question of questions) {
+                if (!question.answers.some(({isCorrect}) => isCorrect)) {
+                    throw new ValidationError(`No correct option provided for question`);
+                }
+            }
+            return;
         } else throw new ValidationError(`No such task type: ${task.type}`);
 
         for (let sentence of sentences) {

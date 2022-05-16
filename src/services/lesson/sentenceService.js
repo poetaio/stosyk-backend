@@ -42,6 +42,32 @@ class SentenceService {
         });
     }
 
+    async getAllQA({taskId}) {
+        const sentences = await Sentence.findAll({
+            include: {
+                association: 'sentenceTaskSentence',
+                include: {
+                    association: 'taskSentenceTask',
+                    where: {taskId},
+                    required: true
+                },
+                required: true
+            }
+        });
+
+        const resSentences = [];
+
+        for (let sentence of sentences) {
+            resSentences.push({
+                questionId: sentence.sentenceId,
+                index: sentence.index,
+                text: sentence.text,
+            });
+        }
+
+        return resSentences;
+    }
+
     async getPlainInputSentencesByTaskId(taskId) {
         return await Sentence.findAll({
             include: plainInputSentencesCorrectAnswersByTaskIdInclude(taskId)
