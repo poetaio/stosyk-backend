@@ -33,6 +33,7 @@ class GapService {
     async create(position, options) {
         const gap = await Gap.create({ position });
 
+        // create option and connect to gap
         for (let { value, isCorrect } of options) {
             const newOption = await optionService.create(value, isCorrect);
 
@@ -85,6 +86,22 @@ class GapService {
 
     async getStudentsAnswers(gapId) {
         const options = await optionService.getAllWithAnswersByGapId(gapId);
+        const studentsAnswers = [];
+        for (let { optionId, value, isCorrect, optionStudents } of options) {
+            for (let { studentId } of optionStudents || []) {
+                studentsAnswers.push({
+                    option: {
+                        optionId, value, isCorrect
+                    },
+                    studentId
+                })
+            }
+        }
+        return studentsAnswers;
+    }
+
+    async studentGetAnswer(gapId, studentId){
+        const options = await optionService.getOneStudentAnswerByGapId(gapId, studentId);
         const studentsAnswers = [];
         for (let { optionId, value, isCorrect, optionStudents } of options) {
             for (let { studentId } of optionStudents || []) {

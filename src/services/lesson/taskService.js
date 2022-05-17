@@ -105,21 +105,33 @@ class TaskService {
         return !!upd[0];
     }
 
-    async create(type, answerShown, sentences, attachments) {
-        const task = await Task.create({ type, answerShown });
-        const taskId = task.taskId;
+    // task creation, accepts all types of task
+    async create(task) {
+        const {type, answerShown, attachments} = task;
 
+        // getting sentences from multipleChoice or plainInput depending on type
+        let sentences;
+        if (type === TaskTypeEnum.MULTIPLE_CHOICE) {
+            sentences = task.multipleChoice.sentences;
+        } else if (type === TaskTypeEnum.PLAIN_INPUT) {
+            sentences = task.plainInput.sentences;
+        } else throw new ValidationError(`No such task type: ${task.type}`);
+
+        const createdTask = await Task.create({ type, answerShown });
+        const {taskId} = createdTask;
+
+        // creating sentence and connecting to task
         for (let { index, text, gaps } of sentences) {
             const newSentence = await sentenceService.create(index, text, gaps);
 
             await TaskSentence.create({ taskId, sentenceId: newSentence.sentenceId });
         }
 
-        for (let {link, title, contentType} of attachments) {
-            await TaskAttachments.create({ taskId, link, title, contentType});
+        for (let {source, title, contentType} of attachments) {
+            await TaskAttachments.create({ taskId, source, title, contentType});
         }
 
-        return task;
+        return taskId;
     }
 
     async getAll({ lessonId }) {
@@ -218,6 +230,23 @@ class TaskService {
                 required: true,
             }
         });
+    }
+
+    async checkForCorrectOptionPresence(task) {
+        let sentences;
+        if (task.type === TaskTypeEnum.MULTIPLE_CHOICE) {
+            sentences = task.multipleChoice.sentences;
+        } else if (task.type === TaskTypeEnum.PLAIN_INPUT) {
+            sentences = task.plainInput.sentences;
+        } else throw new ValidationError(`No such task type: ${task.type}`);
+
+        for (let sentence of sentences) {
+            for (let gap of sentence.gaps) {
+                if (!gap.options.some(option => option.isCorrect)) {
+                    throw new ValidationError(`No correct option provided`);
+                }
+            }
+        }
     }
 }
 

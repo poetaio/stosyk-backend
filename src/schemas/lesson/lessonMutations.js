@@ -1,6 +1,6 @@
 const { lessonController, taskController} = require('../../controllers');
-const { LessonInputType, AnswerInputType } = require('./types');
-const { GraphQLBoolean, GraphQLID, GraphQLNonNull } = require("graphql");
+const { LessonInputType, AnswerInputType, TaskStudentsAnswersInterfaceType} = require('./types');
+const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLList} = require("graphql");
 const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
@@ -98,6 +98,16 @@ const studentLeaveLesson = {
     resolve: async  (parent, args, context) => await lessonController.studentLeaveLesson(args, context)
 }
 
+const studentGetAnswers = {
+    type: GraphQLList(GraphQLNonNull(TaskStudentsAnswersInterfaceType)),
+    name: "StudentGetAnswers",
+    description: "Student Get Answers",
+    args: {
+        lessonId: {type: GraphQLNonNull(GraphQLID)},
+    },
+    resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
+}
+
 
 module.exports = {
     // teacher
@@ -111,5 +121,6 @@ module.exports = {
     joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),
     setAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setAnswer),
     setStudentCurrentPosition: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setStudentCurrentPosition),
-    studentLeaveLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLeaveLesson)
+    studentLeaveLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLeaveLesson),
+    studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers),
 };

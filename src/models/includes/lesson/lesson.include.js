@@ -19,11 +19,15 @@ module.exports = {
                                 separate: true,
                                 association: 'gapGapOptions',
                                 include: 'gapOptionOption'
-                            }
+                            },
+                            required: true,
                         }
-                    }
+                    },
+                    required: true,
                 }
-            }, "taskAttachments" ]
+            }, "taskAttachments" ],
+            // if no task related to taskListTask - do not include
+            required: true,
         }
     }
 };

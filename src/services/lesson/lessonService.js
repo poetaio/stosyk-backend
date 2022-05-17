@@ -80,6 +80,8 @@ class LessonService {
             }
         }
 
+        // todo: delete attachments
+
         await lesson.destroy();
 
         return true;
@@ -107,26 +109,21 @@ class LessonService {
     async create({ name, tasks }, teacherId) {
         // check if right option exists for every gap
         for (let task of tasks) {
-            for (let sentence of task.sentences) {
-                for (let gap of sentence.gaps) {
-                    if (!gap.options.some(option => option.isCorrect)) {
-                        throw new ValidationError(`No correct option provided`);
-                    }
-                }
-            }
+            await taskService.checkForCorrectOptionPresence(task);
         }
 
-        // check anonymous
+        // check if anonymous, then delete all existing lessons
         if (await teacherService.existsAnonymousById(teacherId))
             await this.deleteByTeacherId(teacherId);
 
         const newLesson = await Lesson.create({name});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
-        for (let { type, answerShown, sentences, attachments } of tasks) {
-            const newTask = await taskService.create(type, answerShown, sentences, attachments);
+        // create and connect to lesson
+        for (const task of tasks) {
+            const taskId = await taskService.create(task);
 
-            await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
+            await TaskListTask.create({taskListId: taskList.taskListId, taskId});
         }
 
         await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
@@ -409,6 +406,34 @@ class LessonService {
         }
 
         return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
+    }
+
+    async studentGetAnswers(lessonId, studentId){
+        if (!await this.existsActiveByLessonId(lessonId)) {
+            throw new ValidationError(`Lesson ${lessonId} already started`)
+        }
+        const lesson = await Lesson.findOne({
+            where: { lessonId },
+            include: lessonGapsInclude
+        });
+
+        const tasks = [];
+
+        for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
+            const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
+            for (let { taskSentenceSentence : sentence } of task.taskTaskSentences) {
+                const newSentence = { sentenceId: sentence.sentenceId, gaps: [] };
+                for (let { sentenceGapGap : gap } of sentence.sentenceSentenceGaps) {
+                    const newGap = { gapId: gap.gapId };
+                    newGap.studentsAnswers = await gapService.studentGetAnswer(gap.gapId, studentId);
+                    newSentence.gaps.push(newGap);
+                }
+                newTask.sentences.push(newSentence);
+            }
+            tasks.push(newTask);
+        }
+
+        return tasks;
     }
 
     async studentLeaveLesson(pubsub, lessonId, studentId) {

@@ -135,6 +135,15 @@ class LessonController {
         return await lessonService.studentLeaveLesson(pubsub, lessonId, student.studentId);
 
     }
+
+    async studentGetAnswers({lessonId}, {user: {userId}}){
+        const student = await studentService.findOneByUserId(userId);
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return await lessonService.studentGetAnswers(lessonId, student.studentId)
+    }
 }
 
 
