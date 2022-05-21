@@ -70,8 +70,7 @@ const setAnswer = {
     type: GraphQLBoolean,
     name: 'setAnswer',
     description: 'Set Answer',
-    args:{
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
+    args: {
         answer: { type: GraphQLNonNull(AnswerInputType)}
     },
     resolve: async (parent, args, context) => await lessonController.setAnswer(args, context)
