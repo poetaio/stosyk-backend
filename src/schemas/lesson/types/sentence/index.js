@@ -8,6 +8,8 @@ const MatchingTeacherSentenceRightType = require('./MatchingTeacherSentenceRight
 const MatchingTeacherSentenceLeftType = require('./MatchingTeacherSentenceLeft.type');
 const MatchingSentenceStudentsAnswersType = require('./MatchingSentenceStudentsAnswers.type');
 const MatchingSentenceCorrectAnswersType = require('./MatchingSentenceCorrectAnswers.type');
+const MatchingStudentSentenceLeftType = require('./MatchingStudentSentenceLeft.type');
+const MatchingStudentSentenceRightType = require('./MatchingStudentSentenceRight.type');
 
 
 module.exports = {
@@ -21,4 +23,6 @@ module.exports = {
     MatchingTeacherSentenceLeftType,
     MatchingSentenceStudentsAnswersType,
     MatchingSentenceCorrectAnswersType,
+    MatchingStudentSentenceLeftType,
+    MatchingStudentSentenceRightType,
 };

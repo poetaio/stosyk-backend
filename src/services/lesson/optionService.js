@@ -66,7 +66,7 @@ class OptionService {
         throw new ValidationError(`No such task type: ${taskType}`);
     }
 
-    async getAllFromQuestionForTeacher(questionId) {
+    async getAllByQuestionId(questionId) {
         return await Option.findAll({
             include: {
                 association: 'optionGapOption',

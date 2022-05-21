@@ -3,7 +3,7 @@ const {sentenceController} = require("../../../../../controllers");
 const {TeacherSentenceType} = require("../../sentence");
 const TeacherTaskType = require("./TeacherTask.interface.type");
 const teacherTaskInterfaceFields = require("./teacherTaskInterfaceFields");
-const QuestionType = require("../../Question.type");
+const QuestionType = require("../../TeacherQuestion.type");
 
 module.exports = new GraphQLObjectType({
     name: "QATeacherTaskType",

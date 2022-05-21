@@ -7,6 +7,6 @@ module.exports = new GraphQLInputObjectType({
     fields: {
         index: { type: GraphQLNonNull(GraphQLInt) },
         text: { type: GraphQLNonNull(GraphQLString) },
-        answers: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OptionInputType))) }
+        options: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OptionInputType))) }
     },
 });

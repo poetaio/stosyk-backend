@@ -12,8 +12,8 @@ class OptionController {
     }
 
     // used in TeacherQuestionType in resolve for answers
-    async getAllForTeacherQuestion({questionId}) {
-        return await optionService.getAllFromQuestionForTeacher(questionId);
+    async getAllByQuestionId({questionId}) {
+        return await optionService.getAllByQuestionId(questionId);
     }
 
     /**

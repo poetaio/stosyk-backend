@@ -2,9 +2,10 @@ const lessonTypes = require('./lesson');
 const taskTypes = require('./task');
 const optionTypes = require('./option');
 const QuestionInputType = require('./Question.input.type');
-const QuestionType = require('./Question.type');
+const TeacherQuestionType = require('./TeacherQuestion.type');
 const answerTypes = require('./answer');
 const QuestionCorrectAnswersType = require('./QuestionCorrectAnswers.type');
+const StudentQuestionType = require('./StudentQuestion.type');
 
 
 module.exports = {
@@ -13,6 +14,7 @@ module.exports = {
     ...optionTypes,
     ...answerTypes,
     QuestionInputType,
-    QuestionType,
+    TeacherQuestionType,
+    StudentQuestionType,
     QuestionCorrectAnswersType,
 };
