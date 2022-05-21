@@ -3,8 +3,8 @@ const taskStudentsAnswersFields = require('./taskStudentsAnswersFields');
 const {TaskTypeEnum} = require("../../../../../utils");
 
 module.exports = new GraphQLInterfaceType({
-    name: 'TaskStudentAnswersType',
-    description: 'Task student answers type',
+    name: 'TaskStudentAnswersInterfaceType',
+    description: 'Task student answers interface type',
     fields: {
         ...taskStudentsAnswersFields,
     },
@@ -13,6 +13,10 @@ module.exports = new GraphQLInterfaceType({
             return 'PlainInputTaskStudentAnswersType';
         } else if (type === TaskTypeEnum.MULTIPLE_CHOICE) {
             return 'MultipleChoiceTaskStudentAnswersType';
+        } else if (type === TaskTypeEnum.MATCHING) {
+            return 'MatchingTaskStudentsAnswersType';
+        } else if (type === TaskTypeEnum.QA) {
+            return 'QATaskStudentsAnswersType';
         } else return null;
     },
 });

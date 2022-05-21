@@ -4,6 +4,7 @@ const { Sentence, SentenceGap, multipleChoiceSentenceCorrectAnswersByTaskIdInclu
 const gapService = require('./gapService');
 const {Sequelize} = require("sequelize");
 const { Op } = require("sequelize");
+const {allSentencesByTaskIdInclude, sentenceGapsInclude} = require("../../models/includes/lesson");
 
 class SentenceService {
     async create(index, text, gaps) {
@@ -19,7 +20,7 @@ class SentenceService {
         return sentence;
     }
 
-    async getAll({ taskId }) {
+    async getAll(taskId) {
         const where = {};
         // if taskId is null, sentence will not have sentenceLessonSentence as child,
         // thus no need to require = true
@@ -78,6 +79,28 @@ class SentenceService {
         return await Sentence.findAll({
             include: multipleChoiceSentenceCorrectAnswersByTaskIdInclude(taskId)
         });
+    }
+
+    /**
+     * Get all sentences with gaps and students answers for each gap
+     * @param taskId
+     * @returns sentenceId, gaps and students answers for each
+     */
+    async getSentencesWithAnswersByTaskId(taskId) {
+        const sentences = await Sentence.findAll({
+            include: [
+                allSentencesByTaskIdInclude(taskId),
+                "gaps",
+            ],
+        }).then(res => res.map(sentence => sentence.get({ plain: true })));
+
+        for (let sentence of sentences) {
+            for (let gap of sentence.gaps) {
+                gap.studentsAnswers = await gapService.getStudentsAnswers(gap.gapId);
+            }
+        }
+
+        return sentences;
     }
 }
 

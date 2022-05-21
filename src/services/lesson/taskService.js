@@ -105,6 +105,8 @@ class TaskService {
         return !!upd[0];
     }
 
+    // Converting type object (plainInput, qa...) fields to structure -> sentence-gap-option
+    // in order to save them through common interface
     async getSentencesFromTypeObject(task) {
         const { type } = task;
 
@@ -114,10 +116,10 @@ class TaskService {
             return task.plainInput.sentences;
         }
 
-        const sentences = [];
+        let sentences;
         // QA type: questions-answers
         if (type === TaskTypeEnum.QA) {
-            // save other fields
+            sentences = [];
             for (let question of task.qa.questions) {
                 const options = question.answers.map(({ value, isCorrect }) => ({
                     value, isCorrect
@@ -133,6 +135,21 @@ class TaskService {
                 };
                 sentences.push(newSentence);
             }
+        // Matching type: sentences-correctOption
+        } else if (type === TaskTypeEnum.MATCHING) {
+            // each sentence has one gap, which contains one right option
+            // todo: check if every "right column position" is used and all values in acceptable boundaries
+            sentences = task.matching.sentences.map(({ index, text, correctOption : { value, rightColumnPosition } }) => ({
+                index,
+                text,
+                gaps: [{
+                    position: rightColumnPosition,
+                    options: [{
+                        value: value,
+                        isCorrect: true,
+                    }]
+                }]
+            }));
         } else throw new ValidationError(`No such task type: ${type}`);
 
         return sentences;
@@ -172,7 +189,7 @@ class TaskService {
             required = true;
         }
 
-        return await Task.findAll({
+        const tasks =  await Task.findAll({
             include: {
                 association: 'taskTaskListTask',
                 include: {
@@ -187,6 +204,8 @@ class TaskService {
                 required: true
             }
         });
+
+        return tasks;
     }
 
     async deleteByLessonId(lessonId) {
@@ -273,6 +292,9 @@ class TaskService {
                     throw new ValidationError(`No correct option provided for question`);
                 }
             }
+            return;
+        } else if (task.type === TaskTypeEnum.MATCHING) {
+            // always true, because each sentence has non null graphql field "correctOption"
             return;
         } else throw new ValidationError(`No such task type: ${task.type}`);
 

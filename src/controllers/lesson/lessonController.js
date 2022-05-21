@@ -1,4 +1,4 @@
-const { lessonService, studentService} = require('../../services')
+const { lessonService, studentService, answerService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {pubsubService} = require('../../services');
@@ -87,14 +87,14 @@ class LessonController {
         return await pubsubService.subscribeOnStudentPosition(pubsub, teacher.teacherId, lessonId)
     }
 
-    async setAnswer({lessonId, answer: { taskId, gapId, optionId, answerInput }}, { pubsub, user: {userId}}, ) {
+    async setAnswer({ answer }, { pubsub, user: {userId}}, ) {
         const student = await studentService.findOneByUserId(userId);
 
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return await lessonService.setAnswer(pubsub, lessonId, taskId, gapId, student.studentId, optionId, answerInput)
+        return await answerService.setAnswer(pubsub, student.studentId, answer)
     }
 
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {

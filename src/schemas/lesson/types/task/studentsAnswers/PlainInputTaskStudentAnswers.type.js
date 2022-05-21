@@ -2,6 +2,7 @@ const { GraphQLObjectType, GraphQLNonNull, GraphQLList} = require("graphql");
 const { SentenceStudentsAnswersType } = require('../../sentence');
 const taskStudentsAnswersFields = require("./taskStudentsAnswersFields");
 const TaskStudentsAnswersInterfaceType = require("./TaskStudentsAnswers.interface.type");
+const {sentenceController} = require("../../../../../controllers");
 
 
 module.exports = new GraphQLObjectType({
@@ -9,7 +10,10 @@ module.exports = new GraphQLObjectType({
     description: 'Plain Input Task student answers type',
     fields: () => ({
         ...taskStudentsAnswersFields,
-        sentences: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(SentenceStudentsAnswersType))) }
+        sentences: {
+            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(SentenceStudentsAnswersType))),
+            resolve: async (parent, args, context) => await sentenceController.getSentencesWithAnswersByTaskId(parent)
+        }
     }),
     interfaces: [TaskStudentsAnswersInterfaceType],
 });

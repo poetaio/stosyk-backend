@@ -1,4 +1,6 @@
-const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, lessonGapsInclude, Option, GapOption } = require('../../models');
+const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, lessonGapsInclude, Option, GapOption,
+    lessonTasksInclude
+} = require('../../models');
 const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError, TaskTypeEnum} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
@@ -252,75 +254,6 @@ class LessonService {
        return (!!lessonStudent);
     }
 
-    async setAnswer(pubsub, lessonId, taskId, gapId, studentId, optionId, studentInput){
-        if(!await this.studentLessonExists(lessonId, studentId)){
-            throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
-        }
-        if (!await this.existsActiveByLessonId(lessonId)) {
-            throw new ValidationError(`Lesson is not active ${lessonId}`);
-        }
-        const task = await taskService.getOneByIdAndLessonId(taskId, lessonId);
-        if (!task) {
-            throw new NotFoundError(`No task ${taskId} of lesson ${lessonId} found`)
-        }
-
-        if (task.type === TaskTypeEnum.MULTIPLE_CHOICE && optionId) {
-            // Exception: table name "optionGapOption->gapOptionGap->gapSent…ceGap->sentenceGapSente" specified more than once
-            // (too long alias name when joining table)
-            // if (!await optionService.existsByIdAndTaskId(optionId, taskId)) {
-            //     throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
-            // }
-            if (await optionService.existsStudentAnswer(studentId, optionId)) {
-                throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
-            }
-
-            // updating student-option if option exists
-            if (await gapService.existsStudentAnswer(gapId, studentId)) {
-                await StudentOption.update({
-                    optionId
-                }, {
-                    where: { studentId },
-                    include: {
-                        model: Option,
-                        include: {
-                            association: "optionGapOption",
-                            where: { gapId },
-                            required: true
-                        },
-                        required: true
-                    }
-                });
-            } else {
-                await StudentOption.create({
-                    optionId,
-                    studentId
-                });
-            }
-        } else if (task.type === TaskTypeEnum.PLAIN_INPUT && gapId && studentInput) {
-            const correctOptions = await gapService.getCorrectOptions(gapId);
-
-            const isCorrect = correctOptions.map(option => option.value).includes(studentInput);
-
-            if (!await gapService.existsStudentAnswer(gapId, studentId)) {
-                let studentOption = await optionService.create(studentInput, isCorrect);
-                await GapOption.create({ optionId: studentOption.optionId, gapId });
-                await StudentOption.create({ studentId, optionId: studentOption.optionId });
-            } else {
-                const option = await optionService.getOneByGapIdAndStudentId(gapId, studentId);
-                const [updNum] = await optionService.updateById(option.optionId, studentInput, isCorrect);
-                if (!updNum) {
-                    throw new ValidationError(`Could not update student answer`);
-                }
-            }
-        } else throw new ValidationError(`Invalid input`);
-
-        const teacher = await teacherService.findOneByLessonId(lessonId);
-        await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
-            await this.getStudentsAnswers(lessonId));
-
-        return true;
-    }
-
     async deleteLesson(lessonId, teacherId) {
         if(!await this.teacherLessonExists(lessonId, teacherId)){
            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
@@ -336,22 +269,14 @@ class LessonService {
     async getStudentsAnswers(lessonId) {
         const lesson = await Lesson.findOne({
             where: { lessonId },
-            include: lessonGapsInclude
+            include: lessonTasksInclude
         });
 
         const tasks = [];
 
         for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
             const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
-            for (let { taskSentenceSentence : sentence } of task.taskTaskSentences) {
-                const newSentence = { sentenceId: sentence.sentenceId, gaps: [] };
-                for (let { sentenceGapGap : gap } of sentence.sentenceSentenceGaps) {
-                    const newGap = { gapId: gap.gapId };
-                    newGap.studentsAnswers = await gapService.getStudentsAnswers(gap.gapId);
-                    newSentence.gaps.push(newGap);
-                }
-                newTask.sentences.push(newSentence);
-            }
+
             tasks.push(newTask);
         }
 
