@@ -4,6 +4,7 @@ const optionTypes = require('./option');
 const QuestionInputType = require('./Question.input.type');
 const QuestionType = require('./Question.type');
 const answerTypes = require('./answer');
+const QuestionCorrectAnswersType = require('./QuestionCorrectAnswers.type');
 
 
 module.exports = {
@@ -13,4 +14,5 @@ module.exports = {
     ...answerTypes,
     QuestionInputType,
     QuestionType,
+    QuestionCorrectAnswersType,
 };

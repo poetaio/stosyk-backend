@@ -1,6 +1,6 @@
 const { Option, StudentOption, sequelize, GET_TASK_TYPE_BY_OPTION_ID, GET_TASK_TYPE_BY_GAP_ID,
     GET_GAP_CORRECT_PLAIN_OPTIONS, GET_SOMETHING, matchingSentenceCorrectAnswersInclude, taskOptionsInclude, Gap,
-    multipleGapsOptionsInclude
+    multipleGapsOptionsInclude, allOptionsBySentenceIdInclude
 } = require("../../models");
 const {TaskTypeEnum, ValidationError} = require("../../utils");
 const Sequelize = require("sequelize");
@@ -270,10 +270,27 @@ class OptionService {
         });
     }
 
+    /**
+     * Returns all students' answers for sentence in matching task type
+     * @param sentenceId
+     * @return {Promise<Model[]>} students' answers
+     */
     async getStudentsMatchingAnswersBySentenceId(sentenceId) {
         return await StudentOption.findAll({
             where: { sentenceId },
             include: "option",
+        });
+    }
+
+    /**
+     * Returns all correct options by sentence id, used in matching task type
+     * @param sentenceId
+     * @return {Promise<Model[]>} correct options of sentence
+     */
+    async getCorrectOptionBySentenceId(sentenceId) {
+        return await Option.findOne({
+            where: { isCorrect: true },
+            include: allOptionsBySentenceIdInclude(sentenceId)
         });
     }
 }

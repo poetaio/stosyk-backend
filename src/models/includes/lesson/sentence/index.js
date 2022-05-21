@@ -3,6 +3,7 @@ const plainInputSentencesCorrectAnswersByTaskIdInclude = require('./plainInputSe
 const sentenceStudentAnswersInclude = require('./sentenceStudentAnswers.include');
 const allSentencesByTaskIdInclude = require('./allSentencesByTaskId.include');
 const sentenceGapsInclude = require('./sentenceGaps.include');
+const sentenceCorrectOptionsInclude = require('./sentenceCorrectOptions.include');
 
 module.exports = {
     multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
@@ -10,4 +11,5 @@ module.exports = {
     sentenceStudentAnswersInclude,
     allSentencesByTaskIdInclude,
     sentenceGapsInclude,
+    sentenceCorrectOptionsInclude,
 };

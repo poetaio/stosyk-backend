@@ -130,6 +130,18 @@ TaskList.belongsTo(Lesson, {
 });
 
 //TaskList-Task One-to-Many relationship
+TaskList.belongsToMany(Task, {
+    through: TaskListTask,
+    foreignKey: 'taskListId',
+    as: 'task',
+});
+const TaskListTaskRelation = Task.belongsToMany(TaskList, {
+    through: TaskListTask,
+    foreignKey: 'taskId',
+    as: 'taskList'
+});
+TaskListTaskRelation.isMultiAssociation = false;
+TaskListTaskRelation.isSingleAssociation = true;
 
 TaskList.hasMany(TaskListTask, {
     foreignKey: 'taskListId',

@@ -10,8 +10,9 @@ module.exports = new GraphQLObjectType({
     description: 'QATaskStudentsAnswersType. Contains questions and students answers each',
     fields: () => ({
         ...taskStudentsAnswersFields,
-        leftColumn: {
+        questions: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(GraphQLInt))),
+            // todo:
             resolve: async (parent, args, context) => [1,2,3]
         }
     }),

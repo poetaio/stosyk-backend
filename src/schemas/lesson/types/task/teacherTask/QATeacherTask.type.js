@@ -3,7 +3,6 @@ const {sentenceController} = require("../../../../../controllers");
 const {TeacherSentenceType} = require("../../sentence");
 const TeacherTaskType = require("./TeacherTask.interface.type");
 const teacherTaskInterfaceFields = require("./teacherTaskInterfaceFields");
-const {taskService, sentenceService} = require("../../../../../services");
 const QuestionType = require("../../Question.type");
 
 module.exports = new GraphQLObjectType({
@@ -15,7 +14,7 @@ module.exports = new GraphQLObjectType({
         questions: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(QuestionType))),
             // parent: taskId, ...,
-            resolve: async (parent, args, context) => await sentenceService.getAllQA(parent)
+            resolve: async (parent, args, context) => await sentenceController.getAllQA(parent)
         }
     }),
 });

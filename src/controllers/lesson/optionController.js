@@ -34,8 +34,22 @@ class OptionController {
         return await optionService.getAllMatchingRight(taskId);
     }
 
+    /**
+     * used in resolve for student options for sentence from left column
+     * @param sentenceId
+     * @return {Promise<*>} return list of student answers
+     */
     async getStudentsMatchingAnswersBySentenceId({ sentenceId }) {
         return await optionService.getStudentsMatchingAnswersBySentenceId(sentenceId);
+    }
+
+    /**
+     * used in QuestionSentenceCorrectAnswers, returns correct option for test sentence
+     * @param questionId
+     * @return {Promise<Model[]>} correct option for test sentence
+     */
+    async getQuestionCorrectOption({ questionId }) {
+        return await optionService.getCorrectOptionBySentenceId(questionId);
     }
 }
 

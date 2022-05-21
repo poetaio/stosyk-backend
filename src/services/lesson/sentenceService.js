@@ -1,10 +1,15 @@
-const { Sentence, SentenceGap, multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
+const {
+    Sentence,
+    SentenceGap,
+    multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
     plainInputSentencesCorrectAnswersByTaskIdInclude
 } = require("../../models");
 const gapService = require('./gapService');
-const {Sequelize} = require("sequelize");
-const { Op } = require("sequelize");
-const {allSentencesByTaskIdInclude, sentenceGapsInclude} = require("../../models/includes/lesson");
+const {
+    allSentencesByTaskIdInclude,
+    sentenceCorrectOptionsInclude
+} = require("../../models/includes/lesson");
+const {TaskTypeEnum} = require("../../utils");
 
 class SentenceService {
     async create(index, text, gaps) {
@@ -43,7 +48,7 @@ class SentenceService {
         });
     }
 
-    async getAllQA({taskId}) {
+    async getAllQA(taskId) {
         const sentences = await Sentence.findAll({
             include: {
                 association: 'sentenceTaskSentence',
@@ -86,7 +91,7 @@ class SentenceService {
      * @param taskId
      * @returns sentenceId, gaps and students answers for each
      */
-    async getSentencesWithAnswersByTaskId(taskId) {
+    async getAllWithStudentsAnswersByTaskId(taskId) {
         const sentences = await Sentence.findAll({
             include: [
                 allSentencesByTaskIdInclude(taskId),
@@ -101,6 +106,46 @@ class SentenceService {
         }
 
         return sentences;
+    }
+
+    // return task with correct options for each sentence-gap
+    async getAllWithCorrectOptionsByTaskId(taskId, type) {
+        const sentencesAnswers = [];
+        let taskSentences;
+        if (type === TaskTypeEnum.MULTIPLE_CHOICE) {
+            taskSentences = await this.getMultipleChoiceSentencesCorrectAnswersByTaskId(taskId);
+        } else if (type === TaskTypeEnum.PLAIN_INPUT) {
+            taskSentences = await this.getPlainInputSentencesByTaskId(taskId);
+        } else {
+            throw new Error(`Unexpected task type: ${type}, taskId: ${taskId}`);
+        }
+
+        for (let { sentenceId, sentenceSentenceGaps } of taskSentences) {
+            const newSentence = { sentenceId, gapsAnswers: [] };
+            for (let { sentenceGapGap : gap } of sentenceSentenceGaps) {
+                const newGap = { gapId: gap.gapId };
+                newGap.correctAnswers = [];
+                for (let { gapOptionOption : option } of gap.gapGapOptions) {
+                    const { optionId, value, optionStudents } = option;
+                    // if task type is plain input,
+                    // then the correct option is which student didn't choose (optionStudents is empty)
+                    if (type === TaskTypeEnum.PLAIN_INPUT && optionStudents.length)
+                        continue;
+                    newGap.correctAnswers.push({ optionId, value});
+                }
+                newSentence.gapsAnswers.push(newGap);
+            }
+            sentencesAnswers.push(newSentence);
+        }
+
+        return sentencesAnswers;
+
+        // return await Sentence.findAll({
+        //     include: [
+        //         allSentencesByTaskIdInclude(taskId),
+        //         sentenceCorrectOptionsInclude,
+        //     ],
+        // });
     }
 }
 

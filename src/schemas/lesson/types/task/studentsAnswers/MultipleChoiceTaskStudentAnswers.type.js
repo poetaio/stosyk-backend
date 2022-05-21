@@ -11,7 +11,7 @@ module.exports = new GraphQLObjectType({
         ...taskStudentsAnswersFields,
         sentences: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(SentenceStudentsAnswersType))),
-            resolve: async (parent, args, context) => await sentenceController.getSentencesWithAnswersByTaskId(parent),
+            resolve: async (parent, args, context) => await sentenceController.getAllWithStudentsAnswersByTaskId(parent),
         }
     }),
     interfaces: [TaskStudentsAnswersInterfaceType],
