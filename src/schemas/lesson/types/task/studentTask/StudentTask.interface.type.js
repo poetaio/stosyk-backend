@@ -13,6 +13,10 @@ module.exports = new GraphQLInterfaceType({
             return 'PlainInputStudentTaskType';
         } else if (type === TaskTypeEnum.MULTIPLE_CHOICE) {
             return 'MultipleChoiceStudentTaskType';
+        } else if (type === TaskTypeEnum.MATCHING) {
+            return 'MatchingStudentTaskType';
+        } else if (type === TaskTypeEnum.QA) {
+            return 'QAStudentTaskType';
         } else return null;
     },
 });

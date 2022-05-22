@@ -1,4 +1,4 @@
-const { lessonService, studentService} = require('../../services')
+const { lessonService, studentService, answerService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {pubsubService} = require('../../services');
@@ -79,22 +79,17 @@ class LessonController {
     }
 
     async getStudentCurrentPosition({lessonId}, {pubsub, user: {userId}}){
-        const teacher = await teacherService.findOneByUserId(userId);
-        if(!teacher){
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
-        }
-
-        return await pubsubService.subscribeOnStudentPosition(pubsub, teacher.teacherId, lessonId)
+       return await lessonService.getStudentCurrentPosition(pubsub, lessonId, userId)
     }
 
-    async setAnswer({lessonId, answer: { taskId, gapId, optionId, answerInput }}, { pubsub, user: {userId}}, ) {
+    async setAnswer({ answer }, { pubsub, user: {userId}}, ) {
         const student = await studentService.findOneByUserId(userId);
 
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return await lessonService.setAnswer(pubsub, lessonId, taskId, gapId, student.studentId, optionId, answerInput)
+        return await answerService.setAnswer(pubsub, student.studentId, answer)
     }
 
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {
@@ -136,13 +131,19 @@ class LessonController {
 
     }
 
+    /**
+     * Checks if user is student and returns all tasks by lessonId, student's answers are resolved in every task type
+     * @param lessonId
+     * @param userId
+     * @return {Promise<*[]>} all tasks by lesson id
+     */
     async studentGetAnswers({lessonId}, {user: {userId}}){
         const student = await studentService.findOneByUserId(userId);
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return await lessonService.studentGetAnswers(lessonId, student.studentId)
+        return await lessonService.studentGetAnswers(lessonId);
     }
 }
 

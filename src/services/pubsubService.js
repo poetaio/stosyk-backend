@@ -40,12 +40,12 @@ class PubsubService {
         });
     }
 
-    async subscribeOnStudentPosition(pubsub, teacherId, lessonId){
-        return pubsub.asyncIterator([eventNameFactory.studentCurrentPositionChangedEventName(lessonId, teacherId)]);
+    async subscribeOnStudentPosition(pubsub, userId, lessonId){
+        return pubsub.asyncIterator([eventNameFactory.studentCurrentPositionChangedEventName(lessonId, userId)]);
     }
 
-    async publishOnStudentPosition(pubsub, lessonId, teacherId, payload){
-        return await pubsub.publish(eventNameFactory.studentCurrentPositionChangedEventName(lessonId, teacherId),{
+    async publishOnStudentPosition(pubsub, lessonId, userId, payload){
+        return await pubsub.publish(eventNameFactory.studentCurrentPositionChangedEventName(lessonId, userId),{
             getStudentCurrentPosition: payload
         });
     }

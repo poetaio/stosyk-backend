@@ -61,5 +61,5 @@ module.exports = {
     studentAnswersChanged: subscribeAuthMiddleware(UserRoleEnum.TEACHER)(studentAnswersChanged),
     lessonStarted,
     correctAnswersShown: subscribeAuthMiddleware(UserRoleEnum.STUDENT)(correctAnswersShown),
-    getStudentCurrentPosition: subscribeAuthMiddleware(UserRoleEnum.TEACHER)(getStudentCurrentPosition),
+    getStudentCurrentPosition: subscribeAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(getStudentCurrentPosition),
 };

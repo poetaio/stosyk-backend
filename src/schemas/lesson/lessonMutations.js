@@ -70,8 +70,7 @@ const setAnswer = {
     type: GraphQLBoolean,
     name: 'setAnswer',
     description: 'Set Answer',
-    args:{
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
+    args: {
         answer: { type: GraphQLNonNull(AnswerInputType)}
     },
     resolve: async (parent, args, context) => await lessonController.setAnswer(args, context)
@@ -98,16 +97,6 @@ const studentLeaveLesson = {
     resolve: async  (parent, args, context) => await lessonController.studentLeaveLesson(args, context)
 }
 
-const studentGetAnswers = {
-    type: GraphQLList(GraphQLNonNull(TaskStudentsAnswersInterfaceType)),
-    name: "StudentGetAnswers",
-    description: "Student Get Answers",
-    args: {
-        lessonId: {type: GraphQLNonNull(GraphQLID)},
-    },
-    resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
-}
-
 
 module.exports = {
     // teacher
@@ -122,5 +111,4 @@ module.exports = {
     setAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setAnswer),
     setStudentCurrentPosition: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setStudentCurrentPosition),
     studentLeaveLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLeaveLesson),
-    studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers),
 };
