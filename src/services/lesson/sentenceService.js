@@ -2,7 +2,7 @@ const {
     Sentence,
     SentenceGap,
     multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
-    plainInputSentencesCorrectAnswersByTaskIdInclude
+    plainInputSentencesCorrectAnswersByTaskIdInclude, StudentOption, allStudentOptionsBySentenceIdInclude
 } = require("../../models");
 const gapService = require('./gapService');
 const {
@@ -51,13 +51,9 @@ class SentenceService {
     async getAllQA(taskId) {
         const sentences = await Sentence.findAll({
             include: {
-                association: 'sentenceTaskSentence',
-                include: {
-                    association: 'taskSentenceTask',
-                    where: {taskId},
-                    required: true
-                },
-                required: true
+                association: 'task',
+                where: {taskId},
+                required: true,
             }
         });
 
@@ -126,10 +122,10 @@ class SentenceService {
                 const newGap = { gapId: gap.gapId };
                 newGap.correctAnswers = [];
                 for (let { gapOptionOption : option } of gap.gapGapOptions) {
-                    const { optionId, value, optionStudents } = option;
+                    const { optionId, value, students } = option;
                     // if task type is plain input,
                     // then the correct option is which student didn't choose (optionStudents is empty)
-                    if (type === TaskTypeEnum.PLAIN_INPUT && optionStudents.length)
+                    if (type === TaskTypeEnum.PLAIN_INPUT && students.length)
                         continue;
                     newGap.correctAnswers.push({ optionId, value});
                 }
@@ -146,6 +142,19 @@ class SentenceService {
         //         sentenceCorrectOptionsInclude,
         //     ],
         // });
+    }
+
+    /**
+     * Returns true if student has answers on any options of gaps of sentence with sentenceId
+     * @param sentenceId
+     * @param studentId
+     * @return {Promise<boolean>} true if student answers exists
+     */
+    async existsStudentAnswer(sentenceId, studentId) {
+        return !!await StudentOption.count({
+            where: { studentId },
+            include: allStudentOptionsBySentenceIdInclude(sentenceId) ,
+        });
     }
 }
 

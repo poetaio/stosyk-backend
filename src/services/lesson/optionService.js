@@ -1,10 +1,11 @@
 const { Option, StudentOption, sequelize, GET_TASK_TYPE_BY_OPTION_ID, GET_TASK_TYPE_BY_GAP_ID,
     GET_GAP_CORRECT_PLAIN_OPTIONS, GET_SOMETHING, matchingSentenceCorrectAnswersInclude, taskOptionsInclude, Gap,
-    multipleGapsOptionsInclude, allOptionsBySentenceIdInclude
+    multipleGapsOptionsInclude, allOptionsBySentenceIdInclude, Student, allStudentOptionsBySentenceIdInclude
 } = require("../../models");
 const {TaskTypeEnum, ValidationError} = require("../../utils");
 const Sequelize = require("sequelize");
 const {taskGapsInclude} = require("../../models/includes/lesson/gap");
+const {allOptionsByTaskIdInclude, allOptionsBySentenceIdAndTaskIdInclude} = require("../../models/includes/lesson/option");
 
 class OptionService {
     async create(value, isCorrect) {
@@ -149,7 +150,7 @@ class OptionService {
                     },
                     required: true
                 },
-                'optionStudents'
+                'students'
             ]
         });
     }
@@ -167,7 +168,7 @@ class OptionService {
                     required: true
                 },
                 {
-                    association: 'optionStudents',
+                    association: 'students',
                     where: {studentId},
                     required: true
                 }
@@ -178,31 +179,14 @@ class OptionService {
     async existsByIdAndTaskId(optionId, taskId) {
         return !!await Option.count({
             where: { optionId },
-            include: {
-                association: "optionGapOption",
-                include: {
-                    association: "gapOptionGap",
-                    include: {
-                        association: "gapSentenceGap",
-                        include: {
-                            association: "sentenceGapSentence",
-                            include: {
-                                association: "sentenceTaskSentence",
-                                include: {
-                                    association: "taskSentenceTask",
-                                    where: { taskId },
-                                    required: true,
-                                },
-                                required: true,
-                            },
-                            required: true,
-                        },
-                        required: true,
-                    },
-                    required: true,
-                },
-                required: true,
-            }
+            include: allOptionsByTaskIdInclude(taskId),
+        });
+    }
+
+    async existsByIdSentenceIdAndTaskId(optionId, sentenceId, taskId) {
+        return !!await Option.count({
+            where: { optionId },
+            include: allOptionsBySentenceIdAndTaskIdInclude(sentenceId, taskId),
         });
     }
 
@@ -275,7 +259,7 @@ class OptionService {
      * @param sentenceId
      * @return {Promise<Model[]>} students' answers
      */
-    async getStudentsMatchingAnswersBySentenceId(sentenceId) {
+    async getMatchingStudentsAnswersBySentenceId(sentenceId) {
         return await StudentOption.findAll({
             where: { sentenceId },
             include: "option",
@@ -291,6 +275,12 @@ class OptionService {
         return await Option.findOne({
             where: { isCorrect: true },
             include: allOptionsBySentenceIdInclude(sentenceId)
+        });
+    }
+
+    async getAllWithAnswersBySentenceId(sentenceId) {
+        return await StudentOption.findAll({
+            include: allStudentOptionsBySentenceIdInclude(sentenceId),
         });
     }
 }

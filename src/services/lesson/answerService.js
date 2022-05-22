@@ -1,29 +1,26 @@
 const {NotFoundError, ValidationError, TaskTypeEnum} = require("../../utils");
+const {StudentOption, Option, GapOption, allStudentOptionsBySentenceIdInclude} = require("../../models");
 const taskService = require("./taskService");
-const optionService = require("./optionService");
+const sentenceService = require("./sentenceService");
 const gapService = require("./gapService");
-const {StudentOption, Option, GapOption} = require("../../models");
+const optionService = require("./optionService");
 const teacherService = require("../user/teacherService");
 const pubsubService = require("../pubsubService");
 const lessonService = require("./lessonService");
+const {allStudentOptionsByGapIdInclude} = require("../../models/includes/lesson/option");
 
 class AnswerService {
     async setMultipleChoiceAnswer(studentId, lessonId, taskId, { sentenceId, gapId, optionId }) {
-        // Exception: table name "optionGapOption->gapOptionGap->gapSent…ceGap->sentenceGapSente" specified more than once
-        // (too long alias name when joining table)
-        // if (!await optionService.existsByIdAndTaskId(optionId, taskId)) {
-        //     throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
-        // }
+        if (!await optionService.existsByIdAndTaskId(optionId, taskId)) {
+            throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
+        }
         if (await optionService.existsStudentAnswer(studentId, optionId)) {
             throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
         }
 
         // creating new student-option if student didn't answer before
         if (!await gapService.existsStudentAnswer(gapId, studentId)) {
-            await StudentOption.create({
-                optionId,
-                studentId
-            });
+            await StudentOption.create({ optionId, studentId });
             return;
         }
 
@@ -32,15 +29,7 @@ class AnswerService {
             optionId
         }, {
             where: { studentId },
-            include: {
-                model: Option,
-                include: {
-                    association: "optionGapOption",
-                    where: { gapId },
-                    required: true
-                },
-                required: true
-            }
+            include: allStudentOptionsByGapIdInclude(gapId),
         });
     }
 
@@ -49,23 +38,48 @@ class AnswerService {
 
         const isCorrect = correctOptions.map(option => option.value).includes(input);
 
+        // todo: refactor, get studentOption, if it is null - create new one, otherwise update it
+        // to avoid double querying and long joins
         if (!await gapService.existsStudentAnswer(gapId, studentId)) {
             // create new
             let studentOption = await optionService.create(input, isCorrect);
             await GapOption.create({ optionId: studentOption.optionId, gapId });
             await StudentOption.create({ studentId, optionId: studentOption.optionId });
-        } else {
-            // update existing
-            const option = await optionService.getOneByGapIdAndStudentId(gapId, studentId);
-            const [updNum] = await optionService.updateById(option.optionId, input, isCorrect);
-            if (!updNum) {
-                throw new ValidationError(`Could not update student answer`);
-            }
+        }
+
+        // update existing
+        const option = await optionService.getOneByGapIdAndStudentId(gapId, studentId);
+        const [updNum] = await optionService.updateById(option.optionId, input, isCorrect);
+        if (!updNum) {
+            throw new ValidationError(`Could not update student answer`);
         }
     }
 
-    async setQAAnswer(pubsub, studentId) {
-        // todo
+    async setQAAnswer(studentId, lessonId, taskId, { questionId, optionId }) {
+        if (!await optionService.existsByIdSentenceIdAndTaskId(optionId, questionId, taskId)) {
+            throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
+        }
+        if (await optionService.existsStudentAnswer(studentId, optionId)) {
+            throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
+        }
+
+        const studentOption = await StudentOption.findOne({
+            where: { studentId },
+            include: allStudentOptionsBySentenceIdInclude(questionId) ,
+        });
+
+        // creating new student-option if student didn't answer before
+        if (!studentOption) {
+            await StudentOption.create({ optionId, studentId });
+            return;
+        }
+
+        // update existing
+        studentOption.set({
+            optionId,
+        });
+
+        await studentOption.save();
     }
 
     async setMatchingAnswer(studentId, lessonId, taskId, { sentenceId, optionId }) {
@@ -122,7 +136,7 @@ class AnswerService {
     async setAnswer(pubsub, studentId, answer){
         const { taskId, lessonId } = answer;
 
-        if(!await lessonService.studentLessonExists(lessonId, studentId)){
+        if (!await lessonService.studentLessonExists(lessonId, studentId)){
             throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
         }
         if (!await lessonService.existsActiveByLessonId(lessonId)) {

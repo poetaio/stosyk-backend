@@ -121,13 +121,10 @@ class TaskService {
         if (type === TaskTypeEnum.QA) {
             sentences = [];
             for (let question of task.qa.questions) {
-                const options = question.answers.map(({ value, isCorrect }) => ({
-                    value, isCorrect
-                }));
-
+                const { index, text, options } = question;
                 const newSentence = {
-                    index: question.index,
-                    text: question.text,
+                    index,
+                    text,
                     gaps: [{
                         position: 0,
                         options
@@ -288,7 +285,7 @@ class TaskService {
         } else if (task.type === TaskTypeEnum.QA) {
             const questions = task.qa.questions;
             for (let question of questions) {
-                if (!question.answers.some(({isCorrect}) => isCorrect)) {
+                if (!question.options.some(({isCorrect}) => isCorrect)) {
                     throw new ValidationError(`No correct option provided for question`);
                 }
             }

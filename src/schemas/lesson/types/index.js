@@ -5,6 +5,7 @@ const QuestionInputType = require('./Question.input.type');
 const TeacherQuestionType = require('./TeacherQuestion.type');
 const answerTypes = require('./answer');
 const QuestionCorrectAnswersType = require('./QuestionCorrectAnswers.type');
+const QuestionStudentsAnswersType = require('./QuestionStudentsAnswers.type');
 const StudentQuestionType = require('./StudentQuestion.type');
 
 
@@ -17,4 +18,5 @@ module.exports = {
     TeacherQuestionType,
     StudentQuestionType,
     QuestionCorrectAnswersType,
+    QuestionStudentsAnswersType,
 };

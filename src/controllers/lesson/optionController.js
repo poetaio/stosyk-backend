@@ -39,8 +39,8 @@ class OptionController {
      * @param sentenceId
      * @return {Promise<*>} return list of student answers
      */
-    async getStudentsMatchingAnswersBySentenceId({ sentenceId }) {
-        return await optionService.getStudentsMatchingAnswersBySentenceId(sentenceId);
+    async getMatchingStudentsAnswersBySentenceId({ sentenceId }) {
+        return await optionService.getMatchingStudentsAnswersBySentenceId(sentenceId);
     }
 
     /**
@@ -50,6 +50,10 @@ class OptionController {
      */
     async getQuestionCorrectOption({ questionId }) {
         return await optionService.getCorrectOptionBySentenceId(questionId);
+    }
+
+    async getQAStudentsAnswersBySentenceId({ questionId }) {
+        return await optionService.getAllWithAnswersBySentenceId(questionId);
     }
 }
 

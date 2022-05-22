@@ -12,7 +12,7 @@ module.exports = new GraphQLObjectType({
         sentenceId: { type: GraphQLNonNull(GraphQLID) },
         studentsAnswers: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentAnswerType))),
-            resolve: async (parent, args, context) => await optionController.getStudentsMatchingAnswersBySentenceId(parent)
+            resolve: async (parent, args, context) => await optionController.getMatchingStudentsAnswersBySentenceId(parent)
         },
     }
 });

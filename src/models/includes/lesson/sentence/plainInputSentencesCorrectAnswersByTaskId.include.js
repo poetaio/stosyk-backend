@@ -19,7 +19,7 @@ module.exports = (taskId) => [{
                 },
                 required: true,
                 include: {
-                    association: "optionStudents",
+                    association: "students",
                     // model: sequelize.models.StudentOption,
                     // left outer join
                     required: false,

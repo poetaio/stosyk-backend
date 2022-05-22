@@ -317,12 +317,12 @@ GapOption.belongsTo(Option, {
 Student.belongsToMany(Option, {
     through: StudentOption,
     foreignKey: 'studentId',
-    as: 'studentOptions'
+    as: 'options'
 });
 Option.belongsToMany(Student, {
     through: StudentOption,
     foreignKey: 'optionId',
-    as: 'optionStudents'
+    as: 'students'
 });
 
 StudentOption.belongsTo(Option, {
@@ -332,6 +332,15 @@ StudentOption.belongsTo(Option, {
 StudentOption.belongsTo(Student, {
     foreignKey: 'studentId',
     as: 'student',
+});
+
+Option.hasMany(StudentOption, {
+    foreignKey: "optionId",
+    as: "optionStudentOptions",
+});
+Student.hasMany(StudentOption, {
+    foreignKey: "studentId",
+    as: "studentOptions",
 });
 
 Sentence.hasOne(StudentOption, {
