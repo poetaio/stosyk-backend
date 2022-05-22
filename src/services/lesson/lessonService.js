@@ -288,19 +288,33 @@ class LessonService {
             throw new NotFoundError(`No lesson ${lessonId} of student ${student.studentId} found`);
         }
         const teacher = await teacherService.findOneByLessonId(lessonId)
-        const studentsCurrentTask = store.get("CurrentPosition");
+        const studentsCurrentTask = store.get(lessonId);
         if(!studentsCurrentTask){
-            store('CurrentPosition', [{taskId, student}])
-        }else{
-            const newStudentsCurrentTask = studentsCurrentTask.map((el)=>({
-                ...el,
-                taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
-            }))
-            store('CurrentPosition', newStudentsCurrentTask)
-        }
+            store(lessonId, [{taskId, student}])
+        }else {
+            if (studentsCurrentTask.find(el => el.student.studentId === student.studentId)){
+                const newStudentsCurrentTask = studentsCurrentTask.map((el)=>({
+                        ...el,
+                        taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
+                    }))
+                store( lessonId, newStudentsCurrentTask)
 
-        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.teacherId, store.get("CurrentPosition"))
+            }else {
+                store.add(lessonId, [{taskId, student}])
+            }
+        }
+        const students = await studentService.studentsLesson(lessonId)
+        for(let student of students){
+            await pubsubService.publishOnStudentPosition(pubsub, lessonId, student.userId, store.get(lessonId))
+        }
+        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.userId, store.get(lessonId))
         return true;
+    }
+
+    async getStudentCurrentPosition (pubsub, lessonId, userId){
+        setTimeout(async () => await pubsubService.publishOnStudentPosition(pubsub, lessonId, userId,
+                 store.get(lessonId) || [] ), 0)
+        return await pubsubService.subscribeOnStudentPosition(pubsub, userId, lessonId)
     }
 
 
