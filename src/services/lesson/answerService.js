@@ -155,7 +155,7 @@ class AnswerService {
             await this.setMatchingAnswer(studentId, lessonId, taskId, answer.matching);
         } else if (task.type === TaskTypeEnum.QA && answer.qa) {
             await this.setQAAnswer(studentId, lessonId, taskId, answer.qa);
-        } else throw new ValidationError(`Invalid input`);
+        } else throw new ValidationError(`Invalid input: type-type object mismatch`);
 
         const teacher = await teacherService.findOneByLessonId(lessonId);
         await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,

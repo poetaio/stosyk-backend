@@ -10,6 +10,9 @@ const MatchingSentenceStudentsAnswersType = require('./MatchingSentenceStudentsA
 const MatchingSentenceCorrectAnswersType = require('./MatchingSentenceCorrectAnswers.type');
 const MatchingStudentSentenceLeftType = require('./MatchingStudentSentenceLeft.type');
 const MatchingStudentSentenceRightType = require('./MatchingStudentSentenceRight.type');
+const PlainInputAnswerSheetSentenceType = require('./PlainInputAnswerSheetSentence.type');
+const MultipleChoiceAnswerSheetSentenceType = require('./MultipleChoiceAnswerSheetSentence.type');
+const MatchingAnswerSheetSentenceType = require('./MatchingAnswerSheetSentence.type');
 
 
 module.exports = {
@@ -25,4 +28,7 @@ module.exports = {
     MatchingSentenceCorrectAnswersType,
     MatchingStudentSentenceLeftType,
     MatchingStudentSentenceRightType,
+    PlainInputAnswerSheetSentenceType,
+    MultipleChoiceAnswerSheetSentenceType,
+    MatchingAnswerSheetSentenceType,
 };

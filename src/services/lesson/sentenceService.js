@@ -7,7 +7,7 @@ const {
 const gapService = require('./gapService');
 const {
     allSentencesByTaskIdInclude,
-    sentenceCorrectOptionsInclude
+    sentenceCorrectOptionsInclude, sentenceGapsInclude, sentenceGapsNewInclude
 } = require("../../models/includes/lesson");
 const {TaskTypeEnum} = require("../../utils");
 
@@ -48,26 +48,22 @@ class SentenceService {
         });
     }
 
+    /**
+     * Returns all questions(sentences) by taskId, converting sentenceId to questionId
+     * @param taskId
+     * @return {Promise<{questionId: *, index: *, text: *}[]>}
+     */
     async getAllQA(taskId) {
-        const sentences = await Sentence.findAll({
+        return await Sentence.findAll({
+            attributes: [['sentenceId', 'questionId'], 'index', 'text'],
             include: {
                 association: 'task',
                 where: {taskId},
                 required: true,
-            }
+                attributes: [],
+            },
+            raw: true,
         });
-
-        const resSentences = [];
-
-        for (let sentence of sentences) {
-            resSentences.push({
-                questionId: sentence.sentenceId,
-                index: sentence.index,
-                text: sentence.text,
-            });
-        }
-
-        return resSentences;
     }
 
     async getPlainInputSentencesByTaskId(taskId) {
@@ -155,6 +151,38 @@ class SentenceService {
             where: { studentId },
             include: allStudentOptionsBySentenceIdInclude(sentenceId) ,
         });
+    }
+
+    /**
+     * Returns all sentences of specific task including gaps for each
+     * @param taskId
+     * @return {Promise<Model[]>} all sentences with gaps by task id
+     */
+    async getAllWithGapsByTaskId(taskId) {
+        return await Sentence.findAll({
+            include: [
+                allSentencesByTaskIdInclude(taskId),
+                sentenceGapsNewInclude
+            ],
+        }).then(res => res.map(s => s.get({plain: true})));
+    }
+
+    /**
+     * Returns all sentences with one student answers by task id and student id
+     * @param taskId
+     * @param studentId
+     * @return {Promise<Model[]>} sentences with one student answers
+     */
+    async getAllWithAnswerSheetByTaskId(taskId, studentId) {
+        const sentences = await this.getAllWithGapsByTaskId(taskId);
+
+        for (let { gaps } of sentences) {
+            for (let gap of gaps) {
+                gap.studentsAnswers = await gapService.studentGetAnswer(gap.gapId, studentId);
+            }
+        }
+
+        return sentences;
     }
 }
 

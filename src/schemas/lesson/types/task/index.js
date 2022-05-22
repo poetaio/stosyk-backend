@@ -9,6 +9,7 @@ const studentTask = require('./studentTask');
 const studentAnswers = require('./studentsAnswers');
 const createTask = require('./createTask');
 const correctAnswers = require('./correctAnswers');
+const answerSheet = require('./answerSheetTask');
 
 
 module.exports = {
@@ -17,6 +18,7 @@ module.exports = {
     ...createTask,
     ...studentAnswers,
     ...correctAnswers,
+    ...answerSheet,
 
     // TaskTypeEnumType,
     AttachmentInputType,

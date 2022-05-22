@@ -7,6 +7,7 @@ const answerTypes = require('./answer');
 const QuestionCorrectAnswersType = require('./QuestionCorrectAnswers.type');
 const QuestionStudentsAnswersType = require('./QuestionStudentsAnswers.type');
 const StudentQuestionType = require('./StudentQuestion.type');
+const AnswerSheetQuestionType = require('./AnswerSheetQuestion.type');
 
 
 module.exports = {
@@ -19,4 +20,5 @@ module.exports = {
     StudentQuestionType,
     QuestionCorrectAnswersType,
     QuestionStudentsAnswersType,
+    AnswerSheetQuestionType,
 };

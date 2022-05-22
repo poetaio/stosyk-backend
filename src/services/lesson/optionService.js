@@ -202,13 +202,16 @@ class OptionService {
     async getOneByGapIdAndStudentId(gapId, studentId) {
         return await Option.findOne({
             include: [{
-                association: "optionStudents",
+                association: "optionStudentOptions",
+                attributes: [],
                 where: { studentId },
                 required: true
             }, {
                 association: "optionGapOption",
+                attributes: [],
                 include: {
                     association: "gapOptionGap",
+                    attributes: [],
                     where: { gapId },
                     required: true,
                 },
@@ -278,9 +281,45 @@ class OptionService {
         });
     }
 
+    /**
+     * Returns all student options by sentence id
+     * @param sentenceId
+     * @return {Promise<Model[]>}
+     */
     async getAllWithAnswersBySentenceId(sentenceId) {
         return await StudentOption.findAll({
             include: allStudentOptionsBySentenceIdInclude(sentenceId),
+        });
+    }
+
+    /**
+     * Returns specific student chosen option for matching type sentence
+     * @param sentenceId
+     * @param studentId
+     * @return {Promise<Model|null>} chosen option
+     */
+    async getMatchingChosenOptionBySentenceId(sentenceId, studentId) {
+        return await StudentOption.findOne({
+            where: { sentenceId, studentId }
+        });
+    }
+
+    /**
+     * Returns specific student chosen option for question type sentence
+     * @param sentenceId
+     * @param studentId
+     * @return {Promise<void>} chosen option
+     */
+    async getQuestionChosenOptionBySentenceId(sentenceId, studentId) {
+        return await Option.findOne({
+            include: [
+                allOptionsBySentenceIdInclude(sentenceId),
+                {
+                    association: 'students',
+                    where: {studentId},
+                    required: true,
+                }
+            ]
         });
     }
 }

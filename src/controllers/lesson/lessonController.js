@@ -121,13 +121,19 @@ class LessonController {
         return await lessonService.subscribeOnCorrectAnswersShown(pubsub, lessonId, student.studentId);
     }
 
+    /**
+     * Checks if user is student and returns all tasks by lessonId, student's answers are resolved in every task type
+     * @param lessonId
+     * @param userId
+     * @return {Promise<*[]>} all tasks by lesson id
+     */
     async studentGetAnswers({lessonId}, {user: {userId}}){
         const student = await studentService.findOneByUserId(userId);
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return await lessonService.studentGetAnswers(lessonId, student.studentId)
+        return await lessonService.studentGetAnswers(lessonId);
     }
 }
 

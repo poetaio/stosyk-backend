@@ -1,5 +1,5 @@
 module.exports = (studentId) => ({
-    association: "option",
+    association: "options",
     include: {
         association: "students",
         where: { studentId },
