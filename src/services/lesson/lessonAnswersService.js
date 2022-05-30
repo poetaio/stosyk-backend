@@ -31,7 +31,7 @@ class LessonAnswersService {
                         const { optionId, value, optionStudents } = option;
                         // if task type is plain input,
                         // then the correct option is which student didn't choose
-                        if (task.type === TaskTypeEnum.PLAIN_INPUT && !optionStudents.length) continue;
+                        if (task.type === TaskTypeEnum.PLAIN_INPUT && optionStudents.length) continue;
                         newGap.correctAnswers.push({ optionId, value});
                     }
                     newSentence.gapsAnswers.push(newGap);
