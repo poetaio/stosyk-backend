@@ -1,6 +1,5 @@
-const { Teacher, User} = require('../../models');
+const { Teacher, User, Account} = require('../../models');
 const {UserRoleEnum, UserTypeEnum, hashPassword} = require("../../utils");
-const bcrypt = require('bcrypt');
 
 
 class TeacherService {
@@ -42,7 +41,27 @@ class TeacherService {
                     include: 'account'
                 }
             }
-        ).then(({ user }) => user.userId);
+        );
+    }
+
+    async updateAnonymousTeacherToRegistered(userId, email, password) {
+        const passwordHash = await hashPassword(password);
+
+        await User.update({
+                type: UserTypeEnum.REGISTERED,
+            },
+            {
+                where: {
+                    userId
+                }
+            }
+        );
+
+        await Account.create({
+            login: email,
+            passwordHash,
+            userId
+        })
     }
 
     async findOneByUserId(userId) {

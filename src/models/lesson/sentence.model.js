@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define('sentence', {
         allowNull: false
     },
     text: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: DataTypes.STRING(1500),
+        allowNull: false,
     }
 });

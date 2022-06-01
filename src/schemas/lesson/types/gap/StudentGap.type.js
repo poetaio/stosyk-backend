@@ -11,7 +11,7 @@ module.exports = new GraphQLObjectType({
         options: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentOptionType))),
             resolve: async (parent, args, context) =>
-                await optionController.getOptions(parent, args, context)
+                await optionController.getOptionsForStudent(parent, args, context)
         },
         chosenOption: {
             type: StudentOptionType,

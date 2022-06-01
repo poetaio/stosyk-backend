@@ -27,6 +27,7 @@ const {
     SentenceGap,
     GapOption,
     StudentOption,
+    TaskAttachments
 } = require('./relations')(sequelize, DataTypes);
 
 //User-Account One-to-One relationship
@@ -190,8 +191,19 @@ TaskSentence.belongsTo(Sentence, {
     as: 'taskSentenceSentence'
 });
 
-//Sentence-Gap One-to-Many relationship
+Task.hasMany(TaskAttachments, {
+    foreignKey: 'taskId',
+    as: 'taskAttachments',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+TaskAttachments.belongsTo(Task,{
+    foreignKey: 'taskId',
+    as: 'taskAttachments'
+})
 
+//Sentence-Gap One-to-Many relationship
 Sentence.hasMany(SentenceGap, {
     foreignKey: 'sentenceId',
     as: 'sentenceSentenceGaps',
@@ -308,6 +320,7 @@ module.exports = {
     SentenceGap,
     GapOption,
     StudentOption,
+    TaskAttachments,
 
     ...queries,
     ...includes

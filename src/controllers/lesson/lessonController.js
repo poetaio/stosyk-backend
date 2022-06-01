@@ -1,4 +1,4 @@
-const { lessonService, studentService, userService} = require('../../services')
+const { lessonService, studentService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {pubsubService} = require('../../services');
@@ -69,14 +69,27 @@ class LessonController {
         return await lessonService.joinLesson(pubsub, lessonId, student.studentId);
     }
 
-    async setAnswer({lessonId, answer: { gapId, optionId }}, { pubsub, user: {userId}}, ) {
+    async setStudentCurrentPosition({lessonId, taskId}, {pubsub, user: {userId}}){
+        const student = await studentService.findOneByUserId(userId);
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return await lessonService.setStudentCurrentPosition(pubsub, lessonId, taskId, student);
+    }
+
+    async getStudentCurrentPosition({lessonId}, {pubsub, user: {userId}}){
+       return await lessonService.getStudentCurrentPosition(pubsub, lessonId, userId)
+    }
+
+    async setAnswer({lessonId, answer: { taskId, gapId, optionId, answerInput }}, { pubsub, user: {userId}}, ) {
         const student = await studentService.findOneByUserId(userId);
 
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return await lessonService.setAnswer(pubsub, lessonId, gapId, student.studentId, optionId)
+        return await lessonService.setAnswer(pubsub, lessonId, taskId, gapId, student.studentId, optionId, answerInput)
     }
 
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {
@@ -106,6 +119,15 @@ class LessonController {
         }
 
         return await lessonService.subscribeOnCorrectAnswersShown(pubsub, lessonId, student.studentId);
+    }
+
+    async studentGetAnswers({lessonId}, {user: {userId}}){
+        const student = await studentService.findOneByUserId(userId);
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return await lessonService.studentGetAnswers(lessonId, student.studentId)
     }
 }
 

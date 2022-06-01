@@ -4,6 +4,8 @@ const studentOnLessonInclude = require('./studentOnLesson.include');
 const lessonGapsInclude = require('./lessonStudentsAnswers.include');
 const lessonCorrectAnswersInclude = require('./lessonCorrectAnswers.include');
 const taskWithLessonInclude = require('./taskWithLesson.include');
+const lessonTasksInclude = require('./lessonTasks.include');
+const lessonShownTasksInclude = require('./lessonShownTasks.include');
 
 module.exports = {
     lessonInclude,
@@ -11,5 +13,7 @@ module.exports = {
     studentOnLessonInclude,
     lessonGapsInclude,
     lessonCorrectAnswersInclude,
-    taskWithLessonInclude
+    taskWithLessonInclude,
+    lessonTasksInclude,
+    lessonShownTasksInclude
 };

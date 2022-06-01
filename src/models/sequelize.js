@@ -19,6 +19,7 @@ module.exports = new Sequelize(
         pool: {
             idle: 10000,
             evict: 1000,
-        }
+        },
+        logging: false
     }
 );

@@ -16,6 +16,9 @@ class EventNameFactory {
     teacherShowedAnswersEventName(lessonId, studentId) {
         return `${EventNameEnum.TEACHER_SHOWED_ANSWERS}${lessonId}${studentId}`;
     }
+    studentCurrentPositionChangedEventName(lessonId, userId) {
+        return `${EventNameEnum.STUDENT_CURRENT_POSITION}${lessonId}${userId}`;
+    }
 }
 
 module.exports = new EventNameFactory();
