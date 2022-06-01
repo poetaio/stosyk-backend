@@ -108,6 +108,10 @@ class LessonService {
         // check if right option exists for every gap
         for (let task of tasks) {
             for (let sentence of task.sentences) {
+                if (!sentence.text?.length || sentence.text?.length > 1500) {
+                    throw new ValidationError(`Sentence length must be 0-1500 characters`);
+                }
+
                 for (let gap of sentence.gaps) {
                     if (!gap.options.some(option => option.isCorrect)) {
                         throw new ValidationError(`No correct option provided`);
