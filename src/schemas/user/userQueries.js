@@ -1,4 +1,4 @@
-const { GraphQLBoolean, GraphQLString} = require("graphql");
+const { GraphQLBoolean, GraphQLString, GraphQLNonNull} = require("graphql");
 const { userController, accountController} = require('../../controllers');
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
@@ -26,7 +26,7 @@ const isUserRegistered = {
 }
 
 const getAccountInfo = {
-    type: GraphQLString,
+    type: GraphQLNonNull(GraphQLString),
     name: 'getAccountInfo',
     description: 'Get account info',
     resolve: async (parent, args, context) => await accountController.getAccountInfo(context)
