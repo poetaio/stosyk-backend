@@ -1,7 +1,8 @@
-const { GraphQLBoolean } = require("graphql");
-const { userController } = require('../../controllers');
+const { GraphQLBoolean, GraphQLString} = require("graphql");
+const { userController, accountController} = require('../../controllers');
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
+const {AccountInfoType} = require("./types");
 
 const checkTeacherAuth = {
     type: GraphQLBoolean,
@@ -24,9 +25,17 @@ const isUserRegistered = {
     resolve: async (parent, args, context) => await userController.isRegistered(context)
 }
 
+const getAccountInfo = {
+    type: GraphQLString,
+    name: 'getAccountInfo',
+    description: 'Get account info',
+    resolve: async (parent, args, context) => await accountController.getAccountInfo(context)
+}
+
 
 module.exports = {
     checkTeacherAuth: resolveAuthMiddleware(UserRoleEnum.TEACHER)(checkTeacherAuth),
     checkStudentAuth: resolveAuthMiddleware(UserRoleEnum.STUDENT)(checkStudentAuth),
-    isUserRegistered: resolveAuthMiddleware(UserRoleEnum.TEACHER)(isUserRegistered)
+    isUserRegistered: resolveAuthMiddleware(UserRoleEnum.TEACHER)(isUserRegistered),
+    getAccountInfo: resolveAuthMiddleware(UserRoleEnum.TEACHER)(getAccountInfo),
 };
