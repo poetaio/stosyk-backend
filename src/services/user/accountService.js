@@ -1,4 +1,4 @@
-const {Account} = require("../../models");
+const {Account, User} = require("../../models");
 
 class AccountService {
     async getOneByLogin(login) {
@@ -12,6 +12,13 @@ class AccountService {
         return !!await Account.count({
             where: { login }
         });
+    }
+
+    async getOneById(userId) {
+        return await User.findOne({
+            where: { userId },
+            include: 'account'
+        })
     }
 }
 
