@@ -6,8 +6,6 @@ const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOpt
 const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError, TaskTypeEnum} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
-const gapService = require("./gapService");
-const optionService = require("./optionService");
 const pubsubService = require("../pubsubService");
 const Sequelize = require('sequelize');
 const studentService = require("../user/studentService");
@@ -352,7 +350,6 @@ class LessonService {
     /**
      * Returns all tasks by lessonId, students answers are got in resolve for every task type
      * @param lessonId
-     * @param studentId
      * @return {Promise<*[]>} all tasks by lesson id
      */
     async studentGetAnswers(lessonId){
@@ -363,24 +360,6 @@ class LessonService {
         return await Task.findAll({
             include: allTasksByLessonIdInclude(lessonId),
         });
-
-        // const tasks = [];
-
-        // for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
-        //     const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
-        //     for (let { taskSentenceSentence : sentence } of task.taskTaskSentences) {
-        //         const newSentence = { sentenceId: sentence.sentenceId, gaps: [] };
-        //         for (let { sentenceGapGap : gap } of sentence.sentenceSentenceGaps) {
-        //             const newGap = { gapId: gap.gapId };
-        //             newGap.studentsAnswers = await gapService.studentGetAnswer(gap.gapId, studentId);
-        //             newSentence.gaps.push(newGap);
-        //         }
-        //         newTask.sentences.push(newSentence);
-        //     }
-        //     tasks.push(newTask);
-        // }
-
-        // return tasks;
     }
 
     async studentLeaveLesson(pubsub, lessonId, studentId) {
@@ -406,7 +385,7 @@ class LessonService {
         }
         await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
 
-        return !!lessonStudent
+        return !!lessonStudent;
     }
 
 }

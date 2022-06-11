@@ -186,7 +186,7 @@ class TaskService {
             required = true;
         }
 
-        const tasks =  await Task.findAll({
+        return await Task.findAll({
             include: {
                 association: 'taskTaskListTask',
                 include: {
@@ -201,8 +201,6 @@ class TaskService {
                 required: true
             }
         });
-
-        return tasks;
     }
 
     async deleteByLessonId(lessonId) {
@@ -296,6 +294,10 @@ class TaskService {
         } else throw new ValidationError(`No such task type: ${task.type}`);
 
         for (let sentence of sentences) {
+            if (!sentence.text?.length || sentence.text?.length > 1500) {
+                throw new ValidationError(`Sentence length must be 0-1500 characters`);
+            }
+
             for (let gap of sentence.gaps) {
                 if (!gap.options.some(option => option.isCorrect)) {
                     throw new ValidationError(`No correct option provided`);
