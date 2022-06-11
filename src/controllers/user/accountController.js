@@ -41,6 +41,14 @@ class AccountController {
         const account = await accountService.getOneById(userId)
         return account.account.login
     }
+
+    async changePassword({oldPassword, newPassword}, {user:{userId}}){
+        const account = await accountService.getOneById(userId)
+        if (!account || !bcrypt.compareSync(oldPassword, account.account.passwordHash)) {
+            throw new ValidationError('Wrong password');
+        }
+        return await accountService.changePassword(userId, account.account.login,  newPassword)
+    }
 }
 
 
