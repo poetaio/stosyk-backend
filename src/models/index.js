@@ -130,6 +130,18 @@ TaskList.belongsTo(Lesson, {
 });
 
 //TaskList-Task One-to-Many relationship
+TaskList.belongsToMany(Task, {
+    through: TaskListTask,
+    foreignKey: 'taskListId',
+    as: 'task',
+});
+const TaskListTaskRelation = Task.belongsToMany(TaskList, {
+    through: TaskListTask,
+    foreignKey: 'taskId',
+    as: 'taskList'
+});
+TaskListTaskRelation.isMultiAssociation = false;
+TaskListTaskRelation.isSingleAssociation = true;
 
 TaskList.hasMany(TaskListTask, {
     foreignKey: 'taskListId',
@@ -161,6 +173,18 @@ TaskListTask.belongsTo(Task, {
 });
 
 //Task-Sentence One-to-Many relationship
+Task.belongsToMany(Sentence, {
+    through: TaskSentence,
+    foreignKey: 'taskId',
+    as: 'sentences',
+});
+const TaskSentenceRelation = Sentence.belongsToMany(Task, {
+    through: TaskSentence,
+    foreignKey: 'sentenceId',
+    as: 'task'
+});
+TaskSentenceRelation.isMultiAssociation = false;
+TaskSentenceRelation.isSingleAssociation = true;
 
 Task.hasMany(TaskSentence, {
     foreignKey: 'taskId',
@@ -204,6 +228,19 @@ TaskAttachments.belongsTo(Task,{
 })
 
 //Sentence-Gap One-to-Many relationship
+Sentence.belongsToMany(Gap, {
+    through: SentenceGap,
+    foreignKey: 'sentenceId',
+    as: 'gaps',
+});
+const SentenceGapRelation = Gap.belongsToMany(Sentence, {
+    through: SentenceGap,
+    foreignKey: 'gapId',
+    as: 'sentence'
+});
+SentenceGapRelation.isMultiAssociation = false;
+SentenceGapRelation.isSingleAssociation = true;
+
 Sentence.hasMany(SentenceGap, {
     foreignKey: 'sentenceId',
     as: 'sentenceSentenceGaps',
@@ -233,7 +270,19 @@ SentenceGap.belongsTo(Gap, {
     as: 'sentenceGapGap'
 });
 
-//Gap-Answer One-to-Many relationship
+//Gap-Option One-to-Many relationship
+Gap.belongsToMany(Option, {
+    through: GapOption,
+    foreignKey: 'gapId',
+    as: 'options',
+});
+const GapOptionRelation = Option.belongsToMany(Gap, {
+    through: GapOption,
+    foreignKey: 'optionId',
+    as: 'gap'
+});
+GapOptionRelation.isMultiAssociation = false;
+GapOptionRelation.isSingleAssociation = true;
 
 Gap.hasMany(GapOption, {
     foreignKey: 'gapId',
@@ -264,24 +313,43 @@ GapOption.belongsTo(Option, {
     as: 'gapOptionOption'
 });
 
-//Student-Answers Many-to-Many relationship
-
+//Student-Option Many-to-Many relationship
 Student.belongsToMany(Option, {
     through: StudentOption,
     foreignKey: 'studentId',
-    as: 'studentOptions'
+    as: 'options'
 });
 Option.belongsToMany(Student, {
     through: StudentOption,
     foreignKey: 'optionId',
-    as: 'optionStudents'
+    as: 'students'
 });
 
 StudentOption.belongsTo(Option, {
     foreignKey: 'optionId',
+    as: 'option',
 });
 StudentOption.belongsTo(Student, {
     foreignKey: 'studentId',
+    as: 'student',
+});
+
+Option.hasMany(StudentOption, {
+    foreignKey: "optionId",
+    as: "optionStudentOptions",
+});
+Student.hasMany(StudentOption, {
+    foreignKey: "studentId",
+    as: "studentOptions",
+});
+
+Sentence.hasOne(StudentOption, {
+    foreignKey: "sentenceId",
+    as: "sentenceStudentOption",
+});
+StudentOption.belongsTo(Sentence, {
+    foreignKey: "sentenceId",
+    as: "studentOptionSentence",
 });
 
 // Student-Lesson Many-to-Many relationship

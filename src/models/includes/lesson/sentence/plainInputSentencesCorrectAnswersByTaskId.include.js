@@ -1,4 +1,4 @@
-const sequelize = require("../../sequelize");
+const sequelize = require("../../../sequelize");
 
 module.exports = (taskId) => [{
     association: 'sentenceSentenceGaps',
@@ -19,7 +19,7 @@ module.exports = (taskId) => [{
                 },
                 required: true,
                 include: {
-                    association: "optionStudents",
+                    association: "students",
                     // model: sequelize.models.StudentOption,
                     // left outer join
                     required: false,

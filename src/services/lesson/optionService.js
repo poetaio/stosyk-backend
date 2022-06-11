@@ -1,7 +1,11 @@
 const { Option, StudentOption, sequelize, GET_TASK_TYPE_BY_OPTION_ID, GET_TASK_TYPE_BY_GAP_ID,
-    GET_GAP_CORRECT_PLAIN_OPTIONS, GET_SOMETHING
+    GET_GAP_CORRECT_PLAIN_OPTIONS, GET_SOMETHING, matchingSentenceCorrectAnswersInclude, taskOptionsInclude, Gap,
+    multipleGapsOptionsInclude, allOptionsBySentenceIdInclude, Student, allStudentOptionsBySentenceIdInclude
 } = require("../../models");
 const {TaskTypeEnum, ValidationError} = require("../../utils");
+const Sequelize = require("sequelize");
+const {taskGapsInclude} = require("../../models/includes/lesson/gap");
+const {allOptionsByTaskIdInclude, allOptionsBySentenceIdAndTaskIdInclude} = require("../../models/includes/lesson/option");
 
 class OptionService {
     async create(value, isCorrect) {
@@ -11,6 +15,18 @@ class OptionService {
     async existsStudentAnswer(studentId, optionId) {
         return !!await StudentOption.count({
             where: { studentId, optionId }
+        });
+    }
+
+    async existsStudentAnswerBySentenceId(studentId, sentenceId) {
+        return !!await StudentOption.count({
+            where: { studentId, sentenceId }
+        });
+    }
+
+    async existsStudentAnswerBySentenceIdAndOptionId(studentId, sentenceId, optionId) {
+        return !!await StudentOption.count({
+            where: { studentId, sentenceId, optionId }
         });
     }
 
@@ -49,6 +65,28 @@ class OptionService {
             return res;
         }
         throw new ValidationError(`No such task type: ${taskType}`);
+    }
+
+    async getAllByQuestionId(questionId) {
+        return await Option.findAll({
+            include: {
+                association: 'optionGapOption',
+                include: {
+                    association: 'gapOptionGap',
+                    include: {
+                        association: 'gapSentenceGap',
+                        include: {
+                            association: 'sentenceGapSentence',
+                            where: { sentenceId: questionId },
+                            required: true,
+                        },
+                        required: true,
+                    },
+                    required: true
+                },
+                required: true
+            }
+        });
     }
 
     async getAllForStudent({ gapId }) {
@@ -112,7 +150,7 @@ class OptionService {
                     },
                     required: true
                 },
-                'optionStudents'
+                'students'
             ]
         });
     }
@@ -130,7 +168,7 @@ class OptionService {
                     required: true
                 },
                 {
-                    association: 'optionStudents',
+                    association: 'students',
                     where: {studentId},
                     required: true
                 }
@@ -141,31 +179,14 @@ class OptionService {
     async existsByIdAndTaskId(optionId, taskId) {
         return !!await Option.count({
             where: { optionId },
-            include: {
-                association: "optionGapOption",
-                include: {
-                    association: "gapOptionGap",
-                    include: {
-                        association: "gapSentenceGap",
-                        include: {
-                            association: "sentenceGapSentence",
-                            include: {
-                                association: "sentenceTaskSentence",
-                                include: {
-                                    association: "taskSentenceTask",
-                                    where: { taskId },
-                                    required: true,
-                                },
-                                required: true,
-                            },
-                            required: true,
-                        },
-                        required: true,
-                    },
-                    required: true,
-                },
-                required: true,
-            }
+            include: allOptionsByTaskIdInclude(taskId),
+        });
+    }
+
+    async existsByIdSentenceIdAndTaskId(optionId, sentenceId, taskId) {
+        return !!await Option.count({
+            where: { optionId },
+            include: allOptionsBySentenceIdAndTaskIdInclude(sentenceId, taskId),
         });
     }
 
@@ -181,13 +202,16 @@ class OptionService {
     async getOneByGapIdAndStudentId(gapId, studentId) {
         return await Option.findOne({
             include: [{
-                association: "optionStudents",
+                association: "optionStudentOptions",
+                attributes: [],
                 where: { studentId },
                 required: true
             }, {
                 association: "optionGapOption",
+                attributes: [],
                 include: {
                     association: "gapOptionGap",
+                    attributes: [],
                     where: { gapId },
                     required: true,
                 },
@@ -198,6 +222,105 @@ class OptionService {
 
     async getAllWithStudentInputs({ gapId }) {
 
+    }
+
+    /**
+     * Returns correct option for matching sentence
+     * @param sentenceId
+     * @returns {Promise<Model|null>} correct option
+     */
+    async getMatchingCorrectOption(sentenceId) {
+        return await Option.findOne({
+            include: matchingSentenceCorrectAnswersInclude(sentenceId),
+            attributes: {
+                include: [[Sequelize.col('optionGapOption.gapOptionGap.position'), 'rightColumnPosition']],
+            },
+            raw: true,
+        });
+    }
+
+    /**
+     * Returns "right column" for matching task
+     * @param taskId
+     * @returns {Promise<Model|null>} list of options available in task
+     */
+    async getAllMatchingRight(taskId) {
+        const taskGaps = await Gap.findAll({
+            include: taskGapsInclude(taskId),
+            attributes: ["gapId"],
+        });
+
+        return await Option.findAll({
+            include: multipleGapsOptionsInclude(taskGaps.map((gap) => gap.gapId)),
+            attributes: ["optionId", "value"],
+            order: [['optionGapOption', 'gapOptionGap', 'position', 'asc']],
+        });
+    }
+
+    /**
+     * Returns all students' answers for sentence in matching task type
+     * @param sentenceId
+     * @return {Promise<Model[]>} students' answers
+     */
+    async getMatchingStudentsAnswersBySentenceId(sentenceId) {
+        return await StudentOption.findAll({
+            where: { sentenceId },
+            include: "option",
+        });
+    }
+
+    /**
+     * Returns all correct options by sentence id, used in matching task type
+     * @param sentenceId
+     * @return {Promise<Model[]>} correct options of sentence
+     */
+    async getCorrectOptionBySentenceId(sentenceId) {
+        return await Option.findOne({
+            where: { isCorrect: true },
+            include: allOptionsBySentenceIdInclude(sentenceId)
+        });
+    }
+
+    /**
+     * Returns all student options by sentence id
+     * @param sentenceId
+     * @return {Promise<Model[]>}
+     */
+    async getAllWithAnswersBySentenceId(sentenceId) {
+        return await StudentOption.findAll({
+            include: allStudentOptionsBySentenceIdInclude(sentenceId),
+        });
+    }
+
+    /**
+     * Returns specific student chosen option for matching type sentence
+     * @param sentenceId
+     * @param studentId
+     * @return {Promise<Model|null>} chosen option
+     */
+    async getMatchingChosenOptionBySentenceId(sentenceId, studentId) {
+        return await StudentOption.findOne({
+            where: { sentenceId, studentId }
+        });
+    }
+
+    /**
+     * Returns specific student chosen option for question type sentence
+     * @param sentenceId
+     * @param studentId
+     * @return {Promise<void>} chosen option
+     */
+    async getQuestionChosenOptionBySentenceId(sentenceId, studentId) {
+        return await Option.findOne({
+            include: [
+                allOptionsBySentenceIdInclude(sentenceId),
+                {
+                    association: 'students',
+                    where: {studentId},
+                    required: true,
+                }
+            ]
+        });
     }
 }
 

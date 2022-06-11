@@ -1,10 +1,9 @@
-const {StudentLessonType, TeacherCountedLessonsType,
-    LessonsWhereType, TaskStudentsAnswersType
-} = require("./types");
+const {StudentLessonType, TeacherCountedLessonsType, LessonsWhereType} = require("./types");
 const { lessonController } = require("../../controllers");
 const { GraphQLNonNull, GraphQLID, GraphQLList} = require("graphql");
 const { resolveAuthMiddleware} = require('../../middleware');
 const { UserRoleEnum } = require("../../utils");
+const {AnswerSheetTaskInterfaceType} = require("./types/task/answerSheetTask");
 
 
 const teacherLessons = {
@@ -28,7 +27,7 @@ const studentLesson = {
 };
 
 const studentGetAnswers = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskStudentsAnswersType))),
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AnswerSheetTaskInterfaceType))),
     name: "StudentGetAnswers",
     description: "Student Get Answers",
     args: {

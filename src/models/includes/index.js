@@ -1,5 +1,5 @@
 const lessonIncludes = require('./lesson');
-const sentenceIncludes = require('./sentence');
+const sentenceIncludes = require('./lesson/sentence');
 
 module.exports = {
     ...lessonIncludes,

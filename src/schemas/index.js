@@ -1,6 +1,6 @@
 const { GraphQLSchema, GraphQLObjectType } = require('graphql');
-const { LessonQueries, LessonMutations, LessonSubscriptions } = require('./lesson')
-const { UserQueries, UserMutations } = require('./user')
+const { LessonTypes, LessonQueries, LessonMutations, LessonSubscriptions } = require('./lesson')
+const { UserTypes, UserQueries, UserMutations } = require('./user')
 
 const RootQueryType = new GraphQLObjectType({
     name: "Query",
@@ -31,5 +31,9 @@ const RootSubscriptionType = new GraphQLObjectType({
 module.exports = new GraphQLSchema({
     query: RootQueryType,
     mutation: RootMutationType,
-    subscription: RootSubscriptionType
+    subscription: RootSubscriptionType,
+    types: [
+        ...Object.values(UserTypes),
+        ...Object.values(LessonTypes),
+    ],
 });

@@ -1,5 +1,6 @@
 const { Sequelize } = require('sequelize');
 
+const IS_LOCAL_DB = process.env.NODE_ENV === "LOCAL";
 
 module.exports = new Sequelize(
     process.env.DB_NAME,
@@ -9,12 +10,14 @@ module.exports = new Sequelize(
         dialect: 'postgres',
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
-        ssl: true,
+        ssl: !IS_LOCAL_DB,
         dialectOptions: {
-            ssl: {
-                required: true,
-                rejectUnauthorized: false
-            }
+            ...(!IS_LOCAL_DB && {
+                ssl: {
+                    required: true,
+                    rejectUnauthorized: false
+                }
+            })
         },
         pool: {
             idle: 10000,
