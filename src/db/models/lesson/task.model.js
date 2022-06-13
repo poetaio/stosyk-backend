@@ -1,4 +1,4 @@
-const { TaskTypeEnum } = require("../../utils");
+const { TaskTypeEnum } = require("../../../utils");
 module.exports = (sequelize, DataTypes) => sequelize.define('task',
     {
         taskId: {

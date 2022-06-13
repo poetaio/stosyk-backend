@@ -1,4 +1,4 @@
-const {Account} = require("../../models");
+const {Account} = require("../../db/models");
 
 class AccountService {
     async getOneByLogin(login) {

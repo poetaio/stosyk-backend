@@ -1,4 +1,4 @@
-const { LessonStatusEnum } = require("../../utils");
+const { LessonStatusEnum } = require("../../../utils");
 
 
 module.exports = (sequelize, DataTypes) => sequelize.define('lesson', {

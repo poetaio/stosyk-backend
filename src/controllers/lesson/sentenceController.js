@@ -1,4 +1,4 @@
-const { Sentence } = require("../../models");
+const { Sentence } = require("../../db/models");
 const {sentenceService, studentService} = require("../../services");
 const {ValidationError} = require("../../utils");
 
