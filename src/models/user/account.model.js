@@ -1,3 +1,6 @@
+const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
+
+
 module.exports = (sequelize, DataTypes) => sequelize.define(
     'account',
     {
@@ -14,6 +17,10 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
         passwordHash: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        status: {
+            type: DataTypes.ENUM(...Object.values(accountStatusEnum)),
+            defaultValue: accountStatusEnum.UNVERIFIED,
         }
     },
     {

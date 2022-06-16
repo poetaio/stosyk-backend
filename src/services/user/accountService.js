@@ -1,6 +1,7 @@
 const {Account, User} = require("../../models");
-const {hashPassword} = require("../../utils");
+const {hashPassword, emailTransport} = require("../../utils");
 const {where} = require("sequelize");
+const jwt = require("jsonwebtoken");
 
 class AccountService {
     async getOneByLogin(login) {
@@ -33,6 +34,25 @@ class AccountService {
             }
         })
         return !!upd[0]
+    }
+
+    async sendVerificationCode(email){
+        const verificationCode = jwt.sign(
+            { email },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        emailTransport.sendMail({
+            from: "Stosyk",
+            to: "princess.labadie16@ethereal.email",
+            subject: "Please confirm your Stosyk account",
+            html: `<h1>Email Confirmation</h1>
+        <p>Please confirm your email by clicking on the following link</p>
+        <a href=https://www.stosyk.app/confirm/${verificationCode}> Click here</a>
+        </div>`,}).catch((err)=>{
+            return false;
+        })
+        return true
     }
 }
 

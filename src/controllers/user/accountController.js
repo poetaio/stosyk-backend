@@ -2,6 +2,7 @@ const { accountService, tokenService, teacherService, userService} = require('..
 const bcrypt = require('bcrypt');
 const {UnauthorizedError, ValidationError} = require("../../utils");
 const {REGISTERED} = require("../../utils/enums/UserType.enum");
+const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
 
 class AccountController {
     async registerTeacher({ teacher: { email, password } }, { userId }) {
@@ -29,6 +30,10 @@ class AccountController {
             throw new UnauthorizedError('Invalid login or password');
         }
 
+        if(account.status !== accountStatusEnum.VERIFIED){
+            throw new ValidationError(`User is not verified`);
+        }
+
         const token = await tokenService.createToken(account.user.userId, account.user.role);
         return { token };
     }
@@ -48,6 +53,14 @@ class AccountController {
             throw new ValidationError('Wrong password');
         }
         return await accountService.changePassword(userId, account.account.login,  newPassword)
+    }
+
+    async sendConfirmationEmail({login}){
+        const account = await accountService.getOneByLogin(login)
+        if(!account || account.status !== accountStatusEnum.UNVERIFIED){
+            throw new UnauthorizedError('Invalid login');
+        }
+        return await accountService.sendVerificationCode(login)
     }
 }
 

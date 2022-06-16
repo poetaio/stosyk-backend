@@ -4,7 +4,7 @@ const hashPassword = require('./hashPassword');
 const errors = require('./errors');
 const convertToGraphQLEnum = require('./convertToGraphQLEnum');
 const factories = require('./factories');
-
+const emailTransport = require('./nodemailerTransport')
 
 module.exports = {
     httpStatusCodes,
@@ -12,5 +12,6 @@ module.exports = {
     ...errors,
     ...factories,
     hashPassword,
-    convertToGraphQLEnum
+    convertToGraphQLEnum,
+    emailTransport
 };
