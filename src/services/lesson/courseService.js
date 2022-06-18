@@ -1,4 +1,4 @@
-const {Course, TeacherCourse, LessonCourse} = require("../../models");
+const {Course, TeacherCourse, LessonCourse, allCoursesByTeacherIdInclude} = require("../../db/models");
 const {NotFoundError} = require("../../utils");
 
 class CourseService {
@@ -33,6 +33,12 @@ class CourseService {
                 lessonId,
                 courseId,
             }
+        })
+    }
+
+    async getAllCourses(teacherId){
+        return await Course.findAll({
+            include:allCoursesByTeacherIdInclude(teacherId)
         })
     }
 }

@@ -388,6 +388,19 @@ class LessonService {
         return !!lessonStudent;
     }
 
+    async getLessonsByCourse(courseId){
+        return await Lesson.findAll({
+            include:{
+                association: 'lessonCourses',
+                where:{
+                    courseId,
+                },
+                required: true,
+                attributes: []
+            }
+        })
+    }
+
 }
 
 module.exports = new LessonService();

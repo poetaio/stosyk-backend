@@ -113,33 +113,19 @@ LessonTeacher.belongsTo(Lesson, {
 });
 
 //Course-Lesson One-to-Many relationship
-Course.hasMany(LessonCourse, {
+Course.belongsToMany(Lesson, {
     foreignKey: 'courseId',
-    as: 'courseLessonCourses'
+    as: 'courseLessons',
+    through: LessonCourse,
 });
-LessonCourse.belongsTo(Course, {
-    foreignKey: 'courseId',
-    as: 'lessonCourseCourse'
-});
-Lesson.hasOne(LessonCourse, {
-    foreignKey: {
-        name: 'lessonId',
-        unique: true,
-    },
-    as: 'lessonLessonCourse',
-    foreignKeyConstraint: true,
-    onDelete: 'CASCADE',
-    hooks: true
-});
-LessonCourse.belongsTo(Lesson, {
-    foreignKey: {
-        name: 'lessonId',
-        unique: true,
-    },
-    as: 'lessonCourseLesson',
+Lesson.belongsToMany(Course, {
+    foreignKey: 'lessonId',
+    as: 'lessonCourses',
+    through: LessonCourse,
+
 });
 
-//Teacher-Course list One-toMany relationship
+//Teacher-Course list One-to-Many relationship
 
 Teacher.hasMany(TeacherCourse, {
     foreignKey: 'teacherId',
@@ -166,6 +152,19 @@ TeacherCourse.belongsTo(Course, {
     },
     as: 'courseTeacherCourse',
 });
+
+Teacher.belongsToMany(Course, {
+    through: TeacherCourse,
+    foreignKey: 'teacherId',
+    as: 'courses',
+});
+const TeacherCourseRelation = Course.belongsToMany(Teacher, {
+    through: TeacherCourse,
+    foreignKey: 'courseId',
+    as: 'teacher'
+});
+TeacherCourseRelation.isMultiAssociation = false;
+TeacherCourseRelation.isSingleAssociation = true;
 
 //Lesson-Task list One-to-One relationship
 
