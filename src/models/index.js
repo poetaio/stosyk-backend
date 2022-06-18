@@ -16,7 +16,8 @@ const {
     Task,
     Sentence,
     Gap,
-    Option
+    Option,
+    Course,
 } = require('./lesson')(sequelize, DataTypes);
 
 const {
@@ -27,7 +28,9 @@ const {
     SentenceGap,
     GapOption,
     StudentOption,
-    TaskAttachments
+    TaskAttachments,
+    LessonCourse,
+    TeacherCourse,
 } = require('./relations')(sequelize, DataTypes);
 
 //User-Account One-to-One relationship
@@ -107,6 +110,61 @@ LessonTeacher.belongsTo(Lesson, {
         unique: true,
     },
     as: 'lessonTeacherLesson',
+});
+
+//Course-Lesson One-to-Many relationship
+Course.hasMany(LessonCourse, {
+    foreignKey: 'courseId',
+    as: 'courseLessonCourses'
+});
+LessonCourse.belongsTo(Course, {
+    foreignKey: 'courseId',
+    as: 'lessonCourseCourse'
+});
+Lesson.hasOne(LessonCourse, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true,
+    },
+    as: 'lessonLessonCourse',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+LessonCourse.belongsTo(Lesson, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true,
+    },
+    as: 'lessonCourseLesson',
+});
+
+//Teacher-Course list One-toMany relationship
+
+Teacher.hasMany(TeacherCourse, {
+    foreignKey: 'teacherId',
+    as: 'teacherCourseTeachers'
+});
+TeacherCourse.belongsTo(Teacher, {
+    foreignKey: 'teacherId',
+    as: 'courseTeacherTeacher'
+});
+Course.hasOne(TeacherCourse, {
+    foreignKey: {
+        name: 'courseId',
+        unique: true,
+    },
+    as: 'courseCourseTeacher',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+TeacherCourse.belongsTo(Course, {
+    foreignKey: {
+        name: 'courseId',
+        unique: true,
+    },
+    as: 'courseTeacherCourse',
 });
 
 //Lesson-Task list One-to-One relationship
