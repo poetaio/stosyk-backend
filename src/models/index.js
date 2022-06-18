@@ -438,6 +438,7 @@ module.exports = {
     Sentence,
     Gap,
     Option,
+    Course,
 
     LessonStudent,
     LessonTeacher,
@@ -447,6 +448,8 @@ module.exports = {
     GapOption,
     StudentOption,
     TaskAttachments,
+    TeacherCourse,
+    LessonCourse,
 
     ...queries,
     ...includes

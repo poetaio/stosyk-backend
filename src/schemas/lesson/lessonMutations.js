@@ -1,6 +1,6 @@
-const { lessonController, taskController} = require('../../controllers');
-const { LessonInputType, AnswerInputType, TaskStudentsAnswersInterfaceType} = require('./types');
-const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLList} = require("graphql");
+const { lessonController, taskController, courseController} = require('../../controllers');
+const { LessonInputType, AnswerInputType} = require('./types');
+const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLString} = require("graphql");
 const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
@@ -97,6 +97,16 @@ const studentLeaveLesson = {
     resolve: async  (parent, args, context) => await lessonController.studentLeaveLesson(args, context)
 }
 
+const createCourse = {
+    type: GraphQLNonNull(GraphQLID),
+    name: 'createCourse',
+    description: 'Create Course',
+    args: {
+        name: {type: GraphQLNonNull(GraphQLString)}
+    },
+    resolve: async (parent, args, context) => await courseController.createCourse(args, context)
+}
+
 
 module.exports = {
     // teacher
@@ -105,6 +115,7 @@ module.exports = {
     finishLesson: resolveAuthMiddleware(UserRoleEnum.TEACHER)(finishLesson),
     showAnswers: resolveAuthMiddleware(UserRoleEnum.TEACHER)(showAnswers),
     deleteLesson: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteLesson),
+    createCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(createCourse),
 
     // student
     joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),

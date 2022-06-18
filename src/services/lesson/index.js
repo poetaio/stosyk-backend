@@ -6,6 +6,7 @@ const optionService = require('./optionService');
 const lessonAnswersService = require('./lessonAnswersService');
 const attachmentService = require('./attachmentService');
 const answerService = require('./answerService');
+const courseService = require('./courseService')
 
 module.exports = {
     lessonService,
@@ -16,4 +17,5 @@ module.exports = {
     lessonAnswersService,
     attachmentService,
     answerService,
+    courseService,
 };
