@@ -24,6 +24,15 @@ class CourseController {
 
         return await courseService.addLessonToCourse(courseId, lessonId, teacher.teacherId)
     }
+
+    async removeLessonFromCourse({courseId, lessonId}, {user: {userId}}){
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await courseService.removeLessonFromCourse(courseId, lessonId, teacher.teacherId)
+    }
 }
 
 module.exports = new CourseController();

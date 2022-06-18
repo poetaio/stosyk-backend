@@ -1,6 +1,5 @@
 const {Course, TeacherCourse, LessonCourse} = require("../../models");
 const {NotFoundError} = require("../../utils");
-const {lessonService} = require("./index");
 
 class CourseService {
     async createCourse(name, teacherId){
@@ -22,8 +21,19 @@ class CourseService {
         if (!await this.teacherCourseExists(courseId, teacherId)) {
             throw new NotFoundError(`No course ${courseId} of such teacher ${teacherId}`);
         }
-        await LessonCourse.create({courseId, lessonId})
-        return true
+        return !! await LessonCourse.create({courseId, lessonId})
+    }
+
+    async removeLessonFromCourse(courseId, lessonId, teacherId){
+        if (!await this.teacherCourseExists(courseId, teacherId)) {
+            throw new NotFoundError(`No course ${courseId} of such teacher ${teacherId}`);
+        }
+        return  !!await LessonCourse.destroy({
+            where: {
+                lessonId,
+                courseId,
+            }
+        })
     }
 }
 
