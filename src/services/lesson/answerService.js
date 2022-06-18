@@ -1,5 +1,5 @@
 const {NotFoundError, ValidationError, TaskTypeEnum} = require("../../utils");
-const {StudentOption, Option, GapOption, allStudentOptionsBySentenceIdInclude} = require("../../models");
+const {StudentOption, Option, GapOption, allStudentOptionsBySentenceIdInclude} = require("../../db/models");
 const taskService = require("./taskService");
 const sentenceService = require("./sentenceService");
 const gapService = require("./gapService");
@@ -7,7 +7,7 @@ const optionService = require("./optionService");
 const teacherService = require("../user/teacherService");
 const pubsubService = require("../pubsubService");
 const lessonService = require("./lessonService");
-const {allStudentOptionsByGapIdInclude} = require("../../models/includes/lesson/option");
+const {allStudentOptionsByGapIdInclude} = require("../../db/models/includes/lesson/option");
 
 class AnswerService {
     async setMultipleChoiceAnswer(studentId, lessonId, taskId, { sentenceId, gapId, optionId }) {

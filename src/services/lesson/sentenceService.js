@@ -3,12 +3,12 @@ const {
     SentenceGap,
     multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
     plainInputSentencesCorrectAnswersByTaskIdInclude, StudentOption, allStudentOptionsBySentenceIdInclude
-} = require("../../models");
+} = require("../../db/models");
 const gapService = require('./gapService');
 const {
     allSentencesByTaskIdInclude,
     sentenceCorrectOptionsInclude, sentenceGapsInclude, sentenceGapsNewInclude
-} = require("../../models/includes/lesson");
+} = require("../../db/models/includes/lesson");
 const {TaskTypeEnum} = require("../../utils");
 
 class SentenceService {
