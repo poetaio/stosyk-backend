@@ -99,7 +99,7 @@ Lesson.hasOne(LessonTeacher, {
     as: 'lessonLessonTeacher',
     foreignKeyConstraint: true,
     onDelete: 'CASCADE',
-    hooks: true
+    hooks: true,
 });
 LessonTeacher.belongsTo(Lesson, {
     foreignKey: {

@@ -179,8 +179,9 @@ class OptionService {
         return await Option.findAll({
             include: allOptionsByLessonIdInclude(lessonId),
             attributes: {
-                include: ['optionId', 'isCorrect', [Sequelize.col('gap.sentence.task.type'), 'type']]
-            }
+                include: ['optionId', [Sequelize.col('gap.sentence.task.type'), 'type']]
+            },
+            raw: true,
         });
     }
 
@@ -359,17 +360,17 @@ class OptionService {
      */
     async removeAllStudentsAnswersByLessonId(lessonId) {
         const options = await this.getAllByLessonId(lessonId);
-        const optionsIds = options.map(({ id }) => id);
+        const optionsIds = options.map(({ optionId }) => optionId);
         const plainInputStudentsOptionsIds = options
-            .filter(({ type, isCorrect }) => type === TaskTypeEnum.PLAIN_INPUT && isCorrect === false)
-            .map(({ id }) => id);
+            .filter(({type}) => type === TaskTypeEnum.PLAIN_INPUT)
+            .map(({ optionId }) => optionId);
 
         await StudentOption.destroy({
-            where: { id: { [Op.in]: optionsIds }},
+            where: { optionId: { [Op.in]: optionsIds }},
         });
 
         await Option.destroy({
-            where: {id: {[Op.in]: plainInputStudentsOptionsIds}},
+            where: {optionId: {[Op.in]: plainInputStudentsOptionsIds}},
         });
     }
 }

@@ -241,20 +241,21 @@ class LessonService {
             throw new ValidationError(`Lesson is already pending lessonId: ${lessonId}`);
         }
 
-        const upd = await Lesson.update({
-            status: LessonStatusEnum.PENDING
-        }, {
-            where: {
-                lessonId
-            }
-        });
+        // const upd = await Lesson.update({
+        //     status: LessonStatusEnum.PENDING
+        // }, {
+        //     where: {
+        //         lessonId
+        //     }
+        // });
 
         // clean up
         await this.removeAllStudents(lessonId);
         await optionService.removeAllStudentsAnswersByLessonId(lessonId);
         store.clear();
 
-        return !!upd[0];
+        // return !!upd[0];
+        return true;
     }
 
     async joinLesson(pubsub, lessonId, studentId) {
