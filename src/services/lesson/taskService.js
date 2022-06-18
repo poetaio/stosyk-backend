@@ -4,7 +4,7 @@ const {Task, Lesson, TaskSentence,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
     DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments
-} = require("../../models");
+} = require("../../db/models");
 const sentenceService = require('./sentenceService');
 const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum} = require('../../utils');
 const studentService = require("../user/studentService");

@@ -1,4 +1,4 @@
-const {Account, User} = require("../../models");
+const {Account, User} = require("../../db/models");
 const {hashPassword} = require("../../utils");
 const {where} = require("sequelize");
 

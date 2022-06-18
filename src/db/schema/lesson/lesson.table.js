@@ -1,7 +1,7 @@
-const { LessonStatusEnum } = require("../../utils");
+const { LessonStatusEnum } = require("../../../utils");
 
 
-module.exports = (sequelize, DataTypes) => sequelize.define('lesson', {
+module.exports = (DataTypes) => ['lessons', {
     lessonId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -15,5 +15,11 @@ module.exports = (sequelize, DataTypes) => sequelize.define('lesson', {
     status: {
         type: DataTypes.ENUM(...Object.values(LessonStatusEnum)),
         defaultValue: LessonStatusEnum.PENDING
-    }
-});
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
+    },
+}];

@@ -1,4 +1,4 @@
-const {Lesson, lessonShownTasksInclude, lessonShownTasksNewInclude} = require("../../models");
+const {Lesson, lessonShownTasksInclude, lessonShownTasksNewInclude} = require("../../db/models");
 const {TaskTypeEnum} = require("../../utils");
 const sentenceService = require("./sentenceService");
 

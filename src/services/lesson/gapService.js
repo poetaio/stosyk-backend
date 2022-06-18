@@ -1,4 +1,4 @@
-const {Gap, GapOption, gapExistsByGapIdAndStudentIdInclude, gapStudentAnswersByStudentIdInclude} = require("../../models");
+const {Gap, GapOption, gapExistsByGapIdAndStudentIdInclude, gapStudentAnswersByStudentIdInclude} = require("../../db/models");
 const optionService = require('./optionService');
 
 class GapService {

@@ -1,4 +1,4 @@
-const {Task} = require("../../models");
+const {Task} = require("../../db/models");
 const {taskService} = require("../../services");
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
