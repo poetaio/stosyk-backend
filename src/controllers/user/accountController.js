@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const {UnauthorizedError, ValidationError} = require("../../utils");
 const {REGISTERED} = require("../../utils/enums/UserType.enum");
 const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
+const jwt = require("jsonwebtoken");
 
 class AccountController {
     async registerTeacher({ teacher: { email, password } }, { userId }) {
@@ -61,6 +62,15 @@ class AccountController {
             throw new UnauthorizedError('Invalid login');
         }
         return await accountService.sendVerificationCode(login)
+    }
+
+    async confirmEmail({confirmationCode}){
+        let user = jwt.verify(confirmationCode, process.env.JWT_SECRET);
+        user = await accountService.getOneByLogin(user.email)
+        if(!user){
+            throw new UnauthorizedError('Invalid code');
+        }
+        return await accountService.confirmEmail(user.login)
     }
 }
 

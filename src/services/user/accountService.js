@@ -1,6 +1,7 @@
 const {Account, User} = require("../../models");
 const {hashPassword, emailTransport} = require("../../utils");
 const {where} = require("sequelize");
+const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
 const jwt = require("jsonwebtoken");
 
 class AccountService {
@@ -53,6 +54,18 @@ class AccountService {
             return false;
         })
         return true
+    }
+
+    async confirmEmail(login){
+        const upd = await Account.update({
+            status: accountStatusEnum.VERIFIED
+        },{
+            where:
+                {
+                   login
+                }
+        })
+        return !!upd[0]
     }
 }
 

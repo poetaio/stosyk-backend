@@ -53,6 +53,16 @@ const changePassword = {
     resolve: async (parent, args, context) => await accountController.changePassword(args, context)
 }
 
+const confirmEmail = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'confirmEmail',
+    description: 'Confirm Email',
+    args: {
+        confirmationCode: {type: GraphQLNonNull(GraphQLString)}
+    },
+    resolve: async (parent, args, context) => await accountController.confirmEmail(args, context)
+}
+
 
 module.exports = {
     createAnonymousTeacher,
@@ -60,4 +70,5 @@ module.exports = {
     loginTeacher,
     createAnonymousStudent,
     changePassword: resolveAuthMiddleware(UserRoleEnum.TEACHER)(changePassword),
+    confirmEmail
 };
