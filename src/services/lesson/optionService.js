@@ -1,11 +1,31 @@
-const { Option, StudentOption, sequelize, GET_TASK_TYPE_BY_OPTION_ID, GET_TASK_TYPE_BY_GAP_ID,
-    GET_GAP_CORRECT_PLAIN_OPTIONS, GET_SOMETHING, matchingSentenceCorrectAnswersInclude, taskOptionsInclude, Gap,
-    multipleGapsOptionsInclude, allOptionsBySentenceIdInclude, Student, allStudentOptionsBySentenceIdInclude
+const {
+    Option,
+    StudentOption,
+    sequelize,
+    GET_TASK_TYPE_BY_GAP_ID,
+    GET_GAP_CORRECT_PLAIN_OPTIONS,
+    matchingSentenceCorrectAnswersInclude,
+    Gap,
+    multipleGapsOptionsInclude,
+    allOptionsBySentenceIdInclude,
+    allStudentOptionsBySentenceIdInclude,
+    allOptionsByLessonIdInclude,
 } = require("../../db/models");
-const {TaskTypeEnum, ValidationError} = require("../../utils");
+const {
+    TaskTypeEnum,
+    ValidationError,
+} = require("../../utils");
 const Sequelize = require("sequelize");
-const {taskGapsInclude} = require("../../db/models/includes/lesson/gap");
-const {allOptionsByTaskIdInclude, allOptionsBySentenceIdAndTaskIdInclude} = require("../../db/models/includes/lesson/option");
+const {
+    taskGapsInclude,
+} = require("../../db/models/includes/lesson/gap");
+const {
+    allOptionsByTaskIdInclude,
+    allOptionsBySentenceIdAndTaskIdInclude,
+} = require("../../db/models/includes/lesson/option");
+const {
+    Op,
+} = Sequelize;
 
 class OptionService {
     async create(value, isCorrect) {
@@ -152,6 +172,15 @@ class OptionService {
                 },
                 'students'
             ]
+        });
+    }
+
+    async getAllByLessonId(lessonId) {
+        return await Option.findAll({
+            include: allOptionsByLessonIdInclude(lessonId),
+            attributes: {
+                include: ['optionId', 'isCorrect', [Sequelize.col('gap.sentence.task.type'), 'type']]
+            }
         });
     }
 
@@ -320,6 +349,27 @@ class OptionService {
                     required: true,
                 }
             ]
+        });
+    }
+
+    /**
+     * Remove all students' answers from lesson
+     * @param lessonId
+     * @return {Promise<void>}
+     */
+    async removeAllStudentsAnswersByLessonId(lessonId) {
+        const options = await this.getAllByLessonId(lessonId);
+        const optionsIds = options.map(({ id }) => id);
+        const plainInputStudentsOptionsIds = options
+            .filter(({ type, isCorrect }) => type === TaskTypeEnum.PLAIN_INPUT && isCorrect === false)
+            .map(({ id }) => id);
+
+        await StudentOption.destroy({
+            where: { id: { [Op.in]: optionsIds }},
+        });
+
+        await Option.destroy({
+            where: {id: {[Op.in]: plainInputStudentsOptionsIds}},
         });
     }
 }
