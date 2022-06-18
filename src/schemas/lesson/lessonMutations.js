@@ -129,6 +129,16 @@ const removeLessonFromCourse = {
     resolve: async  (parent, args, context) => await courseController.removeLessonFromCourse(args, context)
 }
 
+const deleteCourse = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'deleteCourse',
+    description: 'Delete Course',
+    args: {
+        courseId: {type: GraphQLNonNull(GraphQLID)},
+    },
+    resolve: async (parent, args, context) => await courseController.deleteCourse(args, context)
+}
+
 
 module.exports = {
     // teacher
@@ -140,6 +150,7 @@ module.exports = {
     createCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(createCourse),
     addLessonToCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(addLessonToCourse),
     removeLessonFromCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(removeLessonFromCourse),
+    deleteCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteCourse),
 
     // student
     joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),

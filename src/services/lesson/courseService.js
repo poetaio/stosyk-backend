@@ -41,6 +41,17 @@ class CourseService {
             include:allCoursesByTeacherIdInclude(teacherId)
         })
     }
+
+    async deleteCourse(courseId, teacherId){
+        if (!await this.teacherCourseExists(courseId, teacherId)) {
+            throw new NotFoundError(`No course ${courseId} of such teacher ${teacherId}`);
+        }
+        return  !! await Course.destroy({
+            where: {
+                courseId
+            },
+        })
+    }
 }
 
 module.exports = new CourseService();

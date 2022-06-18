@@ -8,6 +8,8 @@ module.exports = (DataTypes) => ['lessonCourse', {
     },
     lessonId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: LessonTable(DataTypes)[0],
             key: 'lessonId',
@@ -15,6 +17,8 @@ module.exports = (DataTypes) => ['lessonCourse', {
     },
     courseId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: CourseTable(DataTypes)[0],
             key: 'courseId',

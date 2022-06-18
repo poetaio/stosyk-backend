@@ -42,6 +42,15 @@ class CourseController {
 
         return await courseService.getAllCourses(teacher.teacherId)
     }
+
+    async deleteCourse({courseId}, {user:{userId}}){
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await courseService.deleteCourse(courseId, teacher.teacherId)
+    }
 }
 
 module.exports = new CourseController();
