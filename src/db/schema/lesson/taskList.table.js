@@ -8,6 +8,8 @@ module.exports = (DataTypes) => ['taskLists', {
     },
     lessonId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: LessonTable(DataTypes)[0],
             key: 'lessonId',

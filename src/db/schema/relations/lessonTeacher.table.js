@@ -9,6 +9,8 @@ module.exports = (DataTypes) => ['lessonTeachers', {
     },
     lessonId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: LessonTable(DataTypes)[0],
             key: 'lessonId',
@@ -16,6 +18,8 @@ module.exports = (DataTypes) => ['lessonTeachers', {
     },
     teacherId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: TeacherTable(DataTypes)[0],
             key: 'teacherId',

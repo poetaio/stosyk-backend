@@ -10,6 +10,8 @@ module.exports = (DataTypes) => ['studentOptions', {
     },
     studentId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: StudentTable(DataTypes)[0],
             key: 'studentId',
@@ -17,6 +19,8 @@ module.exports = (DataTypes) => ['studentOptions', {
     },
     optionId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: OptionTable(DataTypes)[0],
             key: 'optionId',
