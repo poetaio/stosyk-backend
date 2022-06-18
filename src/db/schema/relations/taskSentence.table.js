@@ -16,6 +16,8 @@ module.exports = (DataTypes) => ['taskSentences', {
     },
     sentenceId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: SentenceTable(DataTypes)[0],
             key: 'sentenceId',
