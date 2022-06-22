@@ -20,6 +20,8 @@ module.exports = (DataTypes) => ['taskAttachments', {
     },
     taskId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: TaskTable(DataTypes)[0],
             key: 'taskId',

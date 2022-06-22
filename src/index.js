@@ -13,9 +13,6 @@ const createWSServer = require('./servers/createWSServer');
 // object to manage events' publishing and subscriptions
 const pubsub = new PubSub();
 
-// const { makeInitializer } = require('sequelize-pg-utilities');
-// makeInitializer({});
-
 const run = async () => {
     try {
         await sequelize.authenticate();

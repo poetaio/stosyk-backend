@@ -16,6 +16,8 @@ module.exports = (DataTypes) => ['taskListTasks', {
     },
     taskListId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: TaskListTable(DataTypes)[0],
             key: 'taskListId',
