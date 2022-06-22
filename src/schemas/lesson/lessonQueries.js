@@ -43,6 +43,6 @@ module.exports = {
 
     //STUDENT
     studentLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLesson),
-    studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers)
+    // studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers)
 
 };
