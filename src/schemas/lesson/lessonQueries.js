@@ -26,15 +26,15 @@ const studentLesson = {
     resolve: async (parent, args, context) => await lessonController.getStudentLesson(args, context)
 };
 
-const studentGetAnswers = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AnswerSheetTaskInterfaceType))),
-    name: "StudentGetAnswers",
-    description: "Student Get Answers",
-    args: {
-        lessonId: {type: GraphQLNonNull(GraphQLID)},
-    },
-    resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
-}
+// const studentGetAnswers = {
+//     type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AnswerSheetTaskInterfaceType))),
+//     name: "StudentGetAnswers",
+//     description: "Student Get Answers",
+//     args: {
+//         lessonId: {type: GraphQLNonNull(GraphQLID)},
+//     },
+//     resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
+// }
 
 
 module.exports = {
