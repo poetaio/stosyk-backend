@@ -1,6 +1,6 @@
 const CourseTable = require("../lesson/course.table");
 const TeacherTable = require("../user/teacher.table");
-module.exports = (DataTypes) => ['teacherCourse', {
+module.exports = (DataTypes) => ['teacherCourses', {
     teacherCourseId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,

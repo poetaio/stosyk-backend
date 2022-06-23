@@ -46,6 +46,11 @@ class CourseService {
         if (!await this.teacherCourseExists(courseId, teacherId)) {
             throw new NotFoundError(`No course ${courseId} of such teacher ${teacherId}`);
         }
+        await TeacherCourse.destroy({
+            where: {
+                courseId
+            }
+        })
         return  !! await Course.destroy({
             where: {
                 courseId

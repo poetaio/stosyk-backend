@@ -1,4 +1,4 @@
-module.exports = (DataTypes) => ['course', {
+module.exports = (DataTypes) => ['courses', {
     courseId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
