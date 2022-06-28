@@ -26,15 +26,15 @@ const studentLesson = {
     resolve: async (parent, args, context) => await lessonController.getStudentLesson(args, context)
 };
 
-const studentGetAnswers = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AnswerSheetTaskInterfaceType))),
-    name: "StudentGetAnswers",
-    description: "Student Get Answers",
-    args: {
-        lessonId: {type: GraphQLNonNull(GraphQLID)},
-    },
-    resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
-}
+// const studentGetAnswers = {
+//     type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AnswerSheetTaskInterfaceType))),
+//     name: "StudentGetAnswers",
+//     description: "Student Get Answers",
+//     args: {
+//         lessonId: {type: GraphQLNonNull(GraphQLID)},
+//     },
+//     resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
+// }
 
 const getAllCourses = {
     type: GraphQLNonNull(GraphQLList(GraphQLNonNull(CourseType))),
@@ -51,6 +51,6 @@ module.exports = {
 
     //STUDENT
     studentLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLesson),
-    studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers)
+    // studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers)
 
 };
