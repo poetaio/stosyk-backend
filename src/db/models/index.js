@@ -16,7 +16,8 @@ const {
     Task,
     Sentence,
     Gap,
-    Option
+    Option,
+    Course,
 } = require('./lesson')(sequelize, DataTypes);
 
 const {
@@ -27,7 +28,9 @@ const {
     SentenceGap,
     GapOption,
     StudentOption,
-    TaskAttachments
+    TaskAttachments,
+    LessonCourse,
+    TeacherCourse,
 } = require('./relations')(sequelize, DataTypes);
 
 //User-Account One-to-One relationship
@@ -108,6 +111,60 @@ LessonTeacher.belongsTo(Lesson, {
     },
     as: 'lessonTeacherLesson',
 });
+
+//Course-Lesson One-to-Many relationship
+Course.belongsToMany(Lesson, {
+    foreignKey: 'courseId',
+    as: 'courseLessons',
+    through: LessonCourse,
+});
+Lesson.belongsToMany(Course, {
+    foreignKey: 'lessonId',
+    as: 'lessonCourses',
+    through: LessonCourse,
+
+});
+
+//Teacher-Course list One-to-Many relationship
+
+Teacher.hasMany(TeacherCourse, {
+    foreignKey: 'teacherId',
+    as: 'teacherCourseTeachers'
+});
+TeacherCourse.belongsTo(Teacher, {
+    foreignKey: 'teacherId',
+    as: 'courseTeacherTeacher'
+});
+Course.hasOne(TeacherCourse, {
+    foreignKey: {
+        name: 'courseId',
+        unique: true,
+    },
+    as: 'courseCourseTeacher',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+TeacherCourse.belongsTo(Course, {
+    foreignKey: {
+        name: 'courseId',
+        unique: true,
+    },
+    as: 'courseTeacherCourse',
+});
+
+Teacher.belongsToMany(Course, {
+    through: TeacherCourse,
+    foreignKey: 'teacherId',
+    as: 'courses',
+});
+const TeacherCourseRelation = Course.belongsToMany(Teacher, {
+    through: TeacherCourse,
+    foreignKey: 'courseId',
+    as: 'teacher'
+});
+TeacherCourseRelation.isMultiAssociation = false;
+TeacherCourseRelation.isSingleAssociation = true;
 
 //Lesson-Task list One-to-One relationship
 
@@ -380,6 +437,7 @@ module.exports = {
     Sentence,
     Gap,
     Option,
+    Course,
 
     LessonStudent,
     LessonTeacher,
@@ -389,6 +447,8 @@ module.exports = {
     GapOption,
     StudentOption,
     TaskAttachments,
+    TeacherCourse,
+    LessonCourse,
 
     ...queries,
     ...includes

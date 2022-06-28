@@ -1,12 +1,9 @@
 const LessonTable = require("../lesson/lesson.table");
-const StudentTable = require("../user/student.table");
-
-module.exports = (DataTypes) => ['lessonStudents', {
-    lessonStudentId: {
+const CourseTable = require('../lesson/course.table')
+module.exports = (DataTypes) => ['lessonCourses', {
+    lessonCourseId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
         primaryKey: true
     },
     lessonId: {
@@ -18,13 +15,13 @@ module.exports = (DataTypes) => ['lessonStudents', {
             key: 'lessonId',
         }
     },
-    studentId: {
+    courseId: {
         type: DataTypes.UUID,
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
         references: {
-            model: StudentTable(DataTypes)[0],
-            key: 'studentId',
+            model: CourseTable(DataTypes)[0],
+            key: 'courseId',
         }
     },
     createdAt: {

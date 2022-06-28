@@ -4,6 +4,7 @@ const sentenceController = require('./sentenceController');
 const gapController = require('./gapController');
 const optionController = require('./optionController');
 const attachmentController = require('./attachmentController')
+const courseController = require('./courseController')
 
 module.exports = {
     lessonController,
@@ -11,5 +12,6 @@ module.exports = {
     sentenceController,
     gapController,
     optionController,
-    attachmentController
+    attachmentController,
+    courseController
 };

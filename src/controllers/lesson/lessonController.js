@@ -145,6 +145,10 @@ class LessonController {
 
         return await lessonService.studentGetAnswers(lessonId);
     }
+
+    async getLessonsByCourse({courseId}, args, context){
+        return await lessonService.getLessonsByCourse(courseId)
+    }
 }
 
 
