@@ -7,6 +7,7 @@ module.exports = new GraphQLInputObjectType({
     description: "Lesson input type",
     fields: {
         name: { type: GraphQLNonNull(GraphQLString) },
+        description: { type: GraphQLNonNull(GraphQLString) },
         tasks: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskInputType))) }
     }
 });

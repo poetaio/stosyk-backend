@@ -119,7 +119,7 @@ class LessonService {
         return !!lessons.length;
     }
 
-    async create({ name, tasks }, teacherId) {
+    async create({ name, description, tasks }, teacherId) {
         // check if right option exists for every gap
         for (let task of tasks) {
             await taskService.checkForCorrectOptionPresence(task);
@@ -129,7 +129,7 @@ class LessonService {
         if (await teacherService.existsAnonymousById(teacherId))
             await this.deleteByTeacherId(teacherId);
 
-        const newLesson = await Lesson.create({name});
+        const newLesson = await Lesson.create({name, description});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
         // create and connect to lesson
