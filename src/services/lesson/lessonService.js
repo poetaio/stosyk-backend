@@ -1,9 +1,19 @@
-const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, lessonGapsInclude, Option, GapOption,
+const {
+    Lesson,
+    LessonTeacher,
+    TaskList,
+    TaskListTask,
+    LessonStudent,
+    lessonInclude,
     lessonTasksInclude,
     Task,
-    allTasksByLessonIdInclude
-} = require('../../models');
-const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError, TaskTypeEnum} = require('../../utils');
+    allTasksByLessonIdInclude,
+} = require('../../db/models');
+const {
+    LessonStatusEnum,
+    NotFoundError,
+    ValidationError,
+} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
 const pubsubService = require("../pubsubService");
@@ -12,6 +22,7 @@ const studentService = require("../user/studentService");
 const lessonAnswersService = require("./lessonAnswersService");
 const { Op } = Sequelize;
 const store = require("store2");
+const optionService = require("./optionService");
 
 class LessonService {
     async teacherLessonExists(lessonId, teacherId){
@@ -108,7 +119,7 @@ class LessonService {
         return !!lessons.length;
     }
 
-    async create({ name, tasks }, teacherId) {
+    async create({ name, description, tasks }, teacherId) {
         // check if right option exists for every gap
         for (let task of tasks) {
             await taskService.checkForCorrectOptionPresence(task);
@@ -118,7 +129,7 @@ class LessonService {
         if (await teacherService.existsAnonymousById(teacherId))
             await this.deleteByTeacherId(teacherId);
 
-        const newLesson = await Lesson.create({name});
+        const newLesson = await Lesson.create({name, description});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
         // create and connect to lesson
@@ -210,6 +221,17 @@ class LessonService {
         return !!upd[0];
     }
 
+    /**
+     * Removes all students from lesson
+     * @param lessonId
+     * @return {Promise<void>}
+     */
+    async removeAllStudents(lessonId) {
+        await LessonStudent.destroy({
+            where: { lessonId },
+        });
+    }
+
     async finishLesson(pubsub, lessonId, teacherId) {
         if (!await this.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
@@ -227,6 +249,9 @@ class LessonService {
             }
         });
 
+        // clean up
+        await this.removeAllStudents(lessonId);
+        await optionService.removeAllStudentsAnswersByLessonId(lessonId);
         store.clear();
 
         return !!upd[0];
@@ -386,6 +411,19 @@ class LessonService {
         await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
 
         return !!lessonStudent;
+    }
+
+    async getLessonsByCourse(courseId){
+        return await Lesson.findAll({
+            include:{
+                association: 'lessonCourses',
+                where:{
+                    courseId,
+                },
+                required: true,
+                attributes: []
+            }
+        })
     }
 
 }

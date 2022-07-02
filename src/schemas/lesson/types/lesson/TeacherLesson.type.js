@@ -10,6 +10,7 @@ module.exports = new GraphQLObjectType({
     fields: {
         lessonId: { type: GraphQLNonNull(GraphQLID) },
         name: { type: GraphQLNonNull(GraphQLString) },
+        description: { type: GraphQLNonNull(GraphQLString) },
         status: { type: GraphQLNonNull(LessonStatusEnumType) },
         tasks: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherTaskInterfaceType))),

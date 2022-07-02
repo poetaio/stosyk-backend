@@ -1,8 +1,9 @@
 const {GraphQLList, GraphQLNonNull, GraphQLObjectType} = require("graphql");
-const {sentenceController} = require("../../../../../controllers");
+const {sentenceController, optionController} = require("../../../../../controllers");
 const StudentTaskType = require("./StudentTask.interface.type");
 const studentTaskInterfaceTypeFields = require('./studentTaskInterfaceFields');
 const StudentQuestionType = require("../../StudentQuestion.type");
+const {StudentOptionType} = require("../../option");
 
 module.exports = new GraphQLObjectType({
     name: "QAStudentTaskType",

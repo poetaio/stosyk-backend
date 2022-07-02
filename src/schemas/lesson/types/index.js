@@ -8,6 +8,7 @@ const QuestionCorrectAnswersType = require('./QuestionCorrectAnswers.type');
 const QuestionStudentsAnswersType = require('./QuestionStudentsAnswers.type');
 const StudentQuestionType = require('./StudentQuestion.type');
 const AnswerSheetQuestionType = require('./AnswerSheetQuestion.type');
+const courseTypes = require('./course')
 
 
 module.exports = {
@@ -15,6 +16,7 @@ module.exports = {
     ...taskTypes,
     ...optionTypes,
     ...answerTypes,
+    ...courseTypes,
     QuestionInputType,
     TeacherQuestionType,
     StudentQuestionType,

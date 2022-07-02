@@ -11,6 +11,7 @@ const optionIncludes = require('./option');
 const sentencesIncludes = require('./sentence');
 const gapIncludes = require('./gap');
 const taskIncludes = require('./task');
+const allCoursesByTeacherIdInclude = require('./allCoursesByTeacherId.include')
 
 module.exports = {
     lessonInclude,
@@ -22,6 +23,7 @@ module.exports = {
     taskWithLessonInclude,
     lessonTasksInclude,
     lessonShownTasksInclude,
+    allCoursesByTeacherIdInclude,
     ...sentencesIncludes,
     ...gapIncludes,
     ...optionIncludes,

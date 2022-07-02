@@ -2,14 +2,18 @@ const {
     Sentence,
     SentenceGap,
     multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
-    plainInputSentencesCorrectAnswersByTaskIdInclude, StudentOption, allStudentOptionsBySentenceIdInclude
-} = require("../../models");
+    plainInputSentencesCorrectAnswersByTaskIdInclude,
+    StudentOption,
+    allStudentOptionsBySentenceIdInclude,
+} = require("../../db/models");
 const gapService = require('./gapService');
 const {
     allSentencesByTaskIdInclude,
-    sentenceCorrectOptionsInclude, sentenceGapsInclude, sentenceGapsNewInclude
-} = require("../../models/includes/lesson");
-const {TaskTypeEnum} = require("../../utils");
+    sentenceGapsNewInclude,
+} = require("../../db/models/includes/lesson");
+const {
+    TaskTypeEnum,
+} = require("../../utils");
 
 class SentenceService {
     async create(index, text, gaps) {
@@ -68,13 +72,13 @@ class SentenceService {
 
     async getPlainInputSentencesByTaskId(taskId) {
         return await Sentence.findAll({
-            include: plainInputSentencesCorrectAnswersByTaskIdInclude(taskId)
+            include: plainInputSentencesCorrectAnswersByTaskIdInclude(taskId),
         });
     }
 
     async getMultipleChoiceSentencesCorrectAnswersByTaskId(taskId) {
         return await Sentence.findAll({
-            include: multipleChoiceSentenceCorrectAnswersByTaskIdInclude(taskId)
+            include: multipleChoiceSentenceCorrectAnswersByTaskIdInclude(taskId),
         });
     }
 
