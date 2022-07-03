@@ -9,7 +9,7 @@ const QuestionStudentsAnswersType = require('./QuestionStudentsAnswers.type');
 const StudentQuestionType = require('./StudentQuestion.type');
 const AnswerSheetQuestionType = require('./AnswerSheetQuestion.type');
 const courseTypes = require('./course');
-const HomeworkInputType = require('./HomeworkInput.type');
+const homeworkTypes = require('./homework');
 
 
 module.exports = {
@@ -18,11 +18,11 @@ module.exports = {
     ...optionTypes,
     ...answerTypes,
     ...courseTypes,
+    ...homeworkTypes,
     QuestionInputType,
     TeacherQuestionType,
     StudentQuestionType,
     QuestionCorrectAnswersType,
     QuestionStudentsAnswersType,
     AnswerSheetQuestionType,
-    HomeworkInputType,
 };

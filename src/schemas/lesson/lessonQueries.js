@@ -1,9 +1,10 @@
-const {StudentLessonType, TeacherCountedLessonsType, LessonsWhereType, CourseType} = require("./types");
-const { lessonController, courseController} = require("../../controllers");
+const {StudentLessonType, TeacherCountedLessonsType, LessonsWhereType, CourseType, HomeworkType,
+    TeacherHomeworkWhereInputType
+} = require("./types");
+const { lessonController, courseController, homeworkController} = require("../../controllers");
 const { GraphQLNonNull, GraphQLID, GraphQLList} = require("graphql");
 const { resolveAuthMiddleware} = require('../../middleware');
 const { UserRoleEnum } = require("../../utils");
-const {AnswerSheetTaskInterfaceType} = require("./types/task/answerSheetTask");
 
 
 const teacherLessons = {
@@ -44,13 +45,24 @@ const getAllCourses = {
 }
 
 
+const teacherHomework = {
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(HomeworkType))),
+    name: 'teacherHomework',
+    description: 'Get teacher homework by lesson id',
+    args: {
+        where: { type: GraphQLNonNull(TeacherHomeworkWhereInputType)},
+    },
+    resolve: async (parent, args, context) => await homeworkController.getAll(args, context),
+}
+
+
 module.exports = {
     //TEACHER
     teacherLessons: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherLessons),
     getAllCourses: resolveAuthMiddleware(UserRoleEnum.TEACHER)(getAllCourses),
+    teacherHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherHomework),
 
     //STUDENT
     studentLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLesson),
     // studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers)
-
 };

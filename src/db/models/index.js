@@ -113,6 +113,21 @@ LessonTeacher.belongsTo(Lesson, {
     as: 'lessonTeacherLesson',
 });
 
+
+//TaskList-Task One-to-Many relationship
+const LessonTeacherRelation = Lesson.belongsToMany(Teacher, {
+    through: LessonTeacher,
+    foreignKey: 'lessonId',
+    as: 'teacher',
+});
+Teacher.belongsToMany(Lesson, {
+    through: LessonTeacher,
+    foreignKey: 'teacherId',
+    as: 'lessons'
+});
+LessonTeacherRelation.isMultiAssociation = false;
+LessonTeacherRelation.isSingleAssociation = true;
+
 //Course-Lesson One-to-Many relationship
 Course.belongsToMany(Lesson, {
     foreignKey: 'courseId',
@@ -418,11 +433,11 @@ Lesson.belongsToMany(Student,{
 });
 
 Lesson.hasMany(Homework, {
-    foreignKey: 'homeworkId',
+    foreignKey: 'lessonId',
     as: 'homeworks',
 });
 Homework.belongsTo(Lesson, {
-    foreignKey: 'homeworkId',
+    foreignKey: 'lessonId',
     as: 'lesson',
 });
 

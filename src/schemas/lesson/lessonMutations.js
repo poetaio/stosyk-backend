@@ -1,4 +1,4 @@
-const { lessonController, taskController, courseController} = require('../../controllers');
+const { lessonController, taskController, courseController, homeworkController} = require('../../controllers');
 const { LessonInputType, AnswerInputType, HomeworkInputType} = require('./types');
 const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLString} = require("graphql");
 const { resolveAuthMiddleware} = require("../../middleware");
@@ -145,10 +145,11 @@ const addHomework = {
     name: 'addHomework',
     description: 'Add homework to lesson',
     args: {
+        lessonId: { type: GraphQLNonNull(GraphQLID) },
         homework: {type: GraphQLNonNull(HomeworkInputType)},
     },
-    resolve: async (parent, args, context) => await lessonController.addHomework(args, context)
-}
+    resolve: async (parent, args, context) => await homeworkController.addHomeworkToLesson(args, context)
+};
 
 
 module.exports = {
