@@ -128,7 +128,6 @@ class LessonController {
         }
 
         return await lessonService.studentLeaveLesson(pubsub, lessonId, student.studentId);
-
     }
 
     /**
@@ -147,7 +146,17 @@ class LessonController {
     }
 
     async getLessonsByCourse({courseId}, args, context){
+        // todo: check if course belongs to teacher
         return await lessonService.getLessonsByCourse(courseId)
+    }
+
+    async addHomework(homework, { user: {userId} }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await lessonService.addHomework(teacher.teacherId, homework);
     }
 }
 

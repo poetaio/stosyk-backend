@@ -6,35 +6,17 @@ const {Task, Lesson, TaskSentence,
     DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments
 } = require("../../db/models");
 const sentenceService = require('./sentenceService');
-const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum} = require('../../utils');
+const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum, TaskListTypeEnum} = require('../../utils');
 const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
+const lessonByTeacherAndTaskInclude = require("../../db/models/includes/lesson/lessonByTeacherAndTask.include");
 
 class TaskService {
     // todo: existsWithAnswerShown
     async teacherTaskExists(taskId, teacherId){
         return !!await Lesson.count({
-            include: [
-                {
-                    association: 'lessonTaskList',
-                    include: {
-                        association: 'taskListTaskListTasks',
-                        include: {
-                            association: 'taskListTaskTask',
-                            where: { taskId },
-                            required: true
-                        }
-                    }
-                },
-                {
-                    association: 'lessonLessonTeacher',
-                    where: {
-                        teacherId
-                    },
-                    required: true
-                }
-            ]
+            include: lessonByTeacherAndTaskInclude(teacherId, taskId),
         });
     }
 
@@ -120,7 +102,7 @@ class TaskService {
         // QA type: questions-answers
         if (type === TaskTypeEnum.QA) {
             sentences = [];
-            for (let question of task.qa.questions) {
+            for (let question of task.qa.questions || []) {
                 const { index, text, options } = question;
                 const newSentence = {
                     index,

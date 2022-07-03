@@ -8,6 +8,7 @@ const {
     lessonTasksInclude,
     Task,
     allTasksByLessonIdInclude,
+    Homework,
 } = require('../../db/models');
 const {
     LessonStatusEnum,
@@ -119,11 +120,24 @@ class LessonService {
         return !!lessons.length;
     }
 
-    async create({ name, description, tasks }, teacherId) {
-        // check if right option exists for every gap
+    async checkTasks(tasks) {
         for (let task of tasks) {
             await taskService.checkForCorrectOptionPresence(task);
         }
+    }
+
+    async createTaskListTasks(taskListId, tasks) {
+        // create and connect to lesson
+        for (const task of tasks) {
+            const taskId = await taskService.create(task);
+
+            await TaskListTask.create({taskListId: taskListId, taskId});
+        }
+    }
+
+    async create({ name, description, tasks }, teacherId) {
+        // check if right option exists for every gap
+        await this.checkTasks(tasks);
 
         // check if anonymous, then delete all existing lessons
         if (await teacherService.existsAnonymousById(teacherId))
@@ -131,13 +145,7 @@ class LessonService {
 
         const newLesson = await Lesson.create({name, description});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
-
-        // create and connect to lesson
-        for (const task of tasks) {
-            const taskId = await taskService.create(task);
-
-            await TaskListTask.create({taskListId: taskList.taskListId, taskId});
-        }
+        await this.createTaskListTasks(taskList.taskListId);
 
         await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
         return newLesson.lessonId;
@@ -414,6 +422,7 @@ class LessonService {
     }
 
     async getLessonsByCourse(courseId){
+        // todo: check if course belongs to teacher
         return await Lesson.findAll({
             include:{
                 association: 'lessonCourses',
@@ -426,6 +435,17 @@ class LessonService {
         })
     }
 
+    async addHomework(teacherId, { lessonId, tasks }) {
+        // if lesson doesn't belong to teacher or it doesn't exist
+        if (!await this.teacherLessonExists(lessonId, teacherId)) {
+            throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`);
+        }
+
+        const newHomework = await Homework.create({ lessonId });
+        const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
+        await this.createTaskListTasks(taskList.taskListId, tasks);
+        return newHomework.homeworkId;
+    }
 }
 
 module.exports = new LessonService();

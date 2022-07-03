@@ -18,6 +18,7 @@ const {
     Gap,
     Option,
     Course,
+    Homework,
 } = require('./lesson')(sequelize, DataTypes);
 
 const {
@@ -168,21 +169,15 @@ TeacherCourseRelation.isSingleAssociation = true;
 
 //Lesson-Task list One-to-One relationship
 
-Lesson.hasOne(TaskList, {
-    foreignKey: {
-        name: 'lessonId',
-        unique: true
-    },
+Lesson.hasMany(TaskList, {
+    foreignKey: 'lessonId',
     as: 'lessonTaskList',
     foreignKeyConstraint: true,
     onDelete: 'CASCADE',
     hooks: true
 })
 TaskList.belongsTo(Lesson, {
-    foreignKey: {
-        name: 'lessonId',
-        unique: true
-    },
+    foreignKey: 'lessonId',
     as: 'taskListLesson'
 });
 
@@ -422,6 +417,24 @@ Lesson.belongsToMany(Student,{
     as: "lessonStudents",
 });
 
+Lesson.hasMany(Homework, {
+    foreignKey: 'homeworkId',
+    as: 'homeworks',
+});
+Homework.belongsTo(Lesson, {
+    foreignKey: 'homeworkId',
+    as: 'lesson',
+});
+
+Homework.hasOne(TaskList, {
+    foreignKey: 'homeworkId',
+    as: 'taskList',
+});
+TaskList.belongsTo(Homework, {
+    foreignKey: 'homeworkId',
+    as: 'homework',
+});
+
 
 module.exports = {
     sequelize,
@@ -449,6 +462,7 @@ module.exports = {
     TaskAttachments,
     TeacherCourse,
     LessonCourse,
+    Homework,
 
     ...queries,
     ...includes
