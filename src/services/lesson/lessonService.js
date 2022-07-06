@@ -2,7 +2,6 @@ const {
     Lesson,
     LessonTeacher,
     TaskList,
-    TaskListTask,
     LessonStudent,
     lessonInclude,
     lessonTasksInclude,
@@ -119,11 +118,15 @@ class LessonService {
         return !!lessons.length;
     }
 
-    async create({ name, description, tasks }, teacherId) {
-        // check if right option exists for every gap
+    async checkTasks(tasks) {
         for (let task of tasks) {
             await taskService.checkForCorrectOptionPresence(task);
         }
+    }
+
+    async create({ name, description, tasks }, teacherId) {
+        // check if right option exists for every gap
+        await this.checkTasks(tasks);
 
         // check if anonymous, then delete all existing lessons
         if (await teacherService.existsAnonymousById(teacherId))
@@ -131,13 +134,7 @@ class LessonService {
 
         const newLesson = await Lesson.create({name, description});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
-
-        // create and connect to lesson
-        for (const task of tasks) {
-            const taskId = await taskService.create(task);
-
-            await TaskListTask.create({taskListId: taskList.taskListId, taskId});
-        }
+        await taskService.createTaskListTasks(taskList.taskListId, tasks);
 
         await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
         return newLesson.lessonId;
@@ -414,6 +411,7 @@ class LessonService {
     }
 
     async getLessonsByCourse(courseId){
+        // todo: check if course belongs to teacher
         return await Lesson.findAll({
             include:{
                 association: 'lessonCourses',
@@ -425,7 +423,6 @@ class LessonService {
             }
         })
     }
-
 }
 
 module.exports = new LessonService();

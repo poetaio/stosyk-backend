@@ -128,7 +128,6 @@ class LessonController {
         }
 
         return await lessonService.studentLeaveLesson(pubsub, lessonId, student.studentId);
-
     }
 
     /**
@@ -147,6 +146,7 @@ class LessonController {
     }
 
     async getLessonsByCourse({courseId}, args, context){
+        // todo: check if course belongs to teacher
         return await lessonService.getLessonsByCourse(courseId)
     }
 }
