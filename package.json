@@ -4,8 +4,8 @@
   "description": "Educational Platform",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "npx sequelize-cli db:migrate && node src/index.js",
+    "dev": "npx sequelize-cli db:migrate && nodemon src/index.js",
     "db": "docker run -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=test -p 5433:5432 -d postgres"
   },
   "repository": {
@@ -40,6 +40,7 @@
     "nodemailer": "^6.7.5",
     "pg": "^8.7.3",
     "sequelize": "^6.18.0",
+    "sequelize-pg-utilities": "^2.0.1",
     "store2": "^2.13.2",
     "uuid": "^8.3.2",
     "ws": "^8.5.0"

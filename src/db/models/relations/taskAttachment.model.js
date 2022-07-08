@@ -1,4 +1,4 @@
-const attachmentTypeEnum = require('../../utils/enums/attachmentType.enum')
+const attachmentTypeEnum = require('../../../utils/enums/attachmentType.enum')
 
 module.exports = (sequelize, DataTypes) => sequelize.define('taskAttachments', {
     id: {

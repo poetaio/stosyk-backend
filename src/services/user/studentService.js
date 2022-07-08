@@ -1,4 +1,4 @@
-const { Student} = require('../../models');
+const { Student} = require('../../db/models');
 const {UserRoleEnum} = require("../../utils");
 
 

@@ -2,7 +2,7 @@ const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOpt
     lessonTasksInclude,
     Task,
     allTasksByLessonIdInclude
-} = require('../../models');
+} = require('../../db/models');
 const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError, TaskTypeEnum} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');

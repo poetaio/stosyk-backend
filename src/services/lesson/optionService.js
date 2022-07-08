@@ -1,11 +1,11 @@
 const { Option, StudentOption, sequelize, GET_TASK_TYPE_BY_OPTION_ID, GET_TASK_TYPE_BY_GAP_ID,
     GET_GAP_CORRECT_PLAIN_OPTIONS, GET_SOMETHING, matchingSentenceCorrectAnswersInclude, taskOptionsInclude, Gap,
     multipleGapsOptionsInclude, allOptionsBySentenceIdInclude, Student, allStudentOptionsBySentenceIdInclude
-} = require("../../models");
+} = require("../../db/models");
 const {TaskTypeEnum, ValidationError} = require("../../utils");
 const Sequelize = require("sequelize");
-const {taskGapsInclude} = require("../../models/includes/lesson/gap");
-const {allOptionsByTaskIdInclude, allOptionsBySentenceIdAndTaskIdInclude} = require("../../models/includes/lesson/option");
+const {taskGapsInclude} = require("../../db/models/includes/lesson/gap");
+const {allOptionsByTaskIdInclude, allOptionsBySentenceIdAndTaskIdInclude} = require("../../db/models/includes/lesson/option");
 
 class OptionService {
     async create(value, isCorrect) {

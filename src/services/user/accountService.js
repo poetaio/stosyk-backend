@@ -1,5 +1,5 @@
-const {Account, User} = require("../../models");
 const {hashPassword, emailTransport} = require("../../utils");
+const {Account, User} = require("../../db/models");
 const {where} = require("sequelize");
 const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
 const jwt = require("jsonwebtoken");
