@@ -9,6 +9,8 @@ module.exports = (DataTypes) => ['gapOptions', {
     },
     gapId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: GapTable(DataTypes)[0],
             key: 'gapId',
@@ -16,6 +18,8 @@ module.exports = (DataTypes) => ['gapOptions', {
     },
     optionId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: OptionTable(DataTypes)[0],
             key: 'optionId',

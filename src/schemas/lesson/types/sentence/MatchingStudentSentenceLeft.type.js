@@ -1,4 +1,6 @@
 const {GraphQLNonNull, GraphQLInt, GraphQLString, GraphQLID, GraphQLObjectType} = require("graphql");
+const {StudentOptionType} = require("../option");
+const {optionController} = require("../../../../controllers");
 
 
 module.exports = new GraphQLObjectType({
@@ -8,5 +10,9 @@ module.exports = new GraphQLObjectType({
         sentenceId: { type: GraphQLNonNull(GraphQLID) },
         index: { type: GraphQLNonNull(GraphQLInt) },
         text: { type: GraphQLNonNull(GraphQLString) },
+        chosenOption: {
+            type: StudentOptionType,
+            resolve: async (parent, args, context) => await optionController.getMatchingChosenOptionBySentenceId(parent, context)
+        }
     }
 });

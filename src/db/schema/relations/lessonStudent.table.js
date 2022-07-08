@@ -5,10 +5,14 @@ module.exports = (DataTypes) => ['lessonStudents', {
     lessonStudentId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         primaryKey: true
     },
     lessonId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: LessonTable(DataTypes)[0],
             key: 'lessonId',
@@ -16,6 +20,8 @@ module.exports = (DataTypes) => ['lessonStudents', {
     },
     studentId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: StudentTable(DataTypes)[0],
             key: 'studentId',

@@ -6,6 +6,7 @@ const allOptionsByTaskIdInclude = require('./allOptionsByTaskId.include');
 const allStudentOptionsByGapIdInclude = require('./allStudentOptionsByGapId.include');
 const allStudentOptionsBySentenceIdInclude = require('./allStudentOptionsBySentenceId.include');
 const allOptionsBySentenceIdAndTaskIdInclude = require('./allOptionsBySentenceIdAndTaskId.include');
+const allOptionsByLessonIdInclude = require('./allOptionsByLessonId.include');
 
 module.exports = {
     matchingSentenceCorrectAnswersInclude,
@@ -16,4 +17,5 @@ module.exports = {
     allStudentOptionsByGapIdInclude,
     allStudentOptionsBySentenceIdInclude,
     allOptionsBySentenceIdAndTaskIdInclude,
+    allOptionsByLessonIdInclude,
 };

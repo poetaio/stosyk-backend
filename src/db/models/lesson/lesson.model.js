@@ -12,6 +12,11 @@ module.exports = (sequelize, DataTypes) => sequelize.define('lesson', {
         allowNull: false,
         defaultValue: "Урок"
     },
+    description: {
+        type: DataTypes.STRING(500),
+        allowNull: false,
+        defaultValue: "Урок учителя для учнів"
+    },
     status: {
         type: DataTypes.ENUM(...Object.values(LessonStatusEnum)),
         defaultValue: LessonStatusEnum.PENDING

@@ -4,6 +4,8 @@ const Task = require('./task.table');
 const Sentence = require('./sentence.table');
 const Gap = require('./gap.table');
 const Option = require('./option.table');
+const Course = require('./course.table');
+const Homework = require('./homework.table');
 
 
 module.exports = (DataTypes) => ({
@@ -12,5 +14,7 @@ module.exports = (DataTypes) => ({
     TaskTable: Task(DataTypes),
     SentenceTable: Sentence(DataTypes),
     GapTable: Gap(DataTypes),
-    OptionTable: Option(DataTypes)
+    OptionTable: Option(DataTypes),
+    CourseTable: Course((DataTypes)),
+    HomeworkTable: Homework(DataTypes),
 });

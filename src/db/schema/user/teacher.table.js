@@ -8,6 +8,8 @@ module.exports = (DataTypes) => ['teachers', {
     },
     userId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: UserTable(DataTypes)[0],
             key: 'userId',

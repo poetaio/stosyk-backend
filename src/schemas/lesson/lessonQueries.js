@@ -1,9 +1,10 @@
-const {StudentLessonType, TeacherCountedLessonsType, LessonsWhereType} = require("./types");
-const { lessonController } = require("../../controllers");
+const {StudentLessonType, TeacherCountedLessonsType, LessonsWhereType, CourseType, HomeworkType,
+    TeacherHomeworkWhereInputType
+} = require("./types");
+const { lessonController, courseController, homeworkController} = require("../../controllers");
 const { GraphQLNonNull, GraphQLID, GraphQLList} = require("graphql");
 const { resolveAuthMiddleware} = require('../../middleware');
 const { UserRoleEnum } = require("../../utils");
-const {AnswerSheetTaskInterfaceType} = require("./types/task/answerSheetTask");
 
 
 const teacherLessons = {
@@ -26,23 +27,42 @@ const studentLesson = {
     resolve: async (parent, args, context) => await lessonController.getStudentLesson(args, context)
 };
 
-const studentGetAnswers = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AnswerSheetTaskInterfaceType))),
-    name: "StudentGetAnswers",
-    description: "Student Get Answers",
+// const studentGetAnswers = {
+//     type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AnswerSheetTaskInterfaceType))),
+//     name: "StudentGetAnswers",
+//     description: "Student Get Answers",
+//     args: {
+//         lessonId: {type: GraphQLNonNull(GraphQLID)},
+//     },
+//     resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
+// }
+
+const getAllCourses = {
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(CourseType))),
+    name: 'getAllCourses',
+    description: 'Get All Courses',
+    resolve: async (parent, args, context) => await courseController.getAllCourses(context)
+}
+
+
+const teacherHomework = {
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(HomeworkType))),
+    name: 'teacherHomework',
+    description: 'Get teacher homework by lesson id',
     args: {
-        lessonId: {type: GraphQLNonNull(GraphQLID)},
+        where: { type: GraphQLNonNull(TeacherHomeworkWhereInputType)},
     },
-    resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
+    resolve: async (parent, args, context) => await homeworkController.getAll(args, context),
 }
 
 
 module.exports = {
     //TEACHER
     teacherLessons: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherLessons),
+    getAllCourses: resolveAuthMiddleware(UserRoleEnum.TEACHER)(getAllCourses),
+    teacherHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherHomework),
 
     //STUDENT
     studentLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLesson),
-    studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers)
-
+    // studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers)
 };

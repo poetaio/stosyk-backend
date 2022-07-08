@@ -3,38 +3,20 @@ const {Task, Lesson, TaskSentence,
     DELETE_TASK_BY_LESSON_ID,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
-    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments
+    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments, TaskListTask
 } = require("../../db/models");
 const sentenceService = require('./sentenceService');
-const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum} = require('../../utils');
+const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum, TaskListTypeEnum} = require('../../utils');
 const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
+const lessonByTeacherAndTaskInclude = require("../../db/models/includes/lesson/lessonByTeacherAndTask.include");
 
 class TaskService {
     // todo: existsWithAnswerShown
     async teacherTaskExists(taskId, teacherId){
         return !!await Lesson.count({
-            include: [
-                {
-                    association: 'lessonTaskList',
-                    include: {
-                        association: 'taskListTaskListTasks',
-                        include: {
-                            association: 'taskListTaskTask',
-                            where: { taskId },
-                            required: true
-                        }
-                    }
-                },
-                {
-                    association: 'lessonLessonTeacher',
-                    where: {
-                        teacherId
-                    },
-                    required: true
-                }
-            ]
+            include: lessonByTeacherAndTaskInclude(teacherId, taskId),
         });
     }
 
@@ -120,7 +102,7 @@ class TaskService {
         // QA type: questions-answers
         if (type === TaskTypeEnum.QA) {
             sentences = [];
-            for (let question of task.qa.questions) {
+            for (let question of task.qa.questions || []) {
                 const { index, text, options } = question;
                 const newSentence = {
                     index,
@@ -176,7 +158,7 @@ class TaskService {
         return taskId;
     }
 
-    async getAll({ lessonId }) {
+    async getAll({ lessonId, homeworkId }) {
         const where = {};
         // if lessonId is null, task will not have taskLessonTask as child,
         // thus no need to require = true
@@ -184,6 +166,28 @@ class TaskService {
         if (lessonId) {
             where.lessonId = lessonId;
             required = true;
+        }
+        if (homeworkId) {
+            where.homeworkId = homeworkId;
+            required = true;
+        }
+
+        if (homeworkId) {
+            return await Task.findAll({
+                include: {
+                    association: 'taskTaskListTask',
+                    include: {
+                        association: 'taskListTaskTaskList',
+                        include: {
+                            association: 'homework',
+                            where: {homeworkId},
+                            required
+                        },
+                        required: true
+                    },
+                    required: true
+                }
+            });
         }
 
         return await Task.findAll({
@@ -193,7 +197,7 @@ class TaskService {
                     association: 'taskListTaskTaskList',
                     include: {
                         association: 'taskListLesson',
-                        where,
+                        where: {lessonId},
                         required
                     },
                     required: true
@@ -303,6 +307,15 @@ class TaskService {
                     throw new ValidationError(`No correct option provided`);
                 }
             }
+        }
+    }
+
+    async createTaskListTasks(taskListId, tasks) {
+        // create and connect to lesson
+        for (const task of tasks) {
+            const taskId = await this.create(task);
+
+            await TaskListTask.create({taskListId: taskListId, taskId});
         }
     }
 }

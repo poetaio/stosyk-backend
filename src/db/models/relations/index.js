@@ -6,6 +6,8 @@ const SentenceGap = require('./sentenceGap.model');
 const GapOption = require('./gapOption.model');
 const StudentOption = require('./studentOption.model');
 const TaskAttachments = require('./taskAttachment.model')
+const LessonCourse = require('./lessonCourse.model')
+const TeacherCourse = require('./teacherCourse.model')
 
 
 module.exports = (sequelize, DataTypes) => ({
@@ -16,5 +18,7 @@ module.exports = (sequelize, DataTypes) => ({
     SentenceGap: SentenceGap(sequelize, DataTypes),
     GapOption: GapOption(sequelize, DataTypes),
     StudentOption: StudentOption(sequelize, DataTypes),
-    TaskAttachments: TaskAttachments(sequelize, DataTypes)
+    TaskAttachments: TaskAttachments(sequelize, DataTypes),
+    LessonCourse: LessonCourse(sequelize, DataTypes),
+    TeacherCourse: TeacherCourse(sequelize, DataTypes)
 });

@@ -9,6 +9,8 @@ module.exports = (DataTypes) => ['sentenceGaps', {
     },
     sentenceId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: SentenceTable(DataTypes)[0],
             key: 'sentenceId',
@@ -16,6 +18,8 @@ module.exports = (DataTypes) => ['sentenceGaps', {
     },
     gapId: {
         type: DataTypes.UUID,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         references: {
             model: GapTable(DataTypes)[0],
             key: 'gapId',
