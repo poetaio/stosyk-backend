@@ -1,5 +1,5 @@
-const {StudentLessonType, TeacherCountedLessonsType, LessonsWhereType, CourseType, HomeworkType,
-    TeacherHomeworkWhereInputType
+const {StudentLessonType, TeacherCountedLessonsType, LessonsWhereType, CourseType, TeacherHomeworkType,
+    HomeworkWhereInputType, StudentHomeworkType
 } = require("./types");
 const { lessonController, courseController, homeworkController} = require("../../controllers");
 const { GraphQLNonNull, GraphQLID, GraphQLList} = require("graphql");
@@ -27,16 +27,6 @@ const studentLesson = {
     resolve: async (parent, args, context) => await lessonController.getStudentLesson(args, context)
 };
 
-// const studentGetAnswers = {
-//     type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AnswerSheetTaskInterfaceType))),
-//     name: "StudentGetAnswers",
-//     description: "Student Get Answers",
-//     args: {
-//         lessonId: {type: GraphQLNonNull(GraphQLID)},
-//     },
-//     resolve: async (parent, args, context) => await lessonController.studentGetAnswers(args, context)
-// }
-
 const getAllCourses = {
     type: GraphQLNonNull(GraphQLList(GraphQLNonNull(CourseType))),
     name: 'getAllCourses',
@@ -46,13 +36,23 @@ const getAllCourses = {
 
 
 const teacherHomework = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(HomeworkType))),
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherHomeworkType))),
     name: 'teacherHomework',
     description: 'Get teacher homework by lesson id',
     args: {
-        where: { type: GraphQLNonNull(TeacherHomeworkWhereInputType)},
+        where: { type: GraphQLNonNull(HomeworkWhereInputType)},
     },
-    resolve: async (parent, args, context) => await homeworkController.getAll(args, context),
+    resolve: async (parent, args, context) => await homeworkController.getAllForTeacher(args, context),
+}
+
+const studentHomework = {
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentHomeworkType))),
+    name: 'studentHomework',
+    description: 'Get student homework by lesson id or by homework id or both',
+    args: {
+        where: { type: GraphQLNonNull(HomeworkWhereInputType)},
+    },
+    resolve: async (parent, args, context) => await homeworkController.getAllForStudent(args, context),
 }
 
 
@@ -64,5 +64,6 @@ module.exports = {
 
     //STUDENT
     studentLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLesson),
+    studentHomework: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentHomework),
     // studentGetAnswers: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentGetAnswers)
 };

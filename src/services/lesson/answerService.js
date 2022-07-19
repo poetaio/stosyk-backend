@@ -1,13 +1,13 @@
 const {NotFoundError, ValidationError, TaskTypeEnum} = require("../../utils");
-const {StudentOption, Option, GapOption, allStudentOptionsBySentenceIdInclude} = require("../../db/models");
+const {StudentOption, GapOption, allStudentOptionsBySentenceIdInclude} = require("../../db/models");
 const taskService = require("./taskService");
-const sentenceService = require("./sentenceService");
 const gapService = require("./gapService");
 const optionService = require("./optionService");
 const teacherService = require("../user/teacherService");
 const pubsubService = require("../pubsubService");
 const lessonService = require("./lessonService");
 const {allStudentOptionsByGapIdInclude} = require("../../db/models/includes/lesson/option");
+const studentLessonService = require("./studentLessonService");
 
 class AnswerService {
     async setMultipleChoiceAnswer(studentId, lessonId, taskId, { sentenceId, gapId, optionId }) {
@@ -136,7 +136,7 @@ class AnswerService {
     async setAnswer(pubsub, studentId, answer){
         const { taskId, lessonId } = answer;
 
-        if (!await lessonService.studentLessonExists(lessonId, studentId)){
+        if (!await studentLessonService.studentLessonExists(lessonId, studentId)){
             throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
         }
         if (!await lessonService.existsActiveByLessonId(lessonId)) {

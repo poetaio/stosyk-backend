@@ -1,7 +1,7 @@
 const {GraphQLInputObjectType, GraphQLID} = require("graphql");
 
 module.exports = new GraphQLInputObjectType({
-    name: 'TeacherHomeworkWhereInputType',
+    name: 'HomeworkWhereInputType',
     description: 'Homework Input Type',
     fields: {
         lessonId: { type: GraphQLID },

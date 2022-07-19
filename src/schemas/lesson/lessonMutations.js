@@ -103,6 +103,7 @@ const createCourse = {
     description: 'Create Course',
     args: {
         name: {type: GraphQLNonNull(GraphQLString)}
+        // todo: Add initial list of lessons or lesson ids
     },
     resolve: async (parent, args, context) => await courseController.createCourse(args, context)
 }
