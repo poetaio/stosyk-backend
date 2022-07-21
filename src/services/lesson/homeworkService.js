@@ -171,6 +171,12 @@ class HomeworkService {
 
         return correctCount / totalCount * 100;
     }
+
+    async homeworkExists(homeworkId) {
+        return !!await Homework.count({
+            where: { homeworkId },
+        });
+    }
 }
 
 module.exports = new HomeworkService();

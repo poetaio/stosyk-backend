@@ -1,5 +1,5 @@
 const { lessonController, taskController, courseController, homeworkController} = require('../../controllers');
-const { LessonInputType, AnswerInputType, HomeworkInputType} = require('./types');
+const { LessonInputType, AnswerInputType, HomeworkInputType, HomeworkAnswerInputType} = require('./types');
 const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLString} = require("graphql");
 const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
@@ -152,6 +152,16 @@ const addHomework = {
     resolve: async (parent, args, context) => await homeworkController.addHomeworkToLesson(args, context)
 };
 
+const setHomeworkAnswer = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'setHomeworkAnswer',
+    description: 'Set homework answer',
+    args: {
+        answer: { type: GraphQLNonNull(HomeworkAnswerInputType)}
+    },
+    resolve: async (parent, args, context) => await lessonController.setHomeworkAnswer(args, context)
+}
+
 
 module.exports = {
     // teacher
@@ -171,4 +181,5 @@ module.exports = {
     setAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setAnswer),
     setStudentCurrentPosition: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setStudentCurrentPosition),
     studentLeaveLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLeaveLesson),
+    setHomeworkAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setHomeworkAnswer),
 };

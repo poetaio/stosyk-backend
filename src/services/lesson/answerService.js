@@ -8,9 +8,10 @@ const pubsubService = require("../pubsubService");
 const lessonService = require("./lessonService");
 const {allStudentOptionsByGapIdInclude} = require("../../db/models/includes/lesson/option");
 const studentLessonService = require("./studentLessonService");
+const homeworkService = require("./homeworkService");
 
 class AnswerService {
-    async setMultipleChoiceAnswer(studentId, lessonId, taskId, { sentenceId, gapId, optionId }) {
+    async setMultipleChoiceAnswer(studentId, taskId, { sentenceId, gapId, optionId }) {
         if (!await optionService.existsByIdAndTaskId(optionId, taskId)) {
             throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
         }
@@ -33,7 +34,7 @@ class AnswerService {
         });
     }
 
-    async setPlainInputAnswer(studentId, lessonId, taskId, { sentenceId, gapId, input }) {
+    async setPlainInputAnswer(studentId, taskId, { sentenceId, gapId, input }) {
         const correctOptions = await gapService.getCorrectOptions(gapId);
 
         const isCorrect = correctOptions.map(option => option.value).includes(input);
@@ -55,7 +56,7 @@ class AnswerService {
         }
     }
 
-    async setQAAnswer(studentId, lessonId, taskId, { questionId, optionId }) {
+    async setQAAnswer(studentId, taskId, { questionId, optionId }) {
         if (!await optionService.existsByIdSentenceIdAndTaskId(optionId, questionId, taskId)) {
             throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
         }
@@ -82,7 +83,7 @@ class AnswerService {
         await studentOption.save();
     }
 
-    async setMatchingAnswer(studentId, lessonId, taskId, { sentenceId, optionId }) {
+    async setMatchingAnswer(studentId, taskId, { sentenceId, optionId }) {
         // todo: add check if sentence belongs to task
         // todo: check if option exists, sentence exists etc
         const answeredOnSentence = await optionService.existsStudentAnswerBySentenceId(studentId, sentenceId);
@@ -133,8 +134,32 @@ class AnswerService {
         });
     }
 
-    async setAnswer(pubsub, studentId, answer){
+    async publishOnStudentSetAnswer(pubsub, lessonId) {
+        const teacher = await teacherService.findOneByLessonId(lessonId);
+        await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
+            await lessonService.getStudentsAnswers(lessonId));
+    }
+
+    async setTaskAnswer(studentId, answer) {
         const { taskId, lessonId } = answer;
+        const task = await taskService.getOneByIdAndLessonId(taskId, lessonId);
+        if (!task) {
+            throw new NotFoundError(`No task ${taskId} of lesson ${lessonId} found`)
+        }
+
+        if (task.type === TaskTypeEnum.MULTIPLE_CHOICE && answer.multipleChoice) {
+            await this.setMultipleChoiceAnswer(studentId, taskId, answer.multipleChoice);
+        } else if (task.type === TaskTypeEnum.PLAIN_INPUT && answer.plainInput) {
+            await this.setPlainInputAnswer(studentId, taskId, answer.plainInput);
+        } else if (task.type === TaskTypeEnum.MATCHING && answer.matching) {
+            await this.setMatchingAnswer(studentId, taskId, answer.matching);
+        } else if (task.type === TaskTypeEnum.QA && answer.qa) {
+            await this.setQAAnswer(studentId, taskId, answer.qa);
+        } else throw new ValidationError(`Invalid input: type-type object mismatch`);
+    }
+
+    async setAnswer(pubsub, studentId, answer){
+        const { lessonId } = answer;
 
         if (!await studentLessonService.studentLessonExists(lessonId, studentId)){
             throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
@@ -142,24 +167,21 @@ class AnswerService {
         if (!await lessonService.existsActiveByLessonId(lessonId)) {
             throw new ValidationError(`Lesson is not active ${lessonId}`);
         }
-        const task = await taskService.getOneByIdAndLessonId(taskId, lessonId);
-        if (!task) {
-            throw new NotFoundError(`No task ${taskId} of lesson ${lessonId} found`)
+
+        await this.setTaskAnswer(studentId, answer);
+        await this.publishOnStudentSetAnswer(pubsub, lessonId);
+
+        return true;
+    }
+
+    async setHomeworkAnswer(pubsub, studentId, answer) {
+        const { homeworkId } = answer;
+
+        if (!await homeworkService.homeworkExists(homeworkId)){
+            throw new NotFoundError(`No homework ${homeworkId} found`);
         }
 
-        if (task.type === TaskTypeEnum.MULTIPLE_CHOICE && answer.multipleChoice) {
-            await this.setMultipleChoiceAnswer(studentId, lessonId, taskId, answer.multipleChoice);
-        } else if (task.type === TaskTypeEnum.PLAIN_INPUT && answer.plainInput) {
-            await this.setPlainInputAnswer(studentId, lessonId, taskId, answer.plainInput);
-        } else if (task.type === TaskTypeEnum.MATCHING && answer.matching) {
-            await this.setMatchingAnswer(studentId, lessonId, taskId, answer.matching);
-        } else if (task.type === TaskTypeEnum.QA && answer.qa) {
-            await this.setQAAnswer(studentId, lessonId, taskId, answer.qa);
-        } else throw new ValidationError(`Invalid input: type-type object mismatch`);
-
-        const teacher = await teacherService.findOneByLessonId(lessonId);
-        await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
-            await lessonService.getStudentsAnswers(lessonId));
+        await this.setTaskAnswer(studentId, answer);
 
         return true;
     }
