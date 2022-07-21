@@ -17,6 +17,8 @@ module.exports = new GraphQLInterfaceType({
             return 'MatchingAnswerSheetTaskType';
         } else if (type === TaskTypeEnum.QA) {
             return 'QAAnswerSheetTaskType';
+        } else if (type === TaskTypeEnum.MEDIA) {
+            return 'MediaAnswerSheetTaskType';
         } else throw new ValidationError(`Unknown task type: ${type}`);
     },
 });
