@@ -1,7 +1,7 @@
 const {  GraphQLString, GraphQLNonNull, GraphQLBoolean} = require("graphql");
 const { teacherController, studentController, accountController } =require('../../controllers');
 const { TeacherInputType, TokenType, StudentProfileType} = require("./types");
-const { resolveUserIdParsingMiddleware, resolveAuthMiddleware} = require("../../middleware");
+const { resolveUserIdParsingMiddleware, resolveAuthMiddleware, resolveAuthMiddlewareUnverified} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
 
@@ -63,6 +63,13 @@ const studentProfile = {
     resolve: async (parent, args, context) => await studentController.updateProfile(args, context)
 }
 
+const anonymousLogin = {
+    type: TokenType,
+    name: 'anonymousLogin',
+    description: 'Login Anonymous Teacher & Student',
+    resolve: async (parent, args, context) => await accountController.anonymousAuth(context)
+}
+
 module.exports = {
     createAnonymousTeacher,
     registerTeacher: resolveUserIdParsingMiddleware(registerTeacher),
@@ -70,4 +77,5 @@ module.exports = {
     createAnonymousStudent,
     changePassword: resolveAuthMiddleware(UserRoleEnum.TEACHER)(changePassword),
     studentProfile: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentProfile),
+    anonymousLogin: resolveAuthMiddlewareUnverified(anonymousLogin),
 };
