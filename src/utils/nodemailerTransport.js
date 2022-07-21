@@ -1,13 +1,14 @@
 const nodemailer = require("nodemailer");
 
+
 const emailTransport = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    host: 'stosyk.app',
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
-        user: "eloy.barton38@ethereal.email", // generated ethereal user
-        pass: "CkDT7FY3YtnDkeEV3H", // generated ethereal password
-    },
+        user: '', // your domain email address
+        pass: '' // your password
+    }
 });
 
 module.exports = emailTransport

@@ -1,4 +1,4 @@
-const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
+const accountStatusEnum = require('../../../utils/enums/accountStatus.enum')
 
 
 module.exports = (sequelize, DataTypes) => sequelize.define(

@@ -45,7 +45,7 @@ class AccountService {
         );
         emailTransport.sendMail({
             from: "Stosyk",
-            to: "princess.labadie16@ethereal.email",
+            to: email,
             subject: "Please confirm your Stosyk account",
             html: `<h1>Email Confirmation</h1>
         <p>Please confirm your email by clicking on the following link</p>

@@ -1,4 +1,5 @@
 const UserTable = require("./user.table");
+const accountStatusEnum = require('../../../utils/enums/accountStatus.enum')
 module.exports = (DataTypes) => ['accounts', {
     accountId: {
         type: DataTypes.UUID,
@@ -22,6 +23,10 @@ module.exports = (DataTypes) => ['accounts', {
             model: UserTable(DataTypes)[0],
             key: 'userId',
         }
+    },
+    status: {
+        type: DataTypes.ENUM(...Object.values(accountStatusEnum)),
+        defaultValue: accountStatusEnum.UNVERIFIED
     },
     createdAt: {
         type: DataTypes.DATE,
