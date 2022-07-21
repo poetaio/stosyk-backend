@@ -23,6 +23,16 @@ class StudentService {
             }
         })
     }
+
+    async updateProfile(studentId, name) {
+        const upd = await Student.update({
+            name,
+        }, {
+            where: { studentId },
+        });
+
+        return !!upd[0];
+    }
 }
 
 
