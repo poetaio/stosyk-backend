@@ -162,6 +162,27 @@ const setHomeworkAnswer = {
     resolve: async (parent, args, context) => await lessonController.setHomeworkAnswer(args, context)
 }
 
+const removeHomework = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'removeHomework',
+    description: 'Remove homework from lesson',
+    args: {
+        lessonId: { type: GraphQLNonNull(GraphQLID) },
+        homeworkId: {type: GraphQLNonNull(GraphQLID)},
+    },
+    resolve: async (parent, args, context) => await homeworkController.removeFromLesson(args, context)
+}
+
+const deleteHomework = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'deleteHomework',
+    description: 'Delete homework',
+    args: {
+        homeworkId: {type: GraphQLNonNull(GraphQLID)},
+    },
+    resolve: async (parent, args, context) => await homeworkController.delete(args, context)
+}
+
 
 module.exports = {
     // teacher
@@ -175,6 +196,8 @@ module.exports = {
     removeLessonFromCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(removeLessonFromCourse),
     deleteCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteCourse),
     addHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(addHomework),
+    removeHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(removeHomework),
+    deleteHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteHomework),
 
     // student
     joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),

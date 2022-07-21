@@ -57,6 +57,24 @@ class HomeworkController {
     async getTotalScore({ studentId, parent: {homeworkId} }) {
         return await homeworkService.getTotalScore(homeworkId, studentId);
     }
+
+    async removeFromLesson({lessonId, homeworkId}, {user: {userId}}) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await homeworkService.removeFromLesson(teacher.teacherId, lessonId, homeworkId);
+    }
+
+    async delete({homeworkId}, {user: {userId}}) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await homeworkService.delete(teacher.teacherId, homeworkId);
+    }
 }
 
 module.exports = new HomeworkController();

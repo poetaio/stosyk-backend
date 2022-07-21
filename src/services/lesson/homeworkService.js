@@ -177,6 +177,31 @@ class HomeworkService {
             where: { homeworkId },
         });
     }
+
+    async removeFromLesson(teacherId, lessonId, homeworkId) {
+        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
+            throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`);
+        }
+
+        if (!await this.homeworkExists(homeworkId)) {
+            throw new NotFoundError(`No homework ${homeworkId} found`);
+        }
+
+        await Homework.update({
+            lessonId: null,
+        }, {
+            where: { homeworkId },
+        });
+        return true;
+    }
+
+    async delete(teacherId, homeworkId) {
+        if (!await this.homeworkExists(homeworkId)) {
+            throw new NotFoundError(`No homework ${homeworkId} found`);
+        }
+
+        throw new NotFoundError(`Not implemented due to different flow`);
+    }
 }
 
 module.exports = new HomeworkService();
