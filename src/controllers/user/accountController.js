@@ -1,6 +1,6 @@
 const { accountService, tokenService, teacherService, userService} = require('../../services')
 const bcrypt = require('bcrypt');
-const {UnauthorizedError, ValidationError} = require("../../utils");
+const {UnauthorizedError, ValidationError, UserRoleEnum} = require("../../utils");
 const {REGISTERED} = require("../../utils/enums/UserType.enum");
 
 class AccountController {
@@ -49,7 +49,22 @@ class AccountController {
         }
         return await accountService.changePassword(userId, account.account.login,  newPassword)
     }
+
+    async anonymousAuth({ user: { userId, role } }) {
+        if (!await userService.existsById(userId)) {
+            throw new ValidationError(`No user with id ${userId} exists`);
+        }
+
+        let token;
+        if (UserRoleEnum.TEACHER === role) {
+            token = tokenService.createTeacherToken(userId);
+        } else if (UserRoleEnum.STUDENT === role) {
+            token = tokenService.createStudentToken(userId);
+        }
+
+        return { token };
+    }
 }
 
 
-    module.exports = new AccountController();
+module.exports = new AccountController();

@@ -13,7 +13,7 @@ module.exports = new GraphQLInputObjectType({
     fields: () => ({
         answerShown: { type: GraphQLNonNull(GraphQLBoolean) },
         attachments: {type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AttachmentInputType)))},
-        // different types, only one is not null
+        // different types, only one is not null or none for MEDIA type
         type: { type: GraphQLNonNull(TaskTypeEnumType) },
 
         multipleChoice: { type: MultipleChoiceTaskInputType },

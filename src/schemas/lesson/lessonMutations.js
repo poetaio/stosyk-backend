@@ -1,5 +1,5 @@
 const { lessonController, taskController, courseController, homeworkController} = require('../../controllers');
-const { LessonInputType, AnswerInputType, HomeworkInputType} = require('./types');
+const { LessonInputType, AnswerInputType, HomeworkInputType, HomeworkAnswerInputType} = require('./types');
 const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLString} = require("graphql");
 const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
@@ -103,6 +103,7 @@ const createCourse = {
     description: 'Create Course',
     args: {
         name: {type: GraphQLNonNull(GraphQLString)}
+        // todo: Add initial list of lessons or lesson ids
     },
     resolve: async (parent, args, context) => await courseController.createCourse(args, context)
 }
@@ -151,6 +152,37 @@ const addHomework = {
     resolve: async (parent, args, context) => await homeworkController.addHomeworkToLesson(args, context)
 };
 
+const setHomeworkAnswer = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'setHomeworkAnswer',
+    description: 'Set homework answer',
+    args: {
+        answer: { type: GraphQLNonNull(HomeworkAnswerInputType)}
+    },
+    resolve: async (parent, args, context) => await lessonController.setHomeworkAnswer(args, context)
+}
+
+const removeHomework = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'removeHomework',
+    description: 'Remove homework from lesson',
+    args: {
+        lessonId: { type: GraphQLNonNull(GraphQLID) },
+        homeworkId: {type: GraphQLNonNull(GraphQLID)},
+    },
+    resolve: async (parent, args, context) => await homeworkController.removeFromLesson(args, context)
+}
+
+const deleteHomework = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'deleteHomework',
+    description: 'Delete homework',
+    args: {
+        homeworkId: {type: GraphQLNonNull(GraphQLID)},
+    },
+    resolve: async (parent, args, context) => await homeworkController.delete(args, context)
+}
+
 
 module.exports = {
     // teacher
@@ -164,10 +196,13 @@ module.exports = {
     removeLessonFromCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(removeLessonFromCourse),
     deleteCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteCourse),
     addHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(addHomework),
+    removeHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(removeHomework),
+    deleteHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteHomework),
 
     // student
     joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),
     setAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setAnswer),
     setStudentCurrentPosition: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setStudentCurrentPosition),
     studentLeaveLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLeaveLesson),
+    setHomeworkAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setHomeworkAnswer),
 };
