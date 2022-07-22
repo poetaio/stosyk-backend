@@ -5,21 +5,34 @@ const {Homework, TaskList, homeworkByTeacherIdInclude, allStudentsByHomeworkIdIn
     allCorrectAnsweredGapsByHWIdAndStudentIdInclude
 } = require("../../db/models");
 const taskService = require("./taskService");
-const lessonService = require("./lessonService");
 const lessonTeacherService = require("./lessonTeacherService");
 const studentLessonService = require("./studentLessonService");
 
 class HomeworkService {
-    async addHomework(teacherId, { lessonId, homework: { tasks } }) {
+    async addToLesson(lessonId, { tasks }) {
+        const newHomework = await Homework.create({ lessonId });
+        const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
+        await taskService.createTaskListTasks(taskList.taskListId, tasks);
+        return newHomework.homeworkId;
+    }
+
+    async add(teacherId, { lessonId, homework }) {
+        // if lesson doesn't belong to teacher or it doesn't exist
+        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
+            throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`);
+        }
+        return await this.addToLesson(lessonId, homework);
+    }
+
+    async addAll(teacherId, { lessonId, homeworkList }) {
         // if lesson doesn't belong to teacher or it doesn't exist
         if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`);
         }
 
-        const newHomework = await Homework.create({ lessonId });
-        const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
-        await taskService.createTaskListTasks(taskList.taskListId, tasks);
-        return newHomework.homeworkId;
+        for (let homework of homeworkList) {
+            await this.addToLesson(lessonId, homework);
+        }
     }
 
     async getAllByLessonIdOrHomeworkIdForTeacher(teacherId, {homeworkId, lessonId}) {
