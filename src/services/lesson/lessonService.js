@@ -62,11 +62,12 @@ class LessonService {
         if (!lesson)
             return false;
 
+        // todo: refactor
         if (lesson.lessonTaskList) {
-            for (let taskListTask of lesson.lessonTaskList.taskListTaskListTasks) {
-                for (let taskSentence of taskListTask.taskListTaskTask.taskTaskSentences) {
-                    for (let sentenceGap of taskSentence.taskSentenceSentence.sentenceSentenceGaps) {
-                        for (let gapOption of sentenceGap.sentenceGapGap.gapGapOptions) {
+            for (let taskListTask of lesson?.lessonTaskList?.taskListTaskListTasks || []) {
+                for (let taskSentence of taskListTask?.taskListTaskTask?.taskTaskSentences || []) {
+                    for (let sentenceGap of taskSentence?.taskSentenceSentence?.sentenceSentenceGaps || []) {
+                        for (let gapOption of sentenceGap?.sentenceGapGap?.gapGapOptions || []) {
                             await gapOption.gapOptionOption.destroy();
                         }
                         await sentenceGap.sentenceGapGap.destroy();
@@ -109,7 +110,7 @@ class LessonService {
         }
     }
 
-    async create({ name, description, tasks, homework }, teacherId) {
+    async create({ name, description, tasks, homework: homeworkList }, teacherId) {
         // check if right option exists for every gap
         await this.checkTasks(tasks);
 
@@ -120,12 +121,12 @@ class LessonService {
         const newLesson = await Lesson.create({name, description});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
         await taskService.createTaskListTasks(taskList.taskListId, tasks);
-        await homeworkService.addHomework(teacherId, {
-                lessonId: newLesson.lessonId, homework
+        await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
+        await homeworkService.addAll(teacherId, {
+                lessonId: newLesson.lessonId, homeworkList
             }
         );
 
-        await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
         return newLesson.lessonId;
     }
 
