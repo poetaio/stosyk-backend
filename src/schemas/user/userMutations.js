@@ -1,6 +1,6 @@
 const {  GraphQLString, GraphQLNonNull, GraphQLBoolean} = require("graphql");
 const { teacherController, studentController, accountController } =require('../../controllers');
-const { TeacherInputType, TokenType, StudentProfileType} = require("./types");
+const { TeacherInputType, TokenType, StudentProfileInputType} = require("./types");
 const { resolveUserIdParsingMiddleware, resolveAuthMiddleware, resolveAuthMiddlewareUnverified} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
@@ -58,7 +58,7 @@ const studentProfile = {
     name: "StudentProfile",
     description: "Update student profile",
     args: {
-        studentProfile: { type: GraphQLNonNull(StudentProfileType)},
+        studentProfile: { type: GraphQLNonNull(StudentProfileInputType)},
     },
     resolve: async (parent, args, context) => await studentController.updateProfile(args, context)
 }

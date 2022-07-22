@@ -1,6 +1,6 @@
-const {GraphQLObjectType, GraphQLNonNull, GraphQLString } = require("graphql");
+const {GraphQLNonNull, GraphQLString, GraphQLInputObjectType} = require("graphql");
 
-module.exports = new GraphQLObjectType({
+module.exports = new GraphQLInputObjectType({
     name: "StudentProfileType",
     description: "Student Profile type",
     fields: {

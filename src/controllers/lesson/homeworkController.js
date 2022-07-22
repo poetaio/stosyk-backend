@@ -4,7 +4,6 @@ const {
     studentService,
     homeworkService,
 } = require("../../services");
-const {Student} = require("../../db/models");
 
 class HomeworkController {
     async addHomeworkToLesson(homework, { user: { userId } }) {
@@ -13,7 +12,7 @@ class HomeworkController {
         if (!teacher)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
 
-        return await homeworkService.addHomework(teacher.teacherId, homework);
+        return await homeworkService.add(teacher.teacherId, homework);
     }
 
     async getAllForTeacher({ where }, { user: { userId } }) {
