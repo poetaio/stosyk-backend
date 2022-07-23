@@ -2,7 +2,7 @@ const {NotFoundError, ValidationError, TaskTypeEnum} = require("../../utils");
 const {Homework, TaskList, homeworkByTeacherIdInclude, allStudentsByHomeworkIdInclude, Student, Sentence,
     allGapsByHWIdInclude, allSentencesByHWIdInclude, allAnsweredSentencesByHWIdAndStudentIdInclude,
     allAnsweredGapsByHWIdAndStudentIdInclude, allCorrectAnsweredSentencesByHWIdAndStudentIdInclude,
-    allCorrectAnsweredGapsByHWIdAndStudentIdInclude
+    allCorrectAnsweredGapsByHWIdAndStudentIdInclude, Task
 } = require("../../db/models");
 const taskService = require("./taskService");
 const lessonTeacherService = require("./lessonTeacherService");
@@ -214,6 +214,35 @@ class HomeworkService {
         }
 
         throw new NotFoundError(`Not implemented due to different flow`);
+    }
+
+    async showAnswers(teacherId, homeworkId) {
+        const res = await this.getAllByLessonIdOrHomeworkIdForTeacher(teacherId, {homeworkId: homeworkId, lessonId: null})
+        if(!res[0]){
+            throw new NotFoundError(`No homework ${homeworkId}  of teacher ${teacherId} found`);
+        }
+       const tasks = await Task.findAll({
+               include: {
+                   association: "taskList",
+                   required: true,
+                   include: {
+                       association: "homework",
+                       where: {homeworkId},
+                       required: true,
+                   }
+               }
+           }
+       )
+        const taskIds = tasks.map(task => task.taskId)
+        const upd = await Task.update({
+            answersShown: true
+        }, {
+            where:{
+                taskId:
+                    taskIds
+            }
+        })
+        return !!upd[0]
     }
 }
 

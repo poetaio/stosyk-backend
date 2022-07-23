@@ -183,6 +183,16 @@ const deleteHomework = {
     resolve: async (parent, args, context) => await homeworkController.delete(args, context)
 }
 
+const showHomeworkAnswers = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'ShowHomeworkAnswers',
+    description: 'Show homework answers',
+    args: {
+        homeworkId: {type: GraphQLNonNull(GraphQLID)},
+    },
+    resolve: async (parent, args, context) => await homeworkController.showAnswers(args, context)
+}
+
 
 module.exports = {
     // teacher
@@ -198,6 +208,7 @@ module.exports = {
     addHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(addHomework),
     removeHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(removeHomework),
     deleteHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteHomework),
+    showHomeworkAnswers: resolveAuthMiddleware(UserRoleEnum.TEACHER)(showHomeworkAnswers),
 
     // student
     joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),
