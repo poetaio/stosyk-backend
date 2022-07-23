@@ -66,6 +66,27 @@ const parseRequestForUserId = async (callback, parent, args, context) => {
     return await callback(parent, args, context);
 };
 
+const parseRequestUnverified = async (callback, parent, args, context) => {
+    const { authHeader } = context;
+    const token = authHeader?.split(' ')[1];
+
+    if (!token) {
+        throw new UnauthorizedError('Invalid token');
+    }
+
+    let user;
+    try {
+        // parse token header -> user object
+        user = jwt.decode(token, process.env.JWT_SECRET);
+    } catch (e) {
+        throw new UnauthorizedError(e.message);
+    }
+
+    // put user (id + role) to context
+    context.user = user;
+    return await callback(parent, args, context);
+};
+
 const resolveAuthMiddleware = (...userRoles) => {
     return (endpoint) => ({
         ...endpoint,
@@ -86,11 +107,18 @@ const subscribeAuthMiddleware = (...userRoles) => {
         // change subscribe
         subscribe: async (parent, args, context) => await parseRequest(userRoles, endpoint.subscribe, parent, args, context),
     });
-}
+};
+
+const resolveAuthMiddlewareUnverified = (endpoint) => ({
+    ...endpoint,
+    // change resolve
+    resolve: async (parent, args, context) => await parseRequestUnverified(endpoint.resolve, parent, args, context),
+});
 
 module.exports = {
     resolveAuthMiddleware,
     subscribeAuthMiddleware,
     parseRestRequest,
-    resolveUserIdParsingMiddleware
+    resolveUserIdParsingMiddleware,
+    resolveAuthMiddlewareUnverified,
 }
