@@ -1,4 +1,4 @@
-const { Teacher, User, Account} = require('../../db/models');
+const { Teacher, User, Account} = require('../../models');
 const {UserRoleEnum, UserTypeEnum, hashPassword} = require("../../utils");
 
 

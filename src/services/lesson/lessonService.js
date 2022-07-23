@@ -1,28 +1,15 @@
-const {
-    Lesson,
-    LessonTeacher,
-    TaskList,
-    TaskListTask,
-    LessonStudent,
-    lessonInclude,
-    lessonTasksInclude,
-    Task,
-    allTasksByLessonIdInclude,
-} = require('../../db/models');
-const {
-    LessonStatusEnum,
-    NotFoundError,
-    ValidationError,
-} = require('../../utils');
+const { Lesson, LessonTeacher, TaskList, TaskListTask, LessonStudent, StudentOption, lessonInclude, lessonGapsInclude, Option, GapOption } = require('../../models');
+const { LessonStatusEnum: LessonStatusEnum, NotFoundError, ValidationError, TaskTypeEnum} = require('../../utils');
 const teacherService = require('../user/teacherService');
 const taskService = require('./taskService');
+const gapService = require("./gapService");
+const optionService = require("./optionService");
 const pubsubService = require("../pubsubService");
 const Sequelize = require('sequelize');
 const studentService = require("../user/studentService");
 const lessonAnswersService = require("./lessonAnswersService");
 const { Op } = Sequelize;
 const store = require("store2");
-const optionService = require("./optionService");
 
 class LessonService {
     async teacherLessonExists(lessonId, teacherId){
@@ -93,8 +80,6 @@ class LessonService {
             }
         }
 
-        // todo: delete attachments
-
         await lesson.destroy();
 
         return true;
@@ -119,24 +104,33 @@ class LessonService {
         return !!lessons.length;
     }
 
-    async create({ name, description, tasks }, teacherId) {
+    async create({ name, tasks }, teacherId) {
         // check if right option exists for every gap
         for (let task of tasks) {
-            await taskService.checkForCorrectOptionPresence(task);
+            for (let sentence of task.sentences) {
+                if (!sentence.text?.length || sentence.text?.length > 1500) {
+                    throw new ValidationError(`Sentence length must be 0-1500 characters`);
+                }
+
+                for (let gap of sentence.gaps) {
+                    if (!gap.options.some(option => option.isCorrect)) {
+                        throw new ValidationError(`No correct option provided`);
+                    }
+                }
+            }
         }
 
-        // check if anonymous, then delete all existing lessons
+        // check anonymous
         if (await teacherService.existsAnonymousById(teacherId))
             await this.deleteByTeacherId(teacherId);
 
-        const newLesson = await Lesson.create({name, description});
+        const newLesson = await Lesson.create({name});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
 
-        // create and connect to lesson
-        for (const task of tasks) {
-            const taskId = await taskService.create(task);
+        for (let { type, answerShown, sentences, attachments } of tasks) {
+            const newTask = await taskService.create(type, answerShown, sentences, attachments);
 
-            await TaskListTask.create({taskListId: taskList.taskListId, taskId});
+            await TaskListTask.create({taskListId: taskList.taskListId, taskId: newTask.taskId});
         }
 
         await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
@@ -221,17 +215,6 @@ class LessonService {
         return !!upd[0];
     }
 
-    /**
-     * Removes all students from lesson
-     * @param lessonId
-     * @return {Promise<void>}
-     */
-    async removeAllStudents(lessonId) {
-        await LessonStudent.destroy({
-            where: { lessonId },
-        });
-    }
-
     async finishLesson(pubsub, lessonId, teacherId) {
         if (!await this.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
@@ -249,9 +232,6 @@ class LessonService {
             }
         });
 
-        // clean up
-        await this.removeAllStudents(lessonId);
-        await optionService.removeAllStudentsAnswersByLessonId(lessonId);
         store.clear();
 
         return !!upd[0];
@@ -280,6 +260,75 @@ class LessonService {
        return (!!lessonStudent);
     }
 
+    async setAnswer(pubsub, lessonId, taskId, gapId, studentId, optionId, studentInput){
+        if(!await this.studentLessonExists(lessonId, studentId)){
+            throw new NotFoundError(`No lesson ${lessonId} of student ${studentId} found`);
+        }
+        if (!await this.existsActiveByLessonId(lessonId)) {
+            throw new ValidationError(`Lesson is not active ${lessonId}`);
+        }
+        const task = await taskService.getOneByIdAndLessonId(taskId, lessonId);
+        if (!task) {
+            throw new NotFoundError(`No task ${taskId} of lesson ${lessonId} found`)
+        }
+
+        if (task.type === TaskTypeEnum.MULTIPLE_CHOICE && optionId) {
+            // Exception: table name "optionGapOption->gapOptionGap->gapSent…ceGap->sentenceGapSente" specified more than once
+            // (too long alias name when joining table)
+            // if (!await optionService.existsByIdAndTaskId(optionId, taskId)) {
+            //     throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
+            // }
+            if (await optionService.existsStudentAnswer(studentId, optionId)) {
+                throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
+            }
+
+            // updating student-option if option exists
+            if (await gapService.existsStudentAnswer(gapId, studentId)) {
+                await StudentOption.update({
+                    optionId
+                }, {
+                    where: { studentId },
+                    include: {
+                        model: Option,
+                        include: {
+                            association: "optionGapOption",
+                            where: { gapId },
+                            required: true
+                        },
+                        required: true
+                    }
+                });
+            } else {
+                await StudentOption.create({
+                    optionId,
+                    studentId
+                });
+            }
+        } else if (task.type === TaskTypeEnum.PLAIN_INPUT && gapId && studentInput) {
+            const correctOptions = await gapService.getCorrectOptions(gapId);
+
+            const isCorrect = correctOptions.map(option => option.value).includes(studentInput);
+
+            if (!await gapService.existsStudentAnswer(gapId, studentId)) {
+                let studentOption = await optionService.create(studentInput, isCorrect);
+                await GapOption.create({ optionId: studentOption.optionId, gapId });
+                await StudentOption.create({ studentId, optionId: studentOption.optionId });
+            } else {
+                const option = await optionService.getOneByGapIdAndStudentId(gapId, studentId);
+                const [updNum] = await optionService.updateById(option.optionId, studentInput, isCorrect);
+                if (!updNum) {
+                    throw new ValidationError(`Could not update student answer`);
+                }
+            }
+        } else throw new ValidationError(`Invalid input`);
+
+        const teacher = await teacherService.findOneByLessonId(lessonId);
+        await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
+            await this.getStudentsAnswers(lessonId));
+
+        return true;
+    }
+
     async deleteLesson(lessonId, teacherId) {
         if(!await this.teacherLessonExists(lessonId, teacherId)){
            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
@@ -295,14 +344,22 @@ class LessonService {
     async getStudentsAnswers(lessonId) {
         const lesson = await Lesson.findOne({
             where: { lessonId },
-            include: lessonTasksInclude
+            include: lessonGapsInclude
         });
 
         const tasks = [];
 
         for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
             const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
-
+            for (let { taskSentenceSentence : sentence } of task.taskTaskSentences) {
+                const newSentence = { sentenceId: sentence.sentenceId, gaps: [] };
+                for (let { sentenceGapGap : gap } of sentence.sentenceSentenceGaps) {
+                    const newGap = { gapId: gap.gapId };
+                    newGap.studentsAnswers = await gapService.getStudentsAnswers(gap.gapId);
+                    newSentence.gaps.push(newGap);
+                }
+                newTask.sentences.push(newSentence);
+            }
             tasks.push(newTask);
         }
 
@@ -372,58 +429,32 @@ class LessonService {
         return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
     }
 
-    /**
-     * Returns all tasks by lessonId, students answers are got in resolve for every task type
-     * @param lessonId
-     * @return {Promise<*[]>} all tasks by lesson id
-     */
-    async studentGetAnswers(lessonId){
+    async studentGetAnswers(lessonId, studentId){
         if (!await this.existsActiveByLessonId(lessonId)) {
             throw new ValidationError(`Lesson ${lessonId} already started`)
         }
-
-        return await Task.findAll({
-            include: allTasksByLessonIdInclude(lessonId),
+        const lesson = await Lesson.findOne({
+            where: { lessonId },
+            include: lessonGapsInclude
         });
-    }
 
-    async studentLeaveLesson(pubsub, lessonId, studentId) {
-        if(!await this.lessonExists(lessonId)){
-            throw new NotFoundError(`No lesson ${lessonId} found`);
-        }
+        const tasks = [];
 
-        if (!await this.studentLessonExists(lessonId, studentId)){
-            throw new ValidationError(`Student ${studentId} is not on lesson ${lessonId}`);
-        }
-
-        const lessonStudent = await LessonStudent.destroy({
-            where: {
-                lessonId,
-                studentId
+        for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
+            const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
+            for (let { taskSentenceSentence : sentence } of task.taskTaskSentences) {
+                const newSentence = { sentenceId: sentence.sentenceId, gaps: [] };
+                for (let { sentenceGapGap : gap } of sentence.sentenceSentenceGaps) {
+                    const newGap = { gapId: gap.gapId };
+                    newGap.studentsAnswers = await gapService.studentGetAnswer(gap.gapId, studentId);
+                    newSentence.gaps.push(newGap);
+                }
+                newTask.sentences.push(newSentence);
             }
-        })
-
-        const teacher = await teacherService.findOneByLessonId(lessonId)
-        const students = await studentService.studentsLesson(lessonId)
-        for(let student of students){
-            await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, student.userId, students)
+            tasks.push(newTask);
         }
-        await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
 
-        return !!lessonStudent;
-    }
-
-    async getLessonsByCourse(courseId){
-        return await Lesson.findAll({
-            include:{
-                association: 'lessonCourses',
-                where:{
-                    courseId,
-                },
-                required: true,
-                attributes: []
-            }
-        })
+        return tasks;
     }
 
 }

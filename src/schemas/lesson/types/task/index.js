@@ -1,28 +1,22 @@
-// const TaskTypeEnumType = require('./TaskTypeEnum.type');
+const TeacherTaskType = require('./TeacherTask.type');
+const StudentTaskType = require('./StudentTask.type');
+const TaskStudentsAnswersType = require('./TaskStudentsAnswers.type');
+const TaskInputType = require('./Task.input.type');
+const TaskTypeEnumType = require('./TaskTypeEnum.type');
+const TaskCorrectAnswerType = require('./TaskCorrectAnswer.type');
 const AttachmentInputType = require("./Attachment.input.type");
 const AttachmentType = require("./Attachment.type");
-const StudentCurrentTaskType = require('./StudentCurrrentTask.type');
-const TaskTypeEnumType = require('./TaskTypeEnum.type');
-
-const teacherTask = require('./teacherTask');
-const studentTask = require('./studentTask');
-const studentAnswers = require('./studentsAnswers');
-const createTask = require('./createTask');
-const correctAnswers = require('./correctAnswers');
-const answerSheet = require('./answerSheetTask');
+const StudentCurrentTaskType = require('./StudentCurrrentTask.type')
 
 
 module.exports = {
-    ...teacherTask,
-    ...studentTask,
-    ...createTask,
-    ...studentAnswers,
-    ...correctAnswers,
-    ...answerSheet,
-
-    // TaskTypeEnumType,
+    TeacherTaskType,
+    StudentTaskType,
+    TaskStudentsAnswersType,
+    TaskInputType,
+    TaskCorrectAnswerType,
+    TaskTypeEnumType,
     AttachmentInputType,
     AttachmentType,
-    StudentCurrentTaskType,
-    TaskTypeEnumType,
+    StudentCurrentTaskType
 };

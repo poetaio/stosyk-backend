@@ -1,6 +1,6 @@
-const { lessonController, taskController, courseController} = require('../../controllers');
-const { LessonInputType, AnswerInputType} = require('./types');
-const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLString} = require("graphql");
+const { lessonController, taskController} = require('../../controllers');
+const { LessonInputType, AnswerInputType, TaskStudentsAnswersType} = require('./types');
+const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLList} = require("graphql");
 const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
@@ -70,7 +70,8 @@ const setAnswer = {
     type: GraphQLBoolean,
     name: 'setAnswer',
     description: 'Set Answer',
-    args: {
+    args:{
+        lessonId: { type: GraphQLNonNull(GraphQLID) },
         answer: { type: GraphQLNonNull(AnswerInputType)}
     },
     resolve: async (parent, args, context) => await lessonController.setAnswer(args, context)
@@ -87,58 +88,6 @@ const setStudentCurrentPosition = {
     resolve: async (parent, args, context) => await lessonController.setStudentCurrentPosition(args, context)
 }
 
-const studentLeaveLesson = {
-    type: GraphQLBoolean,
-    name: 'studentLeaveLesson',
-    description: 'Student Leave Lesson',
-    args: {
-        lessonId: {type: GraphQLNonNull(GraphQLID)}
-    },
-    resolve: async  (parent, args, context) => await lessonController.studentLeaveLesson(args, context)
-}
-
-const createCourse = {
-    type: GraphQLNonNull(GraphQLID),
-    name: 'createCourse',
-    description: 'Create Course',
-    args: {
-        name: {type: GraphQLNonNull(GraphQLString)}
-    },
-    resolve: async (parent, args, context) => await courseController.createCourse(args, context)
-}
-
-const addLessonToCourse = {
-    type: GraphQLNonNull(GraphQLBoolean),
-    name: 'addLessonToCourse',
-    description: 'Add Lesson to Course',
-    args: {
-        courseId: {type: GraphQLNonNull(GraphQLID)},
-        lessonId: {type: GraphQLNonNull(GraphQLID)}
-    },
-    resolve: async  (parent, args, context) => await courseController.addLessonToCourse(args, context)
-}
-
-const removeLessonFromCourse = {
-    type: GraphQLNonNull(GraphQLBoolean),
-    name: 'removeLessonFromCourse',
-    description: 'Remove Lesson from Course',
-    args:{
-        courseId: {type: GraphQLNonNull(GraphQLID)},
-        lessonId: {type: GraphQLNonNull(GraphQLID)}
-    },
-    resolve: async  (parent, args, context) => await courseController.removeLessonFromCourse(args, context)
-}
-
-const deleteCourse = {
-    type: GraphQLNonNull(GraphQLBoolean),
-    name: 'deleteCourse',
-    description: 'Delete Course',
-    args: {
-        courseId: {type: GraphQLNonNull(GraphQLID)},
-    },
-    resolve: async (parent, args, context) => await courseController.deleteCourse(args, context)
-}
-
 
 module.exports = {
     // teacher
@@ -147,14 +96,9 @@ module.exports = {
     finishLesson: resolveAuthMiddleware(UserRoleEnum.TEACHER)(finishLesson),
     showAnswers: resolveAuthMiddleware(UserRoleEnum.TEACHER)(showAnswers),
     deleteLesson: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteLesson),
-    createCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(createCourse),
-    addLessonToCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(addLessonToCourse),
-    removeLessonFromCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(removeLessonFromCourse),
-    deleteCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(deleteCourse),
 
     // student
     joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),
     setAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setAnswer),
     setStudentCurrentPosition: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setStudentCurrentPosition),
-    studentLeaveLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLeaveLesson),
 };
