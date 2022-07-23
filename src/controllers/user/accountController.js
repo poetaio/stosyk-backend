@@ -5,13 +5,15 @@ const {REGISTERED} = require("../../utils/enums/UserType.enum");
 
 class AccountController {
     async registerTeacher({ teacher: { email, password } }, { userId }) {
+        const user = await userService.findOneByUserId(userId);
+        if (user.type === REGISTERED)
+            throw new ValidationError(`User is already registered`);
+
         if (await accountService.existsByLogin(email))
             throw new ValidationError(`User with login ${email} already exists`);
 
         if (userId) {
-            const user = await userService.findOneByUserId(userId);
-            if (user.type === REGISTERED)
-                throw new ValidationError(`User is already registered`);
+            // const teacher = await teacherService.findOneByUserId(userId);
             await teacherService.updateAnonymousTeacherToRegistered(userId, email, password);
         } else {
             const userToProceed = await teacherService.create(email, password);
@@ -31,23 +33,6 @@ class AccountController {
 
         const token = await tokenService.createToken(account.user.userId, account.user.role);
         return { token };
-    }
-
-    async getAccountInfo({user: {userId}}) {
-        const user = await userService.findOneByUserId(userId);
-        if (user.type !== REGISTERED) {
-            throw new ValidationError(`User is not registered`);
-        }
-        const account = await accountService.getOneById(userId)
-        return account.account.login
-    }
-
-    async changePassword({oldPassword, newPassword}, {user:{userId}}){
-        const account = await accountService.getOneById(userId)
-        if (!account || !bcrypt.compareSync(oldPassword, account.account.passwordHash)) {
-            throw new ValidationError('Wrong password');
-        }
-        return await accountService.changePassword(userId, account.account.login,  newPassword)
     }
 }
 

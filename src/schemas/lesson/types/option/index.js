@@ -1,18 +1,16 @@
+const AnswerInputType = require('./Answer.input.type');
 const OptionInputType = require('./Option.input.type');
 const TeacherOptionType = require('./TeacherOption.type');
 const StudentOptionType = require('./StudentOption.type');
 const OptionAnswerType = require('./OptionAnswer.type');
 const StudentAnswerType = require("./StudentAnswer.type");
-const MatchingOptionInputType = require('./MatchingOption.input.type');
-const MatchingTeacherOptionType = require('./MatchingTeacherOption.type');
 
 
 module.exports = {
+    AnswerInputType,
     OptionInputType,
     TeacherOptionType,
     StudentOptionType,
     OptionAnswerType,
     StudentAnswerType,
-    MatchingOptionInputType,
-    MatchingTeacherOptionType,
 };
