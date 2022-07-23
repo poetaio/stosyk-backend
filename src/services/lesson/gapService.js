@@ -1,4 +1,4 @@
-const {Gap, GapOption, gapExistsByGapIdAndStudentIdInclude} = require("../../models");
+const {Gap, GapOption, gapExistsByGapIdAndStudentIdInclude, gapStudentAnswersByStudentIdInclude} = require("../../db/models");
 const optionService = require('./optionService');
 
 class GapService {
@@ -11,28 +11,23 @@ class GapService {
         });
     }
 
+    /**
+     * Returns true if student has chosen any option of this gap
+     * @param gapId
+     * @param studentId
+     * @return {Promise<boolean>} true if student-option exist
+     */
     async existsStudentAnswer(gapId, studentId) {
         return !!await Gap.count({
             where: { gapId },
-            include: {
-                association: "gapGapOptions",
-                include: {
-                    association: "gapOptionOption",
-                    include: {
-                        association: "optionStudents",
-                        where: { studentId },
-                        required: true
-                    },
-                    required: true
-                },
-                required: true
-            }
+            include: gapStudentAnswersByStudentIdInclude(studentId)
         });
     }
 
     async create(position, options) {
         const gap = await Gap.create({ position });
 
+        // create option and connect to gap
         for (let { value, isCorrect } of options) {
             const newOption = await optionService.create(value, isCorrect);
 
@@ -84,10 +79,11 @@ class GapService {
     }
 
     async getStudentsAnswers(gapId) {
-        const options = await optionService.getAllWithAnswersByGapId(gapId);
+        const options = await optionService.getAllWithAnswersByGapId(gapId)
+            .then(res => res.map(option => option.get({ plain: true })));
         const studentsAnswers = [];
-        for (let { optionId, value, isCorrect, optionStudents } of options) {
-            for (let { studentId } of optionStudents || []) {
+        for (let { optionId, value, isCorrect, students } of options) {
+            for (let { studentId } of students || []) {
                 studentsAnswers.push({
                     option: {
                         optionId, value, isCorrect
@@ -102,8 +98,8 @@ class GapService {
     async studentGetAnswer(gapId, studentId){
         const options = await optionService.getOneStudentAnswerByGapId(gapId, studentId);
         const studentsAnswers = [];
-        for (let { optionId, value, isCorrect, optionStudents } of options) {
-            for (let { studentId } of optionStudents || []) {
+        for (let { optionId, value, isCorrect, students } of options) {
+            for (let { studentId } of students || []) {
                 studentsAnswers.push({
                     option: {
                         optionId, value, isCorrect
@@ -113,25 +109,6 @@ class GapService {
             }
         }
         return studentsAnswers;
-    }
-
-    async existsStudentAnswer(gapId, studentId) {
-        return !!await Gap.count({
-            where: { gapId },
-            include: {
-                association: "gapGapOptions",
-                include: {
-                    association: "gapOptionOption",
-                    include: {
-                        association: "optionStudents",
-                        where: { studentId },
-                        required: true,
-                    },
-                    required: true,
-                },
-                required: true,
-            }
-        })
     }
 
     async getCorrectOptions(gapId) {
