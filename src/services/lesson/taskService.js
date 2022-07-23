@@ -154,12 +154,12 @@ class TaskService {
 
     // task creation, accepts all types of task
     async create(task) {
-        const {type, answerShown, attachments} = task;
+        const {type, answerShown, attachments, description} = task;
 
         // getting sentences from "type object" depending on type
         let sentences = await this.getSentencesFromTypeObject(task);
 
-        const createdTask = await Task.create({ type, answerShown });
+        const createdTask = await Task.create({ type, answerShown, description });
         const {taskId} = createdTask;
 
         // creating sentence and connecting to task

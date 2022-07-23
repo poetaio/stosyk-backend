@@ -1,4 +1,4 @@
-const {GraphQLInputObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLList, GraphQLInterfaceType} = require("graphql");
+const {GraphQLInputObjectType, GraphQLNonNull, GraphQLBoolean, GraphQLList, GraphQLString} = require("graphql");
 const TaskTypeEnumType = require("../TaskTypeEnum.type");
 const AttachmentInputType = require("../Attachment.input.type");
 const MultipleChoiceTaskInputType = require('./PlainInputTask.input.type');
@@ -13,6 +13,7 @@ module.exports = new GraphQLInputObjectType({
     fields: () => ({
         answerShown: { type: GraphQLNonNull(GraphQLBoolean) },
         attachments: {type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AttachmentInputType)))},
+        description: { type: GraphQLNonNull(GraphQLString) },
         // different types, only one is not null
         type: { type: GraphQLNonNull(TaskTypeEnumType) },
 
