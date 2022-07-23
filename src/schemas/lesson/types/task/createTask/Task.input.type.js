@@ -15,6 +15,7 @@ module.exports = new GraphQLInputObjectType({
         attachments: {type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AttachmentInputType)))},
         description: { type: GraphQLNonNull(GraphQLString) },
         // different types, only one is not null
+        // different types, only one is not null or none for MEDIA type
         type: { type: GraphQLNonNull(TaskTypeEnumType) },
 
         multipleChoice: { type: MultipleChoiceTaskInputType },
