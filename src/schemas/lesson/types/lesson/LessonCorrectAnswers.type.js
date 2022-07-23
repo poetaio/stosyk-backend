@@ -1,11 +1,11 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLList} = require("graphql");
-const { TaskCorrectAnswerInterfaceType } = require('../task');
+const { TaskCorrectAnswerType } = require('../task');
 
 
 module.exports = new GraphQLObjectType({
     name: 'LessonCorrectAnswersType',
     description: 'Lesson Correct Answers Type',
     fields: {
-        tasksAnswers: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskCorrectAnswerInterfaceType))) }
+        tasksAnswers: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskCorrectAnswerType))) }
     }
 });

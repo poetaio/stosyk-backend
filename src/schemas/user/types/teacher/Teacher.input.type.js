@@ -2,8 +2,8 @@ const { GraphQLNonNull, GraphQLID, GraphQLString, GraphQLInputObjectType } = req
 
 
 module.exports = new GraphQLInputObjectType({
-    name: 'TeacherInputType',
-    description: 'Teacher Input type',
+    name: 'TeacherType',
+    description: 'Teacher type',
     fields: {
         email: { type: GraphQLNonNull(GraphQLString) },
         password: { type: GraphQLNonNull(GraphQLString) }

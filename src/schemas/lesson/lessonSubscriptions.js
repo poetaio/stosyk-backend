@@ -1,5 +1,5 @@
 const {GraphQLList, GraphQLNonNull, GraphQLID} = require("graphql");
-const { TaskStudentsAnswersInterfaceType, TeacherLessonType, LessonCorrectAnswersType, LessonStatusType, StudentCurrentTaskType} = require('./types');
+const { TaskStudentsAnswersType, TeacherLessonType, LessonCorrectAnswersType, LessonStatusType, StudentCurrentTaskType} = require('./types');
 const { StudentType } = require('../user/types');
 const { lessonController } = require('../../controllers');
 const { subscribeAuthMiddleware } = require("../../middleware");
@@ -17,7 +17,7 @@ const presentStudentsChanged = {
 };
 
 const studentAnswersChanged = {
-    type: GraphQLList(GraphQLNonNull(TaskStudentsAnswersInterfaceType)),
+    type: GraphQLList(GraphQLNonNull(TaskStudentsAnswersType)),
     name: "studentAnswerChanged",
     description: "Student Answer Changed",
     args: {

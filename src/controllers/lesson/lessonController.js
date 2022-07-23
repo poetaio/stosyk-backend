@@ -1,4 +1,4 @@
-const { lessonService, studentService, answerService} = require('../../services')
+const { lessonService, studentService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {pubsubService} = require('../../services');
@@ -82,14 +82,14 @@ class LessonController {
        return await lessonService.getStudentCurrentPosition(pubsub, lessonId, userId)
     }
 
-    async setAnswer({ answer }, { pubsub, user: {userId}}, ) {
+    async setAnswer({lessonId, answer: { taskId, gapId, optionId, answerInput }}, { pubsub, user: {userId}}, ) {
         const student = await studentService.findOneByUserId(userId);
 
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return await answerService.setAnswer(pubsub, student.studentId, answer)
+        return await lessonService.setAnswer(pubsub, lessonId, taskId, gapId, student.studentId, optionId, answerInput)
     }
 
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {
@@ -121,33 +121,13 @@ class LessonController {
         return await lessonService.subscribeOnCorrectAnswersShown(pubsub, lessonId, student.studentId);
     }
 
-    async studentLeaveLesson({ lessonId }, {pubsub,  user: { userId } }){
-        const student = await studentService.findOneByUserId(userId);
-        if(!student){
-            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
-        }
-
-        return await lessonService.studentLeaveLesson(pubsub, lessonId, student.studentId);
-
-    }
-
-    /**
-     * Checks if user is student and returns all tasks by lessonId, student's answers are resolved in every task type
-     * @param lessonId
-     * @param userId
-     * @return {Promise<*[]>} all tasks by lesson id
-     */
     async studentGetAnswers({lessonId}, {user: {userId}}){
         const student = await studentService.findOneByUserId(userId);
         if(!student){
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        return await lessonService.studentGetAnswers(lessonId);
-    }
-
-    async getLessonsByCourse({courseId}, args, context){
-        return await lessonService.getLessonsByCourse(courseId)
+        return await lessonService.studentGetAnswers(lessonId, student.studentId)
     }
 }
 
