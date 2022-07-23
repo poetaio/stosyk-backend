@@ -3,7 +3,6 @@ const PlainInputTaskCorrectAnswerType = require("./PlainInputTaskCorrectAnswer.t
 const TaskCorrectAnswerInterfaceType = require("./TaskCorrectAnswer.interface.type");
 const MatchingTaskCorrectAnswersType = require('./MatchingTaskCorrectAnswer.type');
 const QATaskCorrectAnswersType = require('./QATaskCorrectAnswer.type');
-const MediaTaskCorrectAnswersType = require('./MediaTaskCorrectAnswer.type');
 
 
 module.exports = {
@@ -12,5 +11,4 @@ module.exports = {
     TaskCorrectAnswerInterfaceType,
     MatchingTaskCorrectAnswersType,
     QATaskCorrectAnswersType,
-    MediaTaskCorrectAnswersType,
 };

@@ -18,7 +18,6 @@ const {
     Gap,
     Option,
     Course,
-    Homework,
 } = require('./lesson')(sequelize, DataTypes);
 
 const {
@@ -113,21 +112,6 @@ LessonTeacher.belongsTo(Lesson, {
     as: 'lessonTeacherLesson',
 });
 
-
-//TaskList-Task One-to-Many relationship
-const LessonTeacherRelation = Lesson.belongsToMany(Teacher, {
-    through: LessonTeacher,
-    foreignKey: 'lessonId',
-    as: 'teacher',
-});
-Teacher.belongsToMany(Lesson, {
-    through: LessonTeacher,
-    foreignKey: 'teacherId',
-    as: 'lessons'
-});
-LessonTeacherRelation.isMultiAssociation = false;
-LessonTeacherRelation.isSingleAssociation = true;
-
 //Course-Lesson One-to-Many relationship
 Course.belongsToMany(Lesson, {
     foreignKey: 'courseId',
@@ -184,15 +168,21 @@ TeacherCourseRelation.isSingleAssociation = true;
 
 //Lesson-Task list One-to-One relationship
 
-Lesson.hasMany(TaskList, {
-    foreignKey: 'lessonId',
+Lesson.hasOne(TaskList, {
+    foreignKey: {
+        name: 'lessonId',
+        unique: true
+    },
     as: 'lessonTaskList',
     foreignKeyConstraint: true,
     onDelete: 'CASCADE',
     hooks: true
 })
 TaskList.belongsTo(Lesson, {
-    foreignKey: 'lessonId',
+    foreignKey: {
+        name: 'lessonId',
+        unique: true
+    },
     as: 'taskListLesson'
 });
 
@@ -432,24 +422,6 @@ Lesson.belongsToMany(Student,{
     as: "lessonStudents",
 });
 
-Lesson.hasMany(Homework, {
-    foreignKey: 'lessonId',
-    as: 'homeworks',
-});
-Homework.belongsTo(Lesson, {
-    foreignKey: 'lessonId',
-    as: 'lesson',
-});
-
-Homework.hasOne(TaskList, {
-    foreignKey: 'homeworkId',
-    as: 'taskList',
-});
-TaskList.belongsTo(Homework, {
-    foreignKey: 'homeworkId',
-    as: 'homework',
-});
-
 
 module.exports = {
     sequelize,
@@ -477,7 +449,6 @@ module.exports = {
     TaskAttachments,
     TeacherCourse,
     LessonCourse,
-    Homework,
 
     ...queries,
     ...includes

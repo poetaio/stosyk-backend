@@ -2,19 +2,17 @@ const { GraphQLBoolean, GraphQLString, GraphQLNonNull} = require("graphql");
 const { userController, accountController} = require('../../controllers');
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
-const {TokenType} = require("./types");
+const {AccountInfoType} = require("./types");
 
-// updates token if it's valid and not expired
 const checkTeacherAuth = {
-    type: GraphQLNonNull(TokenType),
+    type: GraphQLBoolean,
     name: 'checkTeacherAuth',
     description: 'Check teacher auth',
     resolve: async (parent, args, context) => await userController.checkTeacherAuth(args, context)
 };
 
-// updates token if it's valid and not expired
 const checkStudentAuth = {
-    type: GraphQLNonNull(TokenType),
+    type: GraphQLBoolean,
     name: 'checkStudentAuth',
     description: 'Check student auth',
     resolve: async (parent, args, context) => await userController.checkStudentAuth(args, context)
@@ -33,6 +31,7 @@ const getAccountInfo = {
     description: 'Get account info',
     resolve: async (parent, args, context) => await accountController.getAccountInfo(context)
 }
+
 
 module.exports = {
     checkTeacherAuth: resolveAuthMiddleware(UserRoleEnum.TEACHER)(checkTeacherAuth),
