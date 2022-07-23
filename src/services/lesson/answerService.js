@@ -6,7 +6,6 @@ const optionService = require("./optionService");
 const teacherService = require("../user/teacherService");
 const pubsubService = require("../pubsubService");
 const lessonService = require("./lessonService");
-const {allStudentOptionsByGapIdInclude} = require("../../db/models/includes/lesson/option");
 const studentLessonService = require("./studentLessonService");
 const homeworkService = require("./homeworkService");
 
@@ -14,9 +13,6 @@ class AnswerService {
     async setMultipleChoiceAnswer(studentId, taskId, { sentenceId, gapId, optionId }) {
         if (!await optionService.existsByIdAndTaskId(optionId, taskId)) {
             throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
-        }
-        if (await optionService.existsStudentAnswer(studentId, optionId)) {
-            throw new ValidationError(`Student ${studentId} has already chosen option ${optionId}`)
         }
 
         // creating new student-option if student didn't answer before
@@ -26,11 +22,12 @@ class AnswerService {
         }
 
         // update existing
+
+        const studentOption = await optionService.getOneByGapIdAndStudentId(gapId, studentId)
         await StudentOption.update({
             optionId
         }, {
-            where: { studentId },
-            include: allStudentOptionsByGapIdInclude(gapId),
+            where: { studentId, optionId: studentOption.optionId },
         });
     }
 

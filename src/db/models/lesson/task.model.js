@@ -15,7 +15,12 @@ module.exports = (sequelize, DataTypes) => sequelize.define('task',
             type: DataTypes.ENUM(...Object.values(TaskTypeEnum)),
             allowNull: false,
             defaultValue: TaskTypeEnum.MULTIPLE_CHOICE
-        }
+        },
+        description: {
+            type: DataTypes.STRING(500),
+            allowNull: false,
+            defaultValue: ""
+        },
     },
     {
         // sequelize.models.Sentence
