@@ -17,8 +17,6 @@ module.exports = new GraphQLInterfaceType({
             return 'MatchingTaskStudentsAnswersType';
         } else if (type === TaskTypeEnum.QA) {
             return 'QATaskStudentsAnswersType';
-        } else if (type === TaskTypeEnum.MEDIA) {
-            return 'MediaTaskStudentsAnswersType';
         } else return null;
     },
 });

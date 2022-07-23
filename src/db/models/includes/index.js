@@ -1,7 +1,7 @@
 const lessonIncludes = require('./lesson');
-const userIncludes = require('./user');
+const sentenceIncludes = require('./lesson/sentence');
 
 module.exports = {
     ...lessonIncludes,
-    ...userIncludes,
+    ...sentenceIncludes,
 };

@@ -2,6 +2,7 @@
 
 module.exports = {
     async up(queryInterface, Sequelize) {
+
         return queryInterface.sequelize.transaction((t) =>
             // add nullish column
             queryInterface.addColumn(
@@ -9,11 +10,10 @@ module.exports = {
                 'description',
                 {
                     type: Sequelize.STRING(500),
-                },
-                { transaction: t }
+                }
             )
                 // fill with default values
-                .then(() => queryInterface.sequelize.query(`UPDATE lessons SET description='Урок учителя для учнів'`, { transaction: t }))
+                .then(() => queryInterface.sequelize.query(`UPDATE lessons SET description='Урок учителя для учнів'`))
                 // change column to non-nullish
                 .then(() => queryInterface.changeColumn(
                     'lessons',
@@ -22,19 +22,15 @@ module.exports = {
                       type: Sequelize.STRING(500),
                       allowNull: false,
                       defaultValue: false,
-                    },
-                    { transaction: t }
+                    }
                 ))
         );
     },
 
     async down(queryInterface, Sequelize) {
-        return queryInterface.sequelize.transaction((t) =>
-            queryInterface.removeColumn(
-                'lessons',
-                'description',
-                { transaction: t },
-            )
+        return queryInterface.removeColumn(
+            'lesson',
+            'description',
         );
     }
 };

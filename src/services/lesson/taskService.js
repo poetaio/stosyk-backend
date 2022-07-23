@@ -3,20 +3,38 @@ const {Task, Lesson, TaskSentence,
     DELETE_TASK_BY_LESSON_ID,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
-    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments, TaskListTask
+    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments
 } = require("../../db/models");
 const sentenceService = require('./sentenceService');
-const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum, TaskListTypeEnum} = require('../../utils');
+const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum} = require('../../utils');
 const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
-const lessonByTeacherAndTaskInclude = require("../../db/models/includes/lesson/lessonByTeacherAndTask.include");
 
 class TaskService {
     // todo: existsWithAnswerShown
     async teacherTaskExists(taskId, teacherId){
         return !!await Lesson.count({
-            include: lessonByTeacherAndTaskInclude(teacherId, taskId),
+            include: [
+                {
+                    association: 'lessonTaskList',
+                    include: {
+                        association: 'taskListTaskListTasks',
+                        include: {
+                            association: 'taskListTaskTask',
+                            where: { taskId },
+                            required: true
+                        }
+                    }
+                },
+                {
+                    association: 'lessonLessonTeacher',
+                    where: {
+                        teacherId
+                    },
+                    required: true
+                }
+            ]
         });
     }
 
@@ -96,15 +114,13 @@ class TaskService {
             return task.multipleChoice.sentences;
         } else if (type === TaskTypeEnum.PLAIN_INPUT) {
             return task.plainInput.sentences;
-        } else if (type === TaskTypeEnum.MEDIA) {
-            return [];
         }
 
         let sentences;
         // QA type: questions-answers
         if (type === TaskTypeEnum.QA) {
             sentences = [];
-            for (let question of task.qa.questions || []) {
+            for (let question of task.qa.questions) {
                 const { index, text, options } = question;
                 const newSentence = {
                     index,
@@ -140,7 +156,7 @@ class TaskService {
     async create(task) {
         const {type, answerShown, attachments, description} = task;
 
-        // getting sentences from "type object" depending on type to insert in db
+        // getting sentences from "type object" depending on type
         let sentences = await this.getSentencesFromTypeObject(task);
 
         const createdTask = await Task.create({ type, answerShown, description });
@@ -160,7 +176,7 @@ class TaskService {
         return taskId;
     }
 
-    async getAll({ lessonId, homeworkId }) {
+    async getAll({ lessonId }) {
         const where = {};
         // if lessonId is null, task will not have taskLessonTask as child,
         // thus no need to require = true
@@ -168,28 +184,6 @@ class TaskService {
         if (lessonId) {
             where.lessonId = lessonId;
             required = true;
-        }
-        if (homeworkId) {
-            where.homeworkId = homeworkId;
-            required = true;
-        }
-
-        if (homeworkId) {
-            return await Task.findAll({
-                include: {
-                    association: 'taskTaskListTask',
-                    include: {
-                        association: 'taskListTaskTaskList',
-                        include: {
-                            association: 'homework',
-                            where: {homeworkId},
-                            required
-                        },
-                        required: true
-                    },
-                    required: true
-                }
-            });
         }
 
         return await Task.findAll({
@@ -199,7 +193,7 @@ class TaskService {
                     association: 'taskListTaskTaskList',
                     include: {
                         association: 'taskListLesson',
-                        where: {lessonId},
+                        where,
                         required
                     },
                     required: true
@@ -297,8 +291,6 @@ class TaskService {
         } else if (task.type === TaskTypeEnum.MATCHING) {
             // always true, because each sentence has non null graphql field "correctOption"
             return;
-        } else if (task.type === TaskTypeEnum.MEDIA) {
-            return;
         } else throw new ValidationError(`No such task type: ${task.type}`);
 
         for (let sentence of sentences) {
@@ -311,15 +303,6 @@ class TaskService {
                     throw new ValidationError(`No correct option provided`);
                 }
             }
-        }
-    }
-
-    async createTaskListTasks(taskListId, tasks) {
-        // create and connect to lesson
-        for (const task of tasks) {
-            const taskId = await this.create(task);
-
-            await TaskListTask.create({taskListId: taskListId, taskId});
         }
     }
 }
