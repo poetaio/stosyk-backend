@@ -9,12 +9,6 @@ class UserService {
                 }
         });
     }
-
-    async existsById(userId) {
-        return !!await User.count({
-            where: { userId }
-        });
-    }
 }
 
 module.exports = new UserService();

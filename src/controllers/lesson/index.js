@@ -5,7 +5,6 @@ const gapController = require('./gapController');
 const optionController = require('./optionController');
 const attachmentController = require('./attachmentController')
 const courseController = require('./courseController')
-const homeworkController = require('./homeworkController');
 
 module.exports = {
     lessonController,
@@ -14,6 +13,5 @@ module.exports = {
     gapController,
     optionController,
     attachmentController,
-    courseController,
-    homeworkController,
+    courseController
 };

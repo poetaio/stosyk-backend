@@ -2,6 +2,7 @@ const {
     Lesson,
     LessonTeacher,
     TaskList,
+    TaskListTask,
     LessonStudent,
     lessonInclude,
     lessonTasksInclude,
@@ -22,11 +23,26 @@ const lessonAnswersService = require("./lessonAnswersService");
 const { Op } = Sequelize;
 const store = require("store2");
 const optionService = require("./optionService");
-const homeworkService = require("./homeworkService");
-const lessonTeacherService = require('./lessonTeacherService');
-const studentLessonService = require("./studentLessonService");
 
 class LessonService {
+    async teacherLessonExists(lessonId, teacherId){
+        return !!await LessonTeacher.count({
+            where: {
+                lessonId,
+                teacherId
+            }
+        });
+    }
+
+    async studentLessonExists(lessonId, studentId){
+        return !!await LessonStudent.count({
+            where: {
+                lessonId,
+                studentId
+            }
+        });
+    }
+
     async lessonExists(lessonId){
         return !!await Lesson.count({
             where: {
@@ -62,12 +78,11 @@ class LessonService {
         if (!lesson)
             return false;
 
-        // todo: refactor
         if (lesson.lessonTaskList) {
-            for (let taskListTask of lesson?.lessonTaskList?.taskListTaskListTasks || []) {
-                for (let taskSentence of taskListTask?.taskListTaskTask?.taskTaskSentences || []) {
-                    for (let sentenceGap of taskSentence?.taskSentenceSentence?.sentenceSentenceGaps || []) {
-                        for (let gapOption of sentenceGap?.sentenceGapGap?.gapGapOptions || []) {
+            for (let taskListTask of lesson.lessonTaskList.taskListTaskListTasks) {
+                for (let taskSentence of taskListTask.taskListTaskTask.taskTaskSentences) {
+                    for (let sentenceGap of taskSentence.taskSentenceSentence.sentenceSentenceGaps) {
+                        for (let gapOption of sentenceGap.sentenceGapGap.gapGapOptions) {
                             await gapOption.gapOptionOption.destroy();
                         }
                         await sentenceGap.sentenceGapGap.destroy();
@@ -104,15 +119,11 @@ class LessonService {
         return !!lessons.length;
     }
 
-    async checkTasks(tasks) {
+    async create({ name, description, tasks }, teacherId) {
+        // check if right option exists for every gap
         for (let task of tasks) {
             await taskService.checkForCorrectOptionPresence(task);
         }
-    }
-
-    async create({ name, description, tasks, homework: homeworkList }, teacherId) {
-        // check if right option exists for every gap
-        await this.checkTasks(tasks);
 
         // check if anonymous, then delete all existing lessons
         if (await teacherService.existsAnonymousById(teacherId))
@@ -120,13 +131,15 @@ class LessonService {
 
         const newLesson = await Lesson.create({name, description});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
-        await taskService.createTaskListTasks(taskList.taskListId, tasks);
-        await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
-        await homeworkService.addAll(teacherId, {
-                lessonId: newLesson.lessonId, homeworkList
-            }
-        );
 
+        // create and connect to lesson
+        for (const task of tasks) {
+            const taskId = await taskService.create(task);
+
+            await TaskListTask.create({taskListId: taskList.taskListId, taskId});
+        }
+
+        await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
         return newLesson.lessonId;
     }
 
@@ -173,7 +186,7 @@ class LessonService {
     }
 
     async getStudentLesson(lessonId, studentId){
-        if(!await studentLessonService.studentLessonExists(lessonId, studentId)){
+        if(!await this.studentLessonExists(lessonId, studentId)){
             throw new NotFoundError(`No lesson ${lessonId} of such student ${studentId} found`);
         }
         return await Lesson.findOne({
@@ -184,7 +197,7 @@ class LessonService {
     }
 
     async startLesson(pubsub, lessonId, teacherId) {
-        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId))
+        if (!await this.teacherLessonExists(lessonId, teacherId))
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
 
         if (await this.existsActiveByLessonId(lessonId)) {
@@ -220,7 +233,7 @@ class LessonService {
     }
 
     async finishLesson(pubsub, lessonId, teacherId) {
-        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
+        if (!await this.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
         }
 
@@ -249,7 +262,7 @@ class LessonService {
            throw new NotFoundError(`No lesson ${lessonId} found`);
        }
 
-       if (await studentLessonService.studentLessonExists(lessonId, studentId)){
+       if (await this.studentLessonExists(lessonId, studentId)){
             throw new ValidationError(`Student ${studentId} is already on lesson ${lessonId}`);
        }
 
@@ -268,7 +281,7 @@ class LessonService {
     }
 
     async deleteLesson(lessonId, teacherId) {
-        if(!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)){
+        if(!await this.teacherLessonExists(lessonId, teacherId)){
            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
         }
 
@@ -297,7 +310,7 @@ class LessonService {
     }
 
     async setStudentCurrentPosition(pubsub, lessonId, taskId, student) {
-        if (!await studentLessonService.studentLessonExists(lessonId, student.studentId)) {
+        if (!await this.studentLessonExists(lessonId, student.studentId)) {
             throw new NotFoundError(`No lesson ${lessonId} of student ${student.studentId} found`);
         }
         const teacher = await teacherService.findOneByLessonId(lessonId)
@@ -332,7 +345,7 @@ class LessonService {
 
 
     async subscribeOnStudentAnswersChanged(pubsub, lessonId, teacherId) {
-        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
+        if (!await this.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
         }
 
@@ -342,7 +355,7 @@ class LessonService {
     }
 
     async subscribeOnCorrectAnswersShown(pubsub, lessonId, studentId) {
-        if (!await studentLessonService.studentLessonExists(lessonId, studentId) || !await this.existsActiveByLessonId(lessonId)) {
+        if (!await this.studentLessonExists(lessonId, studentId) || !await this.existsActiveByLessonId(lessonId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such student ${studentId}`);
         }
 
@@ -379,7 +392,7 @@ class LessonService {
             throw new NotFoundError(`No lesson ${lessonId} found`);
         }
 
-        if (!await studentLessonService.studentLessonExists(lessonId, studentId)){
+        if (!await this.studentLessonExists(lessonId, studentId)){
             throw new ValidationError(`Student ${studentId} is not on lesson ${lessonId}`);
         }
 
@@ -401,7 +414,6 @@ class LessonService {
     }
 
     async getLessonsByCourse(courseId){
-        // todo: check if course belongs to teacher
         return await Lesson.findAll({
             include:{
                 association: 'lessonCourses',
@@ -413,6 +425,7 @@ class LessonService {
             }
         })
     }
+
 }
 
 module.exports = new LessonService();
