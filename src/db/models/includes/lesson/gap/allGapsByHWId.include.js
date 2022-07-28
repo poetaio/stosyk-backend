@@ -11,7 +11,12 @@ module.exports = (homeworkId, types) => ({
             association: 'taskList',
             attributes: [],
             required: true,
-            where: {homeworkId}
+            include: {
+                association: 'homework',
+                attributes: [],
+                required: true,
+                where: {homeworkId}
+            }
         }
     }
 });

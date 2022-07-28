@@ -11,6 +11,7 @@ const homeworkService = require("./homeworkService");
 
 class AnswerService {
     async setMultipleChoiceAnswer(studentId, taskId, { sentenceId, gapId, optionId }) {
+        // todo: fix: when setting non-existing gapId, new option-student is always created
         if (!await optionService.existsByIdAndTaskId(optionId, taskId)) {
             throw new ValidationError(`No option ${optionId} exists of task ${taskId}`);
         }
@@ -138,11 +139,14 @@ class AnswerService {
     }
 
     async setTaskAnswer(studentId, answer) {
-        const { taskId, lessonId } = answer;
-        const task = await taskService.getOneByIdAndLessonId(taskId, lessonId);
-        if (!task) {
-            throw new NotFoundError(`No task ${taskId} of lesson ${lessonId} found`)
-        }
+        const { taskId } = answer;
+        const task = await taskService.getOneById(taskId);
+        // todo: fix for homework
+        // const { taskId, lessonId } = answer;
+        // const task = await taskService.getOneByIdAndLessonId(taskId, lessonId);
+        // if (!task) {
+        //     throw new NotFoundError(`No task ${taskId} of lesson ${lessonId} found`)
+        // }
 
         if (task.type === TaskTypeEnum.MULTIPLE_CHOICE && answer.multipleChoice) {
             await this.setMultipleChoiceAnswer(studentId, taskId, answer.multipleChoice);

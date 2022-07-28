@@ -43,7 +43,7 @@ class HomeworkController {
     }
 
     // complete = answered / correct
-    async getStudentCompleteness({ studentId, parent: {homeworkId} }) {
+    async getStudentProgress({ studentId, homeworkId }) {
         return await homeworkService.getStudentCompleteness(homeworkId, studentId);
     }
 
@@ -53,7 +53,7 @@ class HomeworkController {
     }
 
     // total score = correct / total
-    async getTotalScore({ studentId, parent: {homeworkId} }) {
+    async getTotalScore({ studentId, homeworkId }) {
         return await homeworkService.getTotalScore(homeworkId, studentId);
     }
 

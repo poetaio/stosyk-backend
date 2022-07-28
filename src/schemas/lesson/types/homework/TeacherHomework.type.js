@@ -13,7 +13,7 @@ module.exports = new GraphQLObjectType({
                 await taskController.getTasks(parent, args, context)
         },
         students: {
-            type: GraphQLNonNull(StudentWithHWScoreType),
+            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentWithHWScoreType))),
             resolve: async (parent, args, context) =>
                 await homeworkController.getStudents(parent),
         },
