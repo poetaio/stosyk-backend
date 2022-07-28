@@ -2,7 +2,7 @@ const {NotFoundError, ValidationError, TaskTypeEnum} = require("../../utils");
 const {Homework, TaskList, homeworkByTeacherIdInclude, allStudentsByHomeworkIdInclude, Student, Sentence,
     allGapsByHWIdInclude, allSentencesByHWIdInclude, allAnsweredSentencesByHWIdAndStudentIdInclude,
     allAnsweredGapsByHWIdAndStudentIdInclude, allCorrectAnsweredSentencesByHWIdAndStudentIdInclude,
-    allCorrectAnsweredGapsByHWIdAndStudentIdInclude, Task
+    allCorrectAnsweredGapsByHWIdAndStudentIdInclude, Task, Gap
 } = require("../../db/models");
 const taskService = require("./taskService");
 const lessonTeacherService = require("./lessonTeacherService");
@@ -89,13 +89,13 @@ class HomeworkService {
         // all students who have at least one answer on any task of this homework
         return await Student.findAll({
             include: allStudentsByHomeworkIdInclude(homeworkId),
-        });
+        }).then(students => students.map(student => ({...student.dataValues, homeworkId})));
     }
 
     async getMultipleChoicePlainInputTotalCount(homeworkId) {
         const types = [TaskTypeEnum.MULTIPLE_CHOICE, TaskTypeEnum.PLAIN_INPUT];
 
-        return await Sentence.count({
+        return await Gap.count({
             include: allGapsByHWIdInclude(homeworkId, types),
         });
     }
@@ -117,9 +117,9 @@ class HomeworkService {
     }
 
     async getMultipleChoicePlainInputAnsweredCount(homeworkId, studentId) {
-        const types = [TaskTypeEnum.MATCHING, TaskTypeEnum.QA];
+        const types = [TaskTypeEnum.MULTIPLE_CHOICE, TaskTypeEnum.PLAIN_INPUT];
 
-        return await Sentence.count({
+        return await Gap.count({
             include: allAnsweredGapsByHWIdAndStudentIdInclude(homeworkId, studentId, types),
         });
     }
@@ -141,9 +141,9 @@ class HomeworkService {
     }
 
     async getMultipleChoicePlainInputCorrectAnsweredCount(homeworkId, studentId) {
-        const types = [TaskTypeEnum.MATCHING, TaskTypeEnum.QA];
+        const types = [TaskTypeEnum.MULTIPLE_CHOICE, TaskTypeEnum.PLAIN_INPUT];
 
-        return await Sentence.count({
+        return await Gap.count({
             include: allCorrectAnsweredGapsByHWIdAndStudentIdInclude(homeworkId, studentId, types),
         });
     }

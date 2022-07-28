@@ -232,7 +232,7 @@ class OptionService {
     async getOneByGapIdAndStudentId(gapId, studentId) {
         return await Option.findOne({
             include: [{
-                association: "optionStudentOptions",
+                association: "students",
                 attributes: [],
                 where: { studentId },
                 required: true
