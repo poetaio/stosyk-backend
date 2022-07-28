@@ -1,15 +1,15 @@
-module.exports = (homeworkId, types, studentId) => ([
+module.exports = (homeworkId, studentId, types) => ([
     {
-        association: 'sentence',
+        association: 'task',
         attributes: [],
+        where: { type: types },
         required: true,
         include: {
-            association: 'task',
+            association: 'taskList',
             attributes: [],
-            where: { type: types },
             required: true,
             include: {
-                association: 'taskList',
+                association: 'homework',
                 attributes: [],
                 required: true,
                 where: {homeworkId}
