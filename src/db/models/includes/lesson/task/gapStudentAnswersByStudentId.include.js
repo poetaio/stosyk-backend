@@ -1,9 +1,11 @@
 module.exports = (studentId) => ({
     association: "options",
+    required: true,
+    attributes: [],
     include: {
         association: "students",
-        where: { studentId },
+        attributes: [],
         required: true,
+        where: { studentId },
     },
-    required: true,
 });

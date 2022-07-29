@@ -1,4 +1,4 @@
-const {GraphQLNonNull, GraphQLID, GraphQLBoolean, GraphQLList} = require("graphql");
+const {GraphQLNonNull, GraphQLID, GraphQLBoolean, GraphQLList, GraphQLString} = require("graphql");
 const AttachmentType = require("../Attachment.type");
 const {attachmentController} = require("../../../../../controllers");
 const TaskTypeEnumType = require("../TaskTypeEnum.type");
@@ -11,5 +11,6 @@ module.exports = {
         resolve: async (parent, args, context) =>
             await attachmentController.getAttachments(parent, args, context)
     },
+    description: { type: GraphQLNonNull(GraphQLString) },
     type: { type: GraphQLNonNull(TaskTypeEnumType) },
 };

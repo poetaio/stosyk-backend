@@ -1,6 +1,6 @@
 const { accountService, tokenService, teacherService, userService} = require('../../services')
 const bcrypt = require('bcrypt');
-const {UnauthorizedError, ValidationError} = require("../../utils");
+const {UnauthorizedError, ValidationError, UserRoleEnum} = require("../../utils");
 const {REGISTERED} = require("../../utils/enums/UserType.enum");
 const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
 const jwt = require("jsonwebtoken");
@@ -56,6 +56,21 @@ class AccountController {
         return await accountService.changePassword(userId, account.account.login,  newPassword)
     }
 
+    async anonymousAuth({ user: { userId, role } }) {
+        if (!await userService.existsById(userId)) {
+            throw new ValidationError(`No user with id ${userId} exists`);
+        }
+
+        let token;
+        if (UserRoleEnum.TEACHER === role) {
+            token = tokenService.createTeacherToken(userId);
+        } else if (UserRoleEnum.STUDENT === role) {
+            token = tokenService.createStudentToken(userId);
+        }
+
+        return { token };
+    }
+
     async sendConfirmationEmail({login}){
         const account = await accountService.getOneByLogin(login)
         if(!account || account.status !== accountStatusEnum.UNVERIFIED){
@@ -75,4 +90,4 @@ class AccountController {
 }
 
 
-    module.exports = new AccountController();
+module.exports = new AccountController();

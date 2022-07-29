@@ -96,6 +96,8 @@ class TaskService {
             return task.multipleChoice.sentences;
         } else if (type === TaskTypeEnum.PLAIN_INPUT) {
             return task.plainInput.sentences;
+        } else if (type === TaskTypeEnum.MEDIA) {
+            return [];
         }
 
         let sentences;
@@ -136,12 +138,12 @@ class TaskService {
 
     // task creation, accepts all types of task
     async create(task) {
-        const {type, answerShown, attachments} = task;
+        const {type, answerShown, attachments, description} = task;
 
-        // getting sentences from "type object" depending on type
+        // getting sentences from "type object" depending on type to insert in db
         let sentences = await this.getSentencesFromTypeObject(task);
 
-        const createdTask = await Task.create({ type, answerShown });
+        const createdTask = await Task.create({ type, answerShown, description });
         const {taskId} = createdTask;
 
         // creating sentence and connecting to task
@@ -294,6 +296,8 @@ class TaskService {
             return;
         } else if (task.type === TaskTypeEnum.MATCHING) {
             // always true, because each sentence has non null graphql field "correctOption"
+            return;
+        } else if (task.type === TaskTypeEnum.MEDIA) {
             return;
         } else throw new ValidationError(`No such task type: ${task.type}`);
 

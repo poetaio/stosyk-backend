@@ -1,4 +1,6 @@
 const lessonService = require('./lessonService');
+const lessonTeacherService = require('./lessonTeacherService');
+const studentLessonService = require('./studentLessonService');
 const taskService = require('./taskService');
 const sentenceService = require('./sentenceService');
 const gapService = require('./gapService');
@@ -11,6 +13,8 @@ const homeworkService = require('./homeworkService');
 
 module.exports = {
     lessonService,
+    lessonTeacherService,
+    studentLessonService,
     taskService,
     sentenceService,
     gapService,
