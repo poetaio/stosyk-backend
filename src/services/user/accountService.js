@@ -49,7 +49,7 @@ class AccountService {
             subject:"Please confirm your Stosyk account" ,
             html: `<h1>Email Confirmation</h1>
         <p>Here is your confirmation code:</p>
-         <p>${verificationCode}</p>
+        <a href=https://www.stosyk.app/confirm/${verificationCode}> Click here</a>
         </div>`
         }
         await emailTransport.sendMail(mailOptions, function (err,info) {
