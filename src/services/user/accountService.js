@@ -1,6 +1,5 @@
 const {Account, User} = require("../../db/models");
 const {hashPassword} = require("../../utils");
-const {where} = require("sequelize");
 
 class AccountService {
     async getOneByLogin(login) {
@@ -23,13 +22,24 @@ class AccountService {
         })
     }
 
-    async changePassword(userId, login, newPassword){
+    async changePassword(userId, newPassword){
         const passwordHash = await hashPassword(newPassword);
         const upd = await Account.update({
             passwordHash
          },{
             where: {
-             login
+             userId
+            }
+        })
+        return !!upd[0]
+    }
+
+    async changeEmail(userId, newEmail){
+        const upd = await Account.update({
+            login: newEmail
+        }, {
+            where: {
+                userId
             }
         })
         return !!upd[0]
