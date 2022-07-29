@@ -6,6 +6,7 @@ const Gap = require('./gap.table');
 const Option = require('./option.table');
 const Course = require('./course.table');
 const Homework = require('./homework.table');
+const School = require('./school.table');
 
 
 module.exports = (DataTypes) => ({
@@ -17,4 +18,5 @@ module.exports = (DataTypes) => ({
     OptionTable: Option(DataTypes),
     CourseTable: Course((DataTypes)),
     HomeworkTable: Homework(DataTypes),
+    SchoolTable: School(DataTypes),
 });

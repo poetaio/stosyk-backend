@@ -19,6 +19,7 @@ const {
     Option,
     Course,
     Homework,
+    School,
 } = require('./lesson')(sequelize, DataTypes);
 
 const {
@@ -32,6 +33,8 @@ const {
     TaskAttachments,
     LessonCourse,
     TeacherCourse,
+    SchoolTeacher,
+    SchoolStudentSeat,
 } = require('./relations')(sequelize, DataTypes);
 
 //User-Account One-to-One relationship
@@ -450,6 +453,45 @@ TaskList.belongsTo(Homework, {
     as: 'homework',
 });
 
+School.hasMany(Lesson, {
+    foreignKey: 'schoolId',
+    as: 'lessons',
+});
+Lesson.belongsTo(School, {
+    foreignKey: 'schoolId',
+    as: 'school',
+});
+
+School.hasMany(Course, {
+    foreignKey: 'schoolId',
+    as: 'courses',
+});
+Course.belongsTo(School, {
+    foreignKey: 'schoolId',
+    as: 'school',
+});
+
+School.belongsToMany(Teacher, {
+    through: SchoolTeacher,
+    foreignKey: 'schoolId',
+    as: 'teachers',
+});
+Teacher.belongsToMany(School, {
+    through: SchoolTeacher,
+    foreignKey: 'teacherId',
+    as: 'schools',
+});
+
+School.belongsToMany(Student, {
+    through: SchoolStudentSeat,
+    foreignKey: 'schoolId',
+    as: 'students',
+});
+Student.belongsToMany(School, {
+    through: SchoolStudentSeat,
+    foreignKey: 'studentId',
+    as: 'schools',
+});
 
 module.exports = {
     sequelize,
@@ -466,6 +508,8 @@ module.exports = {
     Gap,
     Option,
     Course,
+    Homework,
+    School,
 
     LessonStudent,
     LessonTeacher,
@@ -477,7 +521,8 @@ module.exports = {
     TaskAttachments,
     TeacherCourse,
     LessonCourse,
-    Homework,
+    SchoolTeacher,
+    SchoolStudentSeat,
 
     ...queries,
     ...includes
