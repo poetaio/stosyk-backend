@@ -1,8 +1,8 @@
-const SchoolTable = require("../../schema/lesson/school.table");
+const SchoolTable = require("../../schema/school/school.table");
 const StudentTable = require("../../schema/user/student.table");
 const {SchoolTeacherAccessEnum} = require("../../../utils");
 
-module.exports = (sequelize, DataTypes) => sequelize.define('lessonTeacher', {
+module.exports = (sequelize, DataTypes) => sequelize.define('schoolStudentSeat', {
     schoolStudentSeatId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,

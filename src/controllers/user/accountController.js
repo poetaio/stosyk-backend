@@ -2,6 +2,7 @@ const { accountService, tokenService, teacherService, userService, studentServic
 const bcrypt = require('bcrypt');
 const {UnauthorizedError, ValidationError, UserRoleEnum} = require("../../utils");
 const {REGISTERED} = require("../../utils/enums/UserType.enum");
+const {schoolService} = require("../../services/school");
 const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
 const jwt = require("jsonwebtoken");
 
@@ -11,30 +12,31 @@ class AccountController {
 
         if (await accountService.existsByLogin(email))
             throw new ValidationError(`User with login ${email} already exists`);
+
         if (userId) {
             const user = await userService.findOneByUserId(userId);
             if (user.type === REGISTERED)
                 throw new ValidationError(`User is already registered`);
-            else if (role === UserRoleEnum.STUDENT){
+            else if (role === UserRoleEnum.STUDENT) {
                 await studentService.updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source);
-            }else{
+            } else {
                 await teacherService.updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source);
             }
-        }else {
-            if(role === UserRoleEnum.STUDENT) {
+        } else {
+            if (role === UserRoleEnum.STUDENT) {
                 const userToProceed = await studentService.create(email, password, name, avatar_source);
                 userId = userToProceed.user.userId;
-            } else{
-                const userToProceed = await teacherService.create(email, password, name, avatar_source);
+            } else {
+                const userToProceed = await teacherService.create(email, password);
+                await schoolService.create(userToProceed.teacherId);
                 userId = userToProceed.user.userId;
             }
         }
 
-        if(role === UserRoleEnum.STUDENT) {
+        if (role === UserRoleEnum.STUDENT) {
             const token = await tokenService.createStudentToken(userId);
             return {token};
-        }
-        else{
+        } else {
             const token = await tokenService.createTeacherToken(userId);
             return {token};
         }

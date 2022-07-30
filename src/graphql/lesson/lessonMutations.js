@@ -204,6 +204,26 @@ const showHomeworkAnswers = {
     resolve: async (parent, args, context) => await homeworkController.showAnswers(args, context)
 }
 
+// num of seats
+const addSchoolStudentSeats = {
+
+};
+
+// seat id + student id
+const inviteSchoolStudent = {
+
+};
+
+// seat id + student id
+const cancelInviteSchoolStudent = {
+
+};
+
+// seat id + student id
+const removeSchoolStudent = {
+
+}
+
 
 module.exports = {
     // teacher

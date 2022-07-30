@@ -1,4 +1,4 @@
-const SchoolTable = require("../lesson/school.table");
+const SchoolTable = require("../school/school.table");
 const TeacherTable = require("../user/teacher.table");
 const {SchoolTeacherAccessEnum} = require("../../../utils");
 
@@ -26,5 +26,11 @@ module.exports = (DataTypes) => ["schoolTeachers", {
         type: DataTypes.ENUM(...Object.values(SchoolTeacherAccessEnum)),
         allowNull: false,
         defaultValue: SchoolTeacherAccessEnum.RUN_LESSONS,
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+    },
+    updatedAt: {
+        type: DataTypes.DATE,
     },
 }];

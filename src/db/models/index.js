@@ -19,8 +19,11 @@ const {
     Option,
     Course,
     Homework,
-    School,
 } = require('./lesson')(sequelize, DataTypes);
+
+const {
+    School
+} = require('./school')(sequelize, DataTypes);
 
 const {
     LessonStudent,

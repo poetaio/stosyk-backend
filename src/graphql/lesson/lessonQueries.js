@@ -55,6 +55,14 @@ const studentHomework = {
     resolve: async (parent, args, context) => await homeworkController.getAllForStudent(args, context),
 }
 
+const schoolStudents = {
+
+};
+
+// resolve for students
+const schoolSeats = {
+
+};
 
 module.exports = {
     //TEACHER

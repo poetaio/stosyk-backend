@@ -7,9 +7,16 @@ const {
     lessonTasksInclude,
     Task,
     allTasksByLessonIdInclude,
+    allLessonsBySchoolIdInclude,
+    allSchoolLessonsByTeacherIdInclude,
+    allTasksByLessonIdInclude,
     Gap,
-    Sentence, allGapsByLessonIdInclude, allSentencesByLessonIdInclude, allAnsweredGapsByLessonIdAndStudentIdInclude,
-    allAnsweredSentencesByLessonIdAndStudentIdInclude, allCorrectAnsweredGapsByLessonIdAndStudentIdInclude,
+    Sentence,
+    allGapsByLessonIdInclude,
+    allSentencesByLessonIdInclude,
+    allAnsweredGapsByLessonIdAndStudentIdInclude,
+    allAnsweredSentencesByLessonIdAndStudentIdInclude,
+    allCorrectAnsweredGapsByLessonIdAndStudentIdInclude,
     allCorrectAnsweredSentencesByLessonIdAndStudentIdInclude,
 } = require('../../db/models');
 const {
@@ -30,6 +37,7 @@ const optionService = require("./optionService");
 const homeworkService = require("./homeworkService");
 const lessonTeacherService = require('./lessonTeacherService');
 const studentLessonService = require("./studentLessonService");
+const {schoolService} = require("../school");
 const teacherLessonService = require("./teacherLessonService");
 
 class LessonService {
@@ -110,6 +118,21 @@ class LessonService {
         return !!lessons.length;
     }
 
+    async deleteBySchoolId(schoolId) {
+        const lessons = await Lesson.findAll({
+            include: [
+                allLessonsBySchoolIdInclude(schoolId),
+                lessonInclude,
+            ]
+        })
+
+        for (let lesson of lessons) {
+            await this.deleteById(lesson.lessonId);
+        }
+
+        return !!lessons.length;
+    }
+
     async checkTasks(tasks) {
         for (let task of tasks) {
             await taskService.checkForCorrectOptionPresence(task);
@@ -117,17 +140,18 @@ class LessonService {
     }
 
     async create({name, description, tasks, homework: homeworkList}, teacherId) {
-        // check if right option exists for every gap
+        // check if correct option exists for every gap
         await this.checkTasks(tasks);
+
+        const school = await schoolService.getOneByTeacherId(teacherId);
 
         // check if anonymous, then delete all existing lessons
         if (await teacherService.existsAnonymousById(teacherId))
-            await this.deleteByTeacherId(teacherId);
+            await this.deleteBySchoolId(school.schoolId);
 
-        const newLesson = await Lesson.create({name, description});
+        const newLesson = await Lesson.create({name, description, schoolId: school.schoolId});
         const taskList = await TaskList.create({lessonId: newLesson.lessonId});
         await taskService.createTaskListTasks(taskList.taskListId, tasks);
-        await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
         await homeworkService.addAll(teacherId, {
                 lessonId: newLesson.lessonId, homeworkList
             }
@@ -158,11 +182,7 @@ class LessonService {
 
         const options = {
             where,
-            include: {
-                association: 'lessonLessonTeacher',
-                where: {teacherId},
-                required: true
-            }
+            include: allSchoolLessonsByTeacherIdInclude(teacherId),
         };
 
         page = page && 1;
@@ -303,7 +323,6 @@ class LessonService {
                     taskId: (el.student.studentId === student.studentId) ? taskId : el.taskId
                 }))
                 store(lessonId, newStudentsCurrentTask)
-
             } else {
                 store.add(lessonId, [{taskId, student}])
             }

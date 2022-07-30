@@ -1,6 +1,7 @@
 module.exports = {
     async up(queryInterface, Sequelize) {
-        const {SchoolTable, LessonTable, CourseTable} = require('../schema/lesson')(Sequelize);
+        const {LessonTable, CourseTable} = require('../schema/lesson')(Sequelize);
+        const {SchoolTable} = require('../schema/school')(Sequelize);
 
         return queryInterface.sequelize.transaction((transaction) =>
             queryInterface.createTable(...SchoolTable, { transaction })
@@ -36,7 +37,8 @@ module.exports = {
     },
 
     async down(queryInterface, Sequelize) {
-        const {SchoolTable, LessonTable, CourseTable} = require("../schema/lesson")(Sequelize);
+        const {LessonTable, CourseTable} = require("../schema/lesson")(Sequelize);
+        const {SchoolTable} = require('../schema/school')(Sequelize);
 
         return queryInterface.sequelize.transaction((transaction) =>
             queryInterface.removeColumn(CourseTable[0], 'schoolId', { transaction })
