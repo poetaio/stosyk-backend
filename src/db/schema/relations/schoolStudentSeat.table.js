@@ -1,9 +1,9 @@
 const SchoolTable = require("../school/school.table");
-const TeacherTable = require("../user/teacher.table");
-const {SchoolTeacherAccessEnum} = require("../../../utils");
+const StudentTable = require("../user/student.table");
+const {SchoolStudentSeatStatusEnum} = require("../../../utils");
 
 module.exports = (DataTypes) => ["schoolStudentSeats", {
-    schoolTeacherId: {
+    schoolStudentSeatId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
@@ -15,17 +15,23 @@ module.exports = (DataTypes) => ["schoolStudentSeats", {
             key: 'schoolId',
         },
     },
-    teacherId: {
+    studentId: {
         type: DataTypes.UUID,
         references: {
-            model: TeacherTable(DataTypes)[0],
-            key: 'teacherId',
+            model: StudentTable(DataTypes)[0],
+            key: 'studentId',
         },
     },
-    accessRight: {
-        type: DataTypes.ENUM(...Object.values(SchoolTeacherAccessEnum)),
+    status: {
+        type: DataTypes.ENUM(...Object.values(SchoolStudentSeatStatusEnum)),
         allowNull: false,
-        defaultValue: SchoolTeacherAccessEnum.RUN_LESSONS,
+        defaultValue: SchoolStudentSeatStatusEnum.FREE,
+    },
+    inviteEmail: {
+        type: DataTypes.STRING,
+    },
+    joinedAt: {
+        type: DataTypes.DATE,
     },
     createdAt: {
         type: DataTypes.DATE,

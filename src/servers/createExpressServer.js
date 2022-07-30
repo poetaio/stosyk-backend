@@ -6,8 +6,8 @@ const storageController = require('../controllers/storageController')
 
 const PORT = process.env.PORT || 5000;
 
-const schema = require('../graphql')
-const { errorHandlingMiddleware, parseRestRequest} = require('../middleware');
+require('../graphql')
+require('../middleware');
 
 // шобы не сохранять локально файлы, все в памяти обрабатывается
 const storage = multer.memoryStorage();

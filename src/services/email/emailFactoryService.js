@@ -9,6 +9,23 @@ class EmailFactoryService {
         }
         return mailOptions
     }
+
+    createInvitationEmail(schoolName, studentEmail, invitationToken) {
+        return this.createEmail(
+            studentEmail,
+            emailConstants.emailSubjects.createInviteStudentSubject(schoolName),
+            emailConstants.emailHTMLs.createInviteStudentHTML(schoolName, invitationToken)
+        );
+    }
+
+    createEmail(to, subject, html) {
+        return {
+            from: process.env.EMAIL_USER,
+            to,
+            subject,
+            html,
+        }
+    }
 }
 
 module.exports = new EmailFactoryService();

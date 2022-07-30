@@ -485,6 +485,24 @@ Teacher.belongsToMany(School, {
     as: 'schools',
 });
 
+Teacher.hasMany(SchoolTeacher, {
+    foreignKey: 'teacherId',
+    as: 'schoolTeachers',
+});
+SchoolTeacher.belongsTo(Teacher, {
+    foreignKey: 'teacherId',
+    as: 'teacher',
+});
+
+School.hasMany(SchoolTeacher, {
+    foreignKey: 'schoolId',
+    as: 'schoolTeachers',
+});
+SchoolTeacher.belongsTo(School, {
+    foreignKey: 'schoolId',
+    as: 'school',
+});
+
 School.belongsToMany(Student, {
     through: SchoolStudentSeat,
     foreignKey: 'schoolId',
@@ -494,6 +512,24 @@ Student.belongsToMany(School, {
     through: SchoolStudentSeat,
     foreignKey: 'studentId',
     as: 'schools',
+});
+
+Student.hasMany(SchoolStudentSeat, {
+    foreignKey: 'studentId',
+    as: 'seats',
+});
+SchoolStudentSeat.belongsTo(Student, {
+    foreignKey: 'studentId',
+    as: 'student',
+});
+
+School.hasMany(SchoolStudentSeat, {
+    foreignKey: 'schoolId',
+    as: 'seats',
+});
+SchoolStudentSeat.belongsTo(School, {
+    foreignKey: 'schoolId',
+    as: 'school',
 });
 
 module.exports = {

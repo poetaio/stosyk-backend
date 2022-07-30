@@ -1,6 +1,6 @@
 const SchoolTable = require("../../schema/school/school.table");
 const StudentTable = require("../../schema/user/student.table");
-const {SchoolTeacherAccessEnum} = require("../../../utils");
+const {SchoolStudentSeatStatusEnum} = require("../../../utils");
 
 module.exports = (sequelize, DataTypes) => sequelize.define('schoolStudentSeat', {
     schoolStudentSeatId: {
@@ -22,9 +22,15 @@ module.exports = (sequelize, DataTypes) => sequelize.define('schoolStudentSeat',
             key: 'studentId',
         }
     },
-    accessRight: {
-        type: DataTypes.ENUM(...Object.values(SchoolTeacherAccessEnum)),
+    status: {
+        type: DataTypes.ENUM(...Object.values(SchoolStudentSeatStatusEnum)),
         allowNull: false,
-        defaultValue: SchoolTeacherAccessEnum.RUN_LESSONS,
+        defaultValue: SchoolStudentSeatStatusEnum.FREE
+    },
+    joinedAt: {
+        type: DataTypes.DATE,
+    },
+    inviteEmail: {
+        type: DataTypes.STRING,
     },
 });

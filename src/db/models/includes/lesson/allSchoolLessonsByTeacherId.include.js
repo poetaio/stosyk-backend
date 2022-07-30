@@ -1,4 +1,4 @@
-// all lessons which belong to any school of this teacher
+// all lessons which belong to any student_seat of this teacher
 module.exports = (teacherId) => ({
     association: 'school',
     attributes: [],

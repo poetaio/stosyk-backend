@@ -24,6 +24,14 @@ class TokenService {
     async createStudentToken(userId) {
         return await this.createToken(userId, UserRoleEnum.STUDENT);
     }
+
+    async createSchoolStudentInviteToken(email) {
+        return jwt.sign(
+            { email },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+    }
 }
 
 

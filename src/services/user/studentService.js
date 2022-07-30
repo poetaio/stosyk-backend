@@ -1,5 +1,15 @@
-const { Student, User, Account, Teacher} = require('../../db/models');
-const {UserRoleEnum, hashPassword, UserTypeEnum} = require("../../utils");
+const {
+    Student,
+    User,
+    Account,
+    Teacher,
+    studentEmailInclude,
+} = require('../../db/models');
+const {
+    UserRoleEnum,
+    hashPassword,
+    UserTypeEnum
+} = require("../../utils");
 
 
 class StudentService {
@@ -12,6 +22,26 @@ class StudentService {
 
     async findOneByUserId(userId) {
         return await Student.findOne({ where: { userId } });
+    }
+
+    async findOneByUserIdWithLogin(userId) {
+        return await Student.findOne({
+            where: {userId},
+            include: studentEmailInclude,
+            attributes: {
+                include: [['user.account.login', 'login']]
+            }
+        })
+    }
+
+    async studentsLesson(lessonId){
+        return await Student.findAll({
+            include: {
+                association: 'studentLessons',
+                where: {lessonId},
+                required: true
+            }
+        })
     }
 
     async updateProfile(studentId, name) {

@@ -1,6 +1,8 @@
+const {SchoolTeacherAccessEnum} = require("../../../../utils");
+
 module.exports = (teacherId) => ({
-    association: 'teachers',
+    association: 'schoolTeachers',
     required: true,
     attributes: [],
-    where: { teacherId },
+    where: { teacherId, accessRight: SchoolTeacherAccessEnum.ADMIN },
 });

@@ -14,8 +14,8 @@ module.exports = {
             { transaction: t }
         )
             // fill with default values
-            .then(() => queryInterface.sequelize.query(`UPDATE accounts SET status='UNVERIFIED'`, { transaction: t }))
-            .then(() => queryInterface.sequelize.query(`ALTER TABLE accounts ALTER COLUMN status SET DEFAULT 'UNVERIFIED'`, { transaction: t }))
+            // .then(() => queryInterface.sequelize.query(`UPDATE accounts SET status='UNVERIFIED'`, { transaction: t }))
+            // .then(() => queryInterface.sequelize.query(`ALTER TABLE accounts ALTER COLUMN status SET DEFAULT 'UNVERIFIED'`, { transaction: t }))
     );
   },
 
