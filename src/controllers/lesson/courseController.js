@@ -51,6 +51,16 @@ class CourseController {
 
         return await courseService.deleteCourse(courseId, teacher.teacherId)
     }
+
+    async renameCourse({courseId, newName}, {user:{userId}}){
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if(!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await courseService.renameCourse(courseId, teacher.teacherId, newName)
+
+    }
 }
 
 module.exports = new CourseController();

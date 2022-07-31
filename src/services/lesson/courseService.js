@@ -57,6 +57,21 @@ class CourseService {
             },
         })
     }
+
+    async renameCourse(courseId, teacherId, newName){
+        if (!await this.teacherCourseExists(courseId, teacherId)) {
+            throw new NotFoundError(`No course ${courseId} of such teacher ${teacherId}`);
+        }
+        const upd = await Course.update({
+            name: newName
+        }, {
+            where: {
+                courseId
+            }
+        })
+
+        return !!upd[0]
+    }
 }
 
 module.exports = new CourseService();
