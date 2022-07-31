@@ -96,6 +96,23 @@ class AccountController {
         }
         return await accountService.confirmEmail(user.login)
     }
+
+    async sendResetPassEmail({login}){
+        const account = await accountService.getOneByLogin(login)
+        if(!account){
+            throw new UnauthorizedError('Invalid login');
+        }
+        return await accountService.sendResetPassEmail(login)
+    }
+
+    async resetPassword({resetPassCode, password}){
+        let user = jwt.verify(resetPassCode, process.env.JWT_SECRET);
+        user = await accountService.getOneByLogin(user.email)
+        if(!user) {
+            throw new UnauthorizedError('Invalid code');
+        }
+        return await accountService.changePassword(user.userId, password)
+    }
 }
 
 

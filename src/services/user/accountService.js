@@ -74,6 +74,21 @@ class AccountService {
         })
         return !!upd[0]
     }
+
+    async sendResetPassEmail(email){
+        const resetPassCode = jwt.sign(
+            { email },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        await emailTransport.sendMail(await emailFactoryService.createResetPassEmail(email, resetPassCode), function (err,info) {
+            if(err)
+            {
+                throw err
+            }
+        });
+        return true
+    }
 }
 
 module.exports = new AccountService();
