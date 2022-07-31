@@ -63,6 +63,17 @@ const confirmEmail = {
     resolve: async (parent, args, context) => await accountController.confirmEmail(args, context)
 }
 
+const changeEmail = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'changeEmail',
+    description: 'Change Email',
+    args:{
+        newEmail: {type: GraphQLNonNull(GraphQLString)},
+        password: {type: GraphQLNonNull(GraphQLString)}
+    },
+    resolve: async (parent, args, context) => await accountController.changeEmail(args, context)
+}
+
 const studentProfile = {
     type: GraphQLNonNull(GraphQLBoolean),
     name: "StudentProfile",
@@ -86,6 +97,7 @@ module.exports = {
     loginTeacher,
     createAnonymousStudent,
     changePassword: resolveAuthMiddleware(UserRoleEnum.TEACHER)(changePassword),
+    changeEmail: resolveAuthMiddleware(UserRoleEnum.TEACHER)(changeEmail),
     studentProfile: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentProfile),
     anonymousLogin: resolveAuthMiddlewareUnverified(anonymousLogin),
     confirmEmail

@@ -53,7 +53,16 @@ class AccountController {
         if (!account || !bcrypt.compareSync(oldPassword, account.account.passwordHash)) {
             throw new ValidationError('Wrong password');
         }
-        return await accountService.changePassword(userId, account.account.login,  newPassword)
+        return await accountService.changePassword(userId,  newPassword)
+    }
+
+    async changeEmail({newEmail, password}, {user: {userId}}){
+        const account = await accountService.getOneById(userId)
+        if (!account || !bcrypt.compareSync(password, account.account.passwordHash)) {
+            throw new ValidationError('Wrong password');
+        }
+        return await accountService.changeEmail(userId,  newEmail)
+
     }
 
     async anonymousAuth({ user: { userId, role } }) {

@@ -25,13 +25,24 @@ class AccountService {
         })
     }
 
-    async changePassword(userId, login, newPassword){
+    async changePassword(userId, newPassword){
         const passwordHash = await hashPassword(newPassword);
         const upd = await Account.update({
             passwordHash
          },{
             where: {
-             login
+             userId
+            }
+        })
+        return !!upd[0]
+    }
+
+    async changeEmail(userId, newEmail){
+        const upd = await Account.update({
+            login: newEmail
+        }, {
+            where: {
+                userId
             }
         })
         return !!upd[0]
