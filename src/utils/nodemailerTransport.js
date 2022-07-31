@@ -2,10 +2,10 @@ const nodemailer = require("nodemailer");
 
 
 const emailTransport = nodemailer.createTransport({
-    host: 'smtp.titan.email',
-    port: 465,
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
     auth: {
-        user: 'info@stosyk.app', // your domain email address
+        user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     }
 });

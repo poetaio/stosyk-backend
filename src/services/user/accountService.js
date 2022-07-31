@@ -1,6 +1,6 @@
-const {hashPassword, emailTransport, UnauthorizedError} = require("../../utils");
+const {hashPassword, emailTransport} = require("../../utils");
 const {Account, User} = require("../../db/models");
-const {where} = require("sequelize");
+const emailFactoryService = require('../email/emailFactoryService')
 const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
 const jwt = require("jsonwebtoken");
 
@@ -43,19 +43,10 @@ class AccountService {
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
-        const mailOptions = {
-            from: "info@stosyk.app",
-            to: email,
-            subject:"Please confirm your Stosyk account" ,
-            html: `<h1>Email Confirmation</h1>
-        <p>Here is your confirmation code:</p>
-        <a href=https://www.stosyk.app/confirm/${verificationCode}> Click here</a>
-        </div>`
-        }
-        await emailTransport.sendMail(mailOptions, function (err,info) {
+        await emailTransport.sendMail(await emailFactoryService.createConfirmationEmail(email, verificationCode), function (err,info) {
             if(err)
             {
-                return false
+                throw err
             }
         });
         return true
