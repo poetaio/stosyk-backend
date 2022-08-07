@@ -142,6 +142,7 @@ class AnswerService {
         const { taskId } = answer;
         const task = await taskService.getOneById(taskId);
         // todo: fix for homework
+        //       upd: wtf it means?
         // const { taskId, lessonId } = answer;
         // const task = await taskService.getOneByIdAndLessonId(taskId, lessonId);
         // if (!task) {

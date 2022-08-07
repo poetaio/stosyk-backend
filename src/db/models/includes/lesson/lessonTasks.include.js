@@ -1,10 +1,7 @@
 module.exports = {
     association: 'lessonTaskList',
+    attributes: [],
     include: {
-        separate: true,
-        association: 'taskListTaskListTasks',
-        include: {
-            association: 'taskListTaskTask',
-        }
+        association: 'tasks',
     }
 };
