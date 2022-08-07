@@ -5,6 +5,7 @@ const StudentCurrentTaskType = require('./StudentCurrrentTask.type');
 const TaskTypeEnumType = require('./TaskTypeEnum.type');
 
 const teacherTask = require('./teacherTask');
+const teacherHWTask = require('./teacherHWTask');
 const studentTask = require('./studentTask');
 const studentAnswers = require('./studentsAnswers');
 const createTask = require('./createTask');
@@ -14,6 +15,7 @@ const answerSheet = require('./answerSheetTask');
 
 module.exports = {
     ...teacherTask,
+    ...teacherHWTask,
     ...studentTask,
     ...createTask,
     ...studentAnswers,

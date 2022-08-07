@@ -1,6 +1,6 @@
 const {GraphQLInputObjectType, GraphQLNonNull, GraphQLInt, GraphQLString, GraphQLList, GraphQLID, GraphQLObjectType} = require("graphql");
 const { GapInputType } = require('../gap');
-const { MatchingTeacherOptionType } = require("../option");
+const { MatchingTeacherOptionType, StudentAnswerType} = require("../option");
 const {optionController} = require("../../../../controllers");
 
 
@@ -14,6 +14,10 @@ module.exports = new GraphQLObjectType({
         correctOption: {
             type: GraphQLNonNull(MatchingTeacherOptionType),
             resolve: async (parent, args, context) => await optionController.getMatchingCorrectOption(parent)
+        },
+        studentsAnswers: {
+            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentAnswerType))),
+            resolve: async (parent, args, context) => await optionController.getMatchingStudentsAnswersBySentenceId(parent)
         },
     }
 });
