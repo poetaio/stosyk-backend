@@ -287,7 +287,7 @@ class LessonService {
 
         const tasks = [];
 
-        for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
+        for (let task of lesson.lessonTaskList.tasks || []) {
             const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
 
             tasks.push(newTask);
