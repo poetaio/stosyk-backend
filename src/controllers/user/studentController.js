@@ -18,6 +18,16 @@ class StudentController {
 
         return await studentService.updateProfile(student.studentId, name);
     }
+
+    async getInfo({user: {userId}}) {
+        const student = await studentService.findOneByUserId(userId);
+
+        if (!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return await studentService.getInfo(student.studentId);
+    }
 }
 
 
