@@ -68,11 +68,8 @@ class HomeworkService {
             where.homeworkId = homeworkId;
         }
         if (lessonId) {
-            // todo: consider managing access with school students list or any sim
-            // when lesson finishes all students are kicked, thus student cannot access hw
-            // if (!await studentLessonService.studentLessonExists(lessonId, studentId)) {
-            //     throw new NotFoundError(`No lesson ${lessonId} found of student ${studentId}`);
-            // }
+            // todo: add access check when homework belongs to school,
+            //       so that only school students have access
             where.lessonId = lessonId;
         }
 
