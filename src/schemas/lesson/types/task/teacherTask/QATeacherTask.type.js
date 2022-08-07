@@ -1,9 +1,10 @@
 const {GraphQLList, GraphQLNonNull, GraphQLObjectType} = require("graphql");
-const {sentenceController} = require("../../../../../controllers");
+const {sentenceController, optionController} = require("../../../../../controllers");
 const {TeacherSentenceType} = require("../../sentence");
 const TeacherTaskType = require("./TeacherTask.interface.type");
 const teacherTaskInterfaceFields = require("./teacherTaskInterfaceFields");
 const QuestionType = require("../../TeacherQuestion.type");
+const {StudentAnswerType} = require("../../option");
 
 module.exports = new GraphQLObjectType({
     name: "QATeacherTaskType",
