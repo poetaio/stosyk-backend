@@ -8,6 +8,7 @@ const sentenceGapsNewInclude = require('./sentenceGapsNew.include.js');
 const allSentencesByHWIdInclude = require('./allSentencesByHWId.include');
 const allAnsweredSentencesByHWIdAndStudentIdInclude = require('./allAnsweredSentencesByHWIdAndStudentId.include');
 const allCorrectAnsweredSentencesByHWIdAndStudentIdInclude = require('./allCorrectAnsweredSentencesByHWIdAndStudentId.include');
+const allSentencesWithAnswersShownInclude = require('./allSentencesWithAnswersShown.include');
 
 module.exports = {
     multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
@@ -20,4 +21,5 @@ module.exports = {
     allSentencesByHWIdInclude,
     allAnsweredSentencesByHWIdAndStudentIdInclude,
     allCorrectAnsweredSentencesByHWIdAndStudentIdInclude,
+    allSentencesWithAnswersShownInclude,
 };

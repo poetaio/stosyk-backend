@@ -1,4 +1,4 @@
-const {optionService, studentService} = require("../../services");
+const {optionService, studentService, sentenceService, gapService} = require("../../services");
 const {ValidationError} = require("../../utils");
 
 class OptionController {
@@ -90,6 +90,31 @@ class OptionController {
         }
 
         return await optionService.getQuestionChosenOptionBySentenceId(questionId, student.studentId);
+    }
+
+    async getMatchingCorrectOptionForStudent({ sentenceId }) {
+        if (!await sentenceService.answersShown(sentenceId)) {
+            return null;
+        }
+
+        return await optionService.getMatchingCorrectOption(sentenceId);
+    }
+
+    async getQuestionCorrectOptionForStudent({questionId}) {
+        if (!await sentenceService.answersShown(questionId)) {
+            return null;
+        }
+
+        return await optionService.getCorrectOptionBySentenceId(questionId);
+    }
+
+    async getCorrectOptionByGapId({gapId}) {
+        if (!await gapService.answersShown(gapId)) {
+            return null;
+        }
+
+        const correctOptions = await optionService.getAllCorrectByGapId(gapId);
+        return correctOptions[0] || null;
     }
 }
 

@@ -1,4 +1,6 @@
-const {Gap, GapOption, gapExistsByGapIdAndStudentIdInclude, gapStudentAnswersByStudentIdInclude} = require("../../db/models");
+const {Gap, GapOption, gapExistsByGapIdAndStudentIdInclude, gapStudentAnswersByStudentIdInclude,
+    allGapsWithAnswersShownInclude
+} = require("../../db/models");
 const optionService = require('./optionService');
 
 class GapService {
@@ -113,6 +115,13 @@ class GapService {
 
     async getCorrectOptions(gapId) {
         return await optionService.getAllCorrectByGapId(gapId);
+    }
+
+    async answersShown(gapId) {
+        return !!await Gap.count({
+            include: allGapsWithAnswersShownInclude,
+            where: {gapId},
+        });
     }
 }
 
