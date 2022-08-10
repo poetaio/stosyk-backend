@@ -49,6 +49,16 @@ class PubsubService {
             getStudentCurrentPosition: payload
         });
     }
+
+    async subscribeOnStudentOnLesson(pubsub, studentId, lessonId){
+        return pubsub.asyncIterator([eventNameFactory.studentOnLessonEventName(lessonId, studentId)]);
+    }
+
+    async publishOnStudentOnLesson(pubsub, lessonId, studentId, payload){
+        return await pubsub.publish(eventNameFactory.studentOnLessonEventName(lessonId, studentId),{
+            studentOnLesson: payload
+        });
+    }
 }
 
 module.exports = new PubsubService();

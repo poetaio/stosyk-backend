@@ -97,7 +97,6 @@ class LessonController {
         setTimeout(async ()=> await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, userId,
             await studentLessonService.getLessonStudents(lessonId)),0)
        return await pubsubService.subscribeOnPresentStudentsChanged(pubsub, userId, lessonId);
-
     }
 
     async studentAnswersChanged({ lessonId }, { pubsub, user: { userId } }) {
@@ -159,6 +158,17 @@ class LessonController {
         }
 
         return await answerService.setHomeworkAnswer(pubsub, student.studentId, answer)
+    }
+
+    async studentOnLesson({ lessonId }, { user: {userId}, pubsub }) {
+        const student = await studentService.findOneByUserId(userId);
+
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        lessonService.joinLesson(pubsub, lessonId, student.studentId);
+        return await lessonService.subscribeOnStudentOnLesson(pubsub, lessonId, student.studentId);
     }
 }
 

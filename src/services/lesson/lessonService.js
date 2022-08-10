@@ -395,6 +395,10 @@ class LessonService {
             }
         })
     }
+
+    async subscribeOnStudentOnLesson(pubsub, lessonId, studentId) {
+        return await pubsubService.subscribeOnStudentOnLesson(pubsub, lessonId, studentId);
+    }
 }
 
 module.exports = new LessonService();

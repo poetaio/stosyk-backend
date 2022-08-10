@@ -223,9 +223,7 @@ module.exports = {
     renameCourse: resolveAuthMiddleware(UserRoleEnum.TEACHER)(renameCourse),
 
     // student
-    joinLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(joinLesson),
     setAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setAnswer),
     setStudentCurrentPosition: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setStudentCurrentPosition),
-    studentLeaveLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLeaveLesson),
     setHomeworkAnswer: resolveAuthMiddleware(UserRoleEnum.STUDENT)(setHomeworkAnswer),
 };

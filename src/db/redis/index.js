@@ -6,7 +6,6 @@ let client;
 (async () => {
     client = await new Client();
     client.open(url);
-    console.log(client)
 })();
 
 module.exports = {

@@ -1,9 +1,9 @@
-const {GraphQLList, GraphQLNonNull, GraphQLID} = require("graphql");
+const {GraphQLList, GraphQLNonNull, GraphQLID, GraphQLBoolean} = require("graphql");
 const { TaskStudentsAnswersInterfaceType, TeacherLessonType, LessonCorrectAnswersType, LessonStatusType, StudentCurrentTaskType} = require('./types');
 const { StudentType } = require('../user/types');
 const { lessonController } = require('../../controllers');
 const { subscribeAuthMiddleware } = require("../../middleware");
-const {UserRoleEnum} = require("../../utils");
+const {UserRoleEnum, useUnsubscribeCb} = require("../../utils");
 
 const presentStudentsChanged = {
     type: GraphQLList(GraphQLNonNull(StudentType)),
@@ -56,10 +56,24 @@ const getStudentCurrentPosition = {
     subscribe: async (parent, args, context) => await lessonController.getStudentCurrentPosition(args, context)
 }
 
+const studentOnLesson = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'studentOnLesson',
+    description: 'studentOnLesson',
+    args: {
+        lessonId: { type: GraphQLNonNull(GraphQLID) },
+    },
+    subscribe: async (parent, args, context) => useUnsubscribeCb(
+        await lessonController.studentOnLesson(args, context),
+        () => lessonController.studentLeaveLesson(args, context)
+    )
+}
+
 module.exports = {
     presentStudentsChanged: subscribeAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(presentStudentsChanged),
     studentAnswersChanged: subscribeAuthMiddleware(UserRoleEnum.TEACHER)(studentAnswersChanged),
     lessonStarted,
     correctAnswersShown: subscribeAuthMiddleware(UserRoleEnum.STUDENT)(correctAnswersShown),
     getStudentCurrentPosition: subscribeAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(getStudentCurrentPosition),
+    studentOnLesson: subscribeAuthMiddleware(UserRoleEnum.STUDENT)(studentOnLesson),
 };
