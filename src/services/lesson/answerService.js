@@ -8,6 +8,7 @@ const pubsubService = require("../pubsubService");
 const lessonService = require("./lessonService");
 const studentLessonService = require("./studentLessonService");
 const homeworkService = require("./homeworkService");
+const teacherLessonService = require("./teacherLessonService");
 
 class AnswerService {
     async setMultipleChoiceAnswer(studentId, taskId, { sentenceId, gapId, optionId }) {
@@ -133,7 +134,7 @@ class AnswerService {
     }
 
     async publishOnStudentSetAnswer(pubsub, lessonId) {
-        const teacher = await teacherService.findOneByLessonId(lessonId);
+        const teacher = await teacherLessonService.getLessonTeacher(lessonId);
         await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
             await lessonService.getStudentsAnswers(lessonId));
     }

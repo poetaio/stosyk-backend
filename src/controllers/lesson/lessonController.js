@@ -2,6 +2,7 @@ const { lessonService, studentService, answerService} = require('../../services'
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {pubsubService} = require('../../services');
+const studentLessonService = require("../../services/lesson/studentLessonService");
 
 class LessonController {
     async createLesson({ lesson }, { user: { userId } }) {
@@ -94,7 +95,7 @@ class LessonController {
 
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {
         setTimeout(async ()=> await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, userId,
-            await studentService.studentsLesson(lessonId)),0)
+            await studentLessonService.getLessonStudents(lessonId)),0)
        return await pubsubService.subscribeOnPresentStudentsChanged(pubsub, userId, lessonId);
 
     }

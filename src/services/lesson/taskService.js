@@ -11,6 +11,7 @@ const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
 const lessonByTeacherAndTaskInclude = require("../../db/models/includes/lesson/lessonByTeacherAndTask.include");
+const studentLessonService = require("./studentLessonService");
 
 class TaskService {
     // todo: existsWithAnswerShown
@@ -79,7 +80,8 @@ class TaskService {
             });
             const lesson = task.taskTaskListTask.taskListTaskTaskList.taskListLesson;
             const lessonAnswers = await lessonAnswersService.getShownAnswers(lesson.lessonId);
-            for (let { studentId } of await studentService.studentsLesson(lesson.lessonId)) {
+            const students = await studentLessonService.getLessonStudents(lesson.lessonId);
+            for (let { studentId } of students) {
                 await pubsubService.publishOnTeacherShowedRightAnswers(pubsub, lesson.lessonId, studentId, lessonAnswers);
             }
         }
