@@ -12,7 +12,9 @@ const {
     allCorrectAnsweredSentencesByHWIdAndStudentIdInclude,
     allCorrectAnsweredGapsByHWIdAndStudentIdInclude,
     Task,
-    Gap, fullHomeworkInclude, TaskListTask,
+    Gap,
+    fullHomeworkInclude,
+    TaskListTask,
 } = require("../../db/models");
 const taskService = require("./taskService");
 const lessonTeacherService = require("./lessonTeacherService");

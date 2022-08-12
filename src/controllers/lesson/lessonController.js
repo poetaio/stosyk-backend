@@ -159,6 +159,15 @@ class LessonController {
         return await answerService.setHomeworkAnswer(pubsub, student.studentId, answer)
     }
 
+    async getTeacherLessonHistory({ user: { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return lessonService.getLessonsRunByTeacher(teacher.teacherId);
+    }
+
     // complete = answered / correct
     async getStudentProgress({ studentId, lessonId }) {
         return await lessonService.getStudentCompleteness(lessonId, studentId);

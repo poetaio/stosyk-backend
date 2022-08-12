@@ -28,4 +28,5 @@ module.exports = {
     homeworkService,
     markupService,
     teacherLessonService,
+    markupService,
 };

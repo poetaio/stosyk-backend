@@ -5,13 +5,6 @@ const {
     lessonTasksInclude,
     Task,
     allTasksByLessonIdInclude,
-    fullLessonInclude, 
-    LessonMarkup, 
-    allLessonsByLessonMarkupInclude, 
-    allLessonsByTeacherIdInclude, 
-    LessonTeacher,
-    allLessonsRunByTeacherInclude, 
-    allLessonMarkupsByTeacherIdInclude,
     allLessonsBySchoolIdInclude,
     allSchoolLessonsByTeacherIdInclude,
     Gap,
@@ -126,7 +119,7 @@ class LessonService {
             await this.deleteById(lesson.lessonId);
         }
 
-        return !!lessons.length;
+        return true;
     }
 
     async checkTasks(tasks) {
@@ -240,7 +233,7 @@ class LessonService {
             lessonId,
         });
 
-        if(upd[0]){
+        if (upd[0]) {
             await pubsubService.publishLessonStarted(pubsub, lessonId, {
                 lessonId: lessonId, status:'ACTIVE'
             });
@@ -282,8 +275,9 @@ class LessonService {
         });
 
         // clean up
-        // todo: test this, may be some problems
-        //       during lesson-sessions -- moving student to Redis merge
+        // todo: test clean up
+        // await studentLessonService.removeAllStudents(lessonId);
+        // await optionService.removeAllStudentsAnswersByLessonId(lessonId);
         store.clear();
 
         return !!upd[0];
@@ -356,6 +350,7 @@ class LessonService {
                 store.add(lessonId, [{taskId, student}])
             }
         }
+
         const students = await studentLessonService.getLessonStudents(lessonId)
         for (let student of students) {
             await pubsubService.publishOnStudentPosition(pubsub, lessonId, student.userId, store.get(lessonId))

@@ -1,9 +1,11 @@
 const {
     LessonTeacher,
     Lesson,
+    allLessonTeacherByLessonIdInclude,
     allLessonsByTeacherIdInclude,
-    allSchoolLessonsByTeacherIdInclude
+    allSchoolLessonsByTeacherIdInclude,
 } = require("../../db/models");
+const {ValidationError} = require("../../utils");
 
 class LessonTeacherService {
     async teacherLessonExists(lessonId, teacherId) {
