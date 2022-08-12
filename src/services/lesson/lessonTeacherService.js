@@ -1,4 +1,9 @@
-const {LessonTeacher, Lesson, allSchoolLessonsByTeacherIdInclude} = require("../../db/models");
+const {
+    LessonTeacher,
+    Lesson,
+    allLessonsByTeacherIdInclude,
+    allSchoolLessonsByTeacherIdInclude
+} = require("../../db/models");
 
 class LessonTeacherService {
     async teacherLessonExists(lessonId, teacherId) {
@@ -8,8 +13,28 @@ class LessonTeacherService {
         }) ||
         !!await LessonTeacher.count({
             where: {
+                teacherId,
                 lessonId,
-                teacherId
+            }
+        })
+    }
+
+    /**
+     * Lesson is either started or is protege - doesn't matter
+     * it's been created by teacher
+     */
+    async lessonBelongsToTeacher(lessonId, teacherId) {
+        return !!await Lesson.count({
+            include: allLessonsByTeacherIdInclude(teacherId),
+            where: {lessonId},
+        });
+    }
+
+    async teacherMarkupLessonExists(lessonMarkupId, teacherId) {
+        return !!await LessonTeacher.count({
+            where: {
+                lessonMarkupId,
+                teacherId,
             }
         });
     }

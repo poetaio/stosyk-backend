@@ -18,7 +18,7 @@ const createLesson = {
 };
 
 const startLesson = {
-    type: GraphQLBoolean,
+    type: GraphQLNonNull(GraphQLBoolean),
     name: 'startLesson',
     description: 'Start Lesson',
     args: {

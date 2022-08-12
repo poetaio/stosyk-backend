@@ -146,7 +146,6 @@ class LessonController {
     }
 
     async getLessonsByCourse({courseId}, args, context){
-        // todo: check if course belongs to teacher
         return await lessonService.getLessonsByCourse(courseId)
     }
 
@@ -173,6 +172,15 @@ class LessonController {
     // total score = correct / total
     async getTotalScore({ studentId, lessonId }) {
         return await lessonService.getTotalScore(lessonId, studentId);
+    }
+
+    async getTeacherLessonHistory({ user: { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return lessonService.getLessonsRunByTeacher(teacher.teacherId);
     }
 
     async studentOnLesson({ lessonId }, { user: {userId}, pubsub }) {

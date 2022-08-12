@@ -28,7 +28,10 @@ module.exports = {
 
         return queryInterface.sequelize.transaction((t) =>
             queryInterface.removeColumn(TaskListTable[0], 'homeworkId', { transaction: t })
-                .then(() => queryInterface.dropTable(HomeworkTable[0], { transaction: t }))
+                .then(() => queryInterface.dropTable(HomeworkTable[0], {
+                    transaction: t,
+                    cascade: true,
+                }))
         );
     }
 };

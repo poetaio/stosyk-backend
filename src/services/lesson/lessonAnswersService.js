@@ -1,17 +1,13 @@
-const {Lesson, lessonShownTasksInclude, lessonShownTasksNewInclude} = require("../../db/models");
-const {TaskTypeEnum} = require("../../utils");
-const sentenceService = require("./sentenceService");
+const {allTasksWithShownAnswersByLessonIdInclude, Task} = require("../../db/models");
 
 class LessonAnswersService {
     // todo: remove method
+    //       upd: remember why...
     // returns only lesson tasks!
     async getShownAnswers(lessonId) {
-        const lesson = await Lesson.findOne({
-            where: { lessonId },
-            include: lessonShownTasksNewInclude
+        return await Task.findAll({
+            include: allTasksWithShownAnswersByLessonIdInclude(lessonId)
         });
-
-        return { tasksAnswers: lesson.lessonTaskList?.task || [] };
     }
 }
 

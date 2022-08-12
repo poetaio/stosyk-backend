@@ -3,7 +3,7 @@ module.exports = {
     include: {
         association: 'taskListTaskTaskList',
         include: {
-            association: 'taskListLesson',
+            association: 'lesson',
             required: true
         },
         required: true

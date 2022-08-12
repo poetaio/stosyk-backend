@@ -55,11 +55,20 @@ const studentHomework = {
     resolve: async (parent, args, context) => await homeworkController.getAllForStudent(args, context),
 }
 
+const teacherLessonHistory = {
+    type: GraphQLNonNull(TeacherCountedLessonsType),
+    name: 'teacherLessonHistory',
+    description: 'Get all lessons that were run by teacher',
+    resolve: async (parent, args, context) => await lessonController.getTeacherLessonHistory(context),
+}
+
+
 module.exports = {
     //TEACHER
     teacherLessons: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherLessons),
     getAllCourses: resolveAuthMiddleware(UserRoleEnum.TEACHER)(getAllCourses),
     teacherHomework: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherHomework),
+    teacherLessonHistory: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherLessonHistory),
 
     //STUDENT
     studentLesson: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentLesson),

@@ -3,35 +3,70 @@ const {
     teacherService,
     studentService,
     homeworkService,
+    markupService,
 } = require("../../services");
 
 class HomeworkController {
-    async addHomeworkToLesson(homework, { user: { userId } }) {
+    async addHomeworkToLesson({lessonId, homework}, { user: { userId } }) {
         const teacher = await teacherService.findOneByUserId(userId);
 
         if (!teacher)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
 
-        return await homeworkService.add(teacher.teacherId, homework);
+        const {teacherId} = teacher;
+
+        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacherId);
+
+        const {lessonMarkupId} = await markupService.getMarkupByLessonId(lessonId);
+
+        // Adding homework both to lesson and its protege
+        await homeworkService.addToLessonMarkup(lessonMarkupId, homework);
+        await homeworkService.addToLesson(lessonId, homework);
+        return true;
     }
 
-    async getAllForTeacher({ where }, { user: { userId } }) {
+    async removeFromLesson({lessonId, homeworkId}, {user: {userId}}) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher) {
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+        }
+
+        const {teacherId} = teacher;
+
+        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacherId);
+        const {lessonMarkupId} = await markupService.getMarkupByLessonId(lessonId);
+
+        await homeworkService.removeFromLesson(teacher.teacherId, lessonId, homeworkId);
+        await homeworkService.removeFromLessonMarkup(teacher.teacherId, lessonMarkupId, homeworkId);
+        return true;
+    }
+
+    async delete({homeworkId}, {user: {userId}}) {
         const teacher = await teacherService.findOneByUserId(userId);
 
         if (!teacher)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
 
-
-        return await homeworkService.getAllByLessonIdOrHomeworkIdForTeacher(teacher.teacherId, where);
+        return await homeworkService.delete(teacher.teacherId, homeworkId);
     }
 
-    async getAllForStudent({ where }, { user: { userId } }) {
+    async getAllForTeacher({ where: {homeworkId, lessonId} }, { user: { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return await homeworkService.getAllByLessonIdOrHomeworkIdForTeacher(teacher.teacherId, homeworkId, lessonId);
+    }
+
+    async getAllForStudent({ where: {homeworkId, lessonId} }, { user: { userId } }) {
         const student = await studentService.findOneByUserId(userId);
 
         if (!student)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
 
-        return await homeworkService.getAllByLessonIdOrHomeworkIdForStudent(student.studentId, where);
+        return await homeworkService.getAllByLessonIdOrHomeworkIdForStudent(student.studentId, homeworkId, lessonId);
     }
 
     async getAllByLessonId({lessonId}) {
@@ -55,24 +90,6 @@ class HomeworkController {
     // total score = correct / total
     async getTotalScore({ studentId, homeworkId }) {
         return await homeworkService.getTotalScore(homeworkId, studentId);
-    }
-
-    async removeFromLesson({lessonId, homeworkId}, {user: {userId}}) {
-        const teacher = await teacherService.findOneByUserId(userId);
-
-        if (!teacher)
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
-
-        return await homeworkService.removeFromLesson(teacher.teacherId, lessonId, homeworkId);
-    }
-
-    async delete({homeworkId}, {user: {userId}}) {
-        const teacher = await teacherService.findOneByUserId(userId);
-
-        if (!teacher)
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
-
-        return await homeworkService.delete(teacher.teacherId, homeworkId);
     }
 
     async showAnswers({homeworkId}, {user: {userId}}) {
