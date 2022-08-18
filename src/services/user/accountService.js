@@ -48,6 +48,17 @@ class AccountService {
         return !!upd[0]
     }
 
+    async changeName(userId, name){
+        const upd = await User.update({
+            name
+        }, {
+            where: {
+                userId
+            }
+        })
+        return !!upd[0]
+    }
+
     async sendVerificationCode(email){
         const verificationCode = jwt.sign(
             { email },

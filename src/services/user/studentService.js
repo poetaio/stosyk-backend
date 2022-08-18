@@ -1,5 +1,5 @@
-const { Student} = require('../../db/models');
-const {UserRoleEnum} = require("../../utils");
+const { Student, User, Account, Teacher} = require('../../db/models');
+const {UserRoleEnum, hashPassword, UserTypeEnum} = require("../../utils");
 
 
 class StudentService {
@@ -32,6 +32,52 @@ class StudentService {
         });
 
         return !!upd[0];
+    }
+
+    async updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source) {
+        const passwordHash = await hashPassword(password);
+
+        await User.update({
+                type: UserTypeEnum.REGISTERED,
+                name: name
+            },
+            {
+                where: {
+                    userId
+                }
+            }
+        );
+
+        await Account.create({
+            login: email,
+            passwordHash,
+            userId,
+            avatar_source
+        })
+    }
+
+    async create(email, password, name, avatar_source) {
+        const passwordHash = await hashPassword(password);
+        return await Student.create(
+            {
+                user: {
+                    role: UserRoleEnum.STUDENT,
+                    type: UserTypeEnum.REGISTERED,
+                    name: name,
+                    account: {
+                        login: email, passwordHash,
+                        avatar_source
+                    }
+                },
+                name
+            },
+            {
+                include: {
+                    association: 'user',
+                    include: 'account'
+                }
+            }
+        );
     }
 }
 

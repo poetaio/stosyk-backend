@@ -1,6 +1,6 @@
 const {  GraphQLString, GraphQLNonNull, GraphQLBoolean} = require("graphql");
 const { teacherController, studentController, accountController } =require('../../controllers');
-const { TeacherInputType, TokenType, StudentProfileInputType} = require("./types");
+const { TeacherInputType, TokenType, StudentProfileInputType, StudentInputType, StudentLoginInputType} = require("./types");
 const { resolveUserIdParsingMiddleware, resolveAuthMiddleware, resolveAuthMiddlewareUnverified} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
@@ -22,15 +22,26 @@ const registerTeacher = {
     resolve: async (parent, args, context) => await accountController.registerTeacher(args, context)
 };
 
-const loginTeacher = {
+const registerStudent = {
     type: TokenType,
-    name: 'loginTeacher',
-    description: 'Login Teacher',
+    name: 'registerStudent',
+    description: 'Register Student',
     args: {
-        teacher: { type: GraphQLNonNull(TeacherInputType) }
+        student: {type: GraphQLNonNull(StudentInputType)}
     },
-    resolve: async (parent, args, context) => await accountController.loginTeacher(args)
+    resolve: async (parent, args, context) => await accountController.registerStudent(args, context)
+}
+
+const loginUser = {
+    type: TokenType,
+    name: 'loginUser',
+    description: 'Login User',
+    args: {
+        user: { type: GraphQLNonNull(TeacherInputType) }
+    },
+    resolve: async (parent, args, context) => await accountController.loginUser(args)
 };
+
 
 const createAnonymousStudent = {
     type: TokenType,
@@ -74,6 +85,16 @@ const changeEmail = {
     resolve: async (parent, args, context) => await accountController.changeEmail(args, context)
 }
 
+const changeName = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'changeName',
+    description: 'Change name',
+    args:{
+        name: {type: GraphQLNonNull(GraphQLString)}
+    },
+    resolve: async (parent, args, context) => await accountController.changeName(args, context)
+}
+
 const studentProfile = {
     type: GraphQLNonNull(GraphQLBoolean),
     name: "StudentProfile",
@@ -94,10 +115,12 @@ const anonymousLogin = {
 module.exports = {
     createAnonymousTeacher,
     registerTeacher: resolveUserIdParsingMiddleware(registerTeacher),
-    loginTeacher,
+    registerStudent: resolveUserIdParsingMiddleware(registerStudent),
+    loginUser,
     createAnonymousStudent,
-    changePassword: resolveAuthMiddleware(UserRoleEnum.TEACHER)(changePassword),
-    changeEmail: resolveAuthMiddleware(UserRoleEnum.TEACHER)(changeEmail),
+    changePassword: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changePassword),
+    changeEmail: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changeEmail),
+    changeName: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changeName),
     studentProfile: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentProfile),
     anonymousLogin: resolveAuthMiddlewareUnverified(anonymousLogin),
     confirmEmail

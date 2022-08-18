@@ -1,4 +1,4 @@
-const { accountService, tokenService, teacherService, userService} = require('../../services')
+const { accountService, tokenService, teacherService, userService, studentService} = require('../../services')
 const bcrypt = require('bcrypt');
 const {UnauthorizedError, ValidationError, UserRoleEnum} = require("../../utils");
 const {REGISTERED} = require("../../utils/enums/UserType.enum");
@@ -24,7 +24,24 @@ class AccountController {
         return { token };
     }
 
-    async loginTeacher({ teacher: { email, password } }) {
+    async registerStudent({student: {name, email, password, avatar_source}}, { userId}) {
+        if (await accountService.existsByLogin(email))
+            throw new ValidationError(`User with login ${email} already exists`);
+        if (userId) {
+            const user = await userService.findOneByUserId(userId);
+            if (user.type === REGISTERED)
+                throw new ValidationError(`User is already registered`);
+            await studentService.updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source);
+        }else {
+            const userToProceed = await studentService.create(email, password, name, avatar_source);
+            userId = userToProceed.user.userId;
+        }
+
+        const token = await tokenService.createStudentToken(userId);
+        return { token };
+    }
+
+    async loginUser({ user: { email, password } }) {
         const account = await accountService.getOneByLogin(email);
 
         if (!account || !bcrypt.compareSync(password, account.passwordHash)) {
@@ -45,7 +62,12 @@ class AccountController {
             throw new ValidationError(`User is not registered`);
         }
         const account = await accountService.getOneById(userId)
-        return account.account.login
+        const res = {
+            email: account.account.login,
+            avatar_source: account.account.avatar_source,
+            name: user.name
+        }
+        return res
     }
 
     async changePassword({oldPassword, newPassword}, {user:{userId}}){
@@ -63,6 +85,10 @@ class AccountController {
         }
         return await accountService.changeEmail(userId,  newEmail)
 
+    }
+
+    async changeName({name}, {user: {userId}}){
+        return await accountService.changeName(userId,  name)
     }
 
     async anonymousAuth({ user: { userId, role } }) {
