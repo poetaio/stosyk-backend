@@ -24,13 +24,6 @@ module.exports = (DataTypes) => ['accounts', {
             key: 'userId',
         }
     },
-    status: {
-        type: DataTypes.ENUM(...Object.values(accountStatusEnum)),
-        defaultValue: accountStatusEnum.UNVERIFIED
-    },
-    avatar_source: {
-        type: DataTypes.STRING,
-    },
     createdAt: {
         type: DataTypes.DATE,
     },

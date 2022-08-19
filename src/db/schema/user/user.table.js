@@ -16,10 +16,6 @@ module.exports = (DataTypes) => ['users', {
         type: DataTypes.ENUM(...Object.values(userTypeEnum)),
         defaultValue: userTypeEnum.ANONYMOUS
     },
-    name: {
-      type: DataTypes.STRING,
-      defaultValue: "Name"
-    },
     createdAt: {
         type: DataTypes.DATE,
     },
