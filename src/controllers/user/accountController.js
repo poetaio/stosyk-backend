@@ -89,7 +89,12 @@ class AccountController {
     }
 
     async confirmEmail({confirmationCode}){
-        let user = jwt.verify(confirmationCode, process.env.JWT_SECRET);
+        let user
+        try {
+            user = jwt.verify(confirmationCode, process.env.JWT_SECRET);
+        } catch (e) {
+            throw new UnauthorizedError(e.message);
+        }
         user = await accountService.getOneByLogin(user.email)
         if(!user){
             throw new UnauthorizedError('Invalid code');
@@ -106,7 +111,12 @@ class AccountController {
     }
 
     async resetPassword({resetPassCode, password}){
-        let user = jwt.verify(resetPassCode, process.env.JWT_SECRET);
+        let user
+        try {
+            user = jwt.verify(resetPassCode, process.env.JWT_SECRET);
+        } catch (e) {
+            throw new UnauthorizedError(e.message);
+        }
         user = await accountService.getOneByLogin(user.email)
         if(!user) {
             throw new UnauthorizedError('Invalid code');
