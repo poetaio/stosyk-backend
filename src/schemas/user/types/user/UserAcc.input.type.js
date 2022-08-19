@@ -1,10 +1,11 @@
-const { GraphQLNonNull, GraphQLString, GraphQLInputObjectType } = require("graphql");
-
+const { GraphQLNonNull, GraphQLString, GraphQLInputObjectType, GraphQLEnumType} = require("graphql");
+const UserRoleEnumType = require('./UserRoleEnum.type')
 
 module.exports = new GraphQLInputObjectType({
-    name: 'StudentInputType',
-    description: 'Student Input type',
+    name: 'UserInputType',
+    description: 'User Input type',
     fields: {
+        role: {type: GraphQLNonNull(UserRoleEnumType)},
         name: {type: GraphQLNonNull(GraphQLString) },
         email: { type: GraphQLNonNull(GraphQLString) },
         password: { type: GraphQLNonNull(GraphQLString) },

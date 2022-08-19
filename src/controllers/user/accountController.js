@@ -6,35 +6,28 @@ const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
 const jwt = require("jsonwebtoken");
 
 class AccountController {
-    async registerTeacher({ teacher: { email, password } }, { userId }) {
-        if (await accountService.existsByLogin(email))
-            throw new ValidationError(`User with login ${email} already exists`);
 
-        if (userId) {
-            const user = await userService.findOneByUserId(userId);
-            if (user.type === REGISTERED)
-                throw new ValidationError(`User is already registered`);
-            await teacherService.updateAnonymousTeacherToRegistered(userId, email, password);
-        } else {
-            const userToProceed = await teacherService.create(email, password);
-            userId = userToProceed.user.userId;
-        }
+    async registerUser({user: {role, name, email, password, avatar_source}}, {userId}) {
 
-        const token = await tokenService.createTeacherToken(userId);
-        return { token };
-    }
-
-    async registerStudent({student: {name, email, password, avatar_source}}, { userId}) {
         if (await accountService.existsByLogin(email))
             throw new ValidationError(`User with login ${email} already exists`);
         if (userId) {
             const user = await userService.findOneByUserId(userId);
             if (user.type === REGISTERED)
                 throw new ValidationError(`User is already registered`);
-            await studentService.updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source);
+            else if (role === UserRoleEnum.STUDENT){
+                await studentService.updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source);
+            }else{
+                await teacherService.updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source);
+            }
         }else {
-            const userToProceed = await studentService.create(email, password, name, avatar_source);
-            userId = userToProceed.user.userId;
+            if(role === UserRoleEnum.STUDENT) {
+                const userToProceed = await studentService.create(email, password, name, avatar_source);
+                userId = userToProceed.user.userId;
+            } else{
+                const userToProceed = await teacherService.create(email, password, name, avatar_source);
+                userId = userToProceed.user.userId;
+            }
         }
 
         const token = await tokenService.createStudentToken(userId);
@@ -63,6 +56,7 @@ class AccountController {
         }
         const account = await accountService.getOneById(userId)
         const res = {
+            role: user.role,
             email: account.account.login,
             avatar_source: account.account.avatar_source,
             name: user.name
@@ -87,8 +81,12 @@ class AccountController {
 
     }
 
-    async changeName({name}, {user: {userId}}){
-        return await accountService.changeName(userId,  name)
+    async changeName({newName}, {user: {userId}}){
+        return await accountService.changeName(userId,  newName)
+    }
+
+    async changeAvatar({newAvatarSource}, {user: {userId}}){
+        return await accountService.changeAvatar(userId,  newAvatarSource)
     }
 
     async anonymousAuth({ user: { userId, role } }) {

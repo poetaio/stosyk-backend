@@ -39,6 +39,7 @@ class AccountService {
 
     async changeEmail(userId, newEmail){
         const upd = await Account.update({
+            status: accountStatusEnum.UNVERIFIED ,
             login: newEmail
         }, {
             where: {
@@ -48,9 +49,20 @@ class AccountService {
         return !!upd[0]
     }
 
-    async changeName(userId, name){
+    async changeName(userId, newName){
         const upd = await User.update({
-            name
+            name: newName
+        }, {
+            where: {
+                userId
+            }
+        })
+        return !!upd[0]
+    }
+
+    async changeAvatar(userId, newAvatarSource){
+        const upd = await Account.update({
+            avatar_source: newAvatarSource
         }, {
             where: {
                 userId

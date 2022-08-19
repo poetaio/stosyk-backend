@@ -2,7 +2,7 @@ const { GraphQLBoolean, GraphQLString, GraphQLNonNull} = require("graphql");
 const { userController, accountController} = require('../../controllers');
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
-const {TokenType, UserAccInfoType} = require("./types");
+const {TokenType, UserAccInfoType } = require("./types");
 
 // updates token if it's valid and not expired
 const checkTeacherAuth = {
