@@ -30,8 +30,14 @@ class AccountController {
             }
         }
 
-        const token = await tokenService.createStudentToken(userId);
-        return { token };
+        if(role === UserRoleEnum.STUDENT) {
+            const token = await tokenService.createStudentToken(userId);
+            return {token};
+        }
+        else{
+            const token = await tokenService.createTeacherToken(userId);
+            return {token};
+        }
     }
 
     async loginUser({ user: { email, password } }) {
