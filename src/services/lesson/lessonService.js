@@ -19,15 +19,16 @@ const pubsubService = require("../pubsubService");
 const Sequelize = require('sequelize');
 const studentService = require("../user/studentService");
 const lessonAnswersService = require("./lessonAnswersService");
-const { Op } = Sequelize;
+const {Op} = Sequelize;
 const store = require("store2");
 const optionService = require("./optionService");
 const homeworkService = require("./homeworkService");
 const lessonTeacherService = require('./lessonTeacherService');
 const studentLessonService = require("./studentLessonService");
+const teacherLessonService = require("./teacherLessonService");
 
 class LessonService {
-    async lessonExists(lessonId){
+    async lessonExists(lessonId) {
         return !!await Lesson.count({
             where: {
                 lessonId,
@@ -55,7 +56,7 @@ class LessonService {
 
     async deleteById(lessonId) {
         const lesson = await Lesson.findOne({
-            where: { lessonId },
+            where: {lessonId},
             include: lessonInclude
         });
 
@@ -90,7 +91,7 @@ class LessonService {
             include: [
                 {
                     association: 'lessonLessonTeacher',
-                    where: { teacherId },
+                    where: {teacherId},
                     required: true
                 },
                 lessonInclude
@@ -110,7 +111,7 @@ class LessonService {
         }
     }
 
-    async create({ name, description, tasks, homework: homeworkList }, teacherId) {
+    async create({name, description, tasks, homework: homeworkList}, teacherId) {
         // check if right option exists for every gap
         await this.checkTasks(tasks);
 
@@ -131,12 +132,12 @@ class LessonService {
     }
 
     async getTeacherLessons(teacherId, whereParam, page, limit) {
-        const { lessonId, name } = whereParam || {};
+        const {lessonId, name} = whereParam || {};
 
         const and = [];
 
         if (lessonId) {
-            and.push({ lessonId });
+            and.push({lessonId});
         }
         if (name) {
             and.push(
@@ -148,13 +149,13 @@ class LessonService {
                 )
             )
         }
-        const where = { [Op.and]: and };
+        const where = {[Op.and]: and};
 
         const options = {
             where,
             include: {
                 association: 'lessonLessonTeacher',
-                where: { teacherId },
+                where: {teacherId},
                 required: true
             }
         };
@@ -166,14 +167,14 @@ class LessonService {
 
         const countedLessons = await Lesson.findAndCountAll(options);
 
-        return (({ count, rows }) => ({
+        return (({count, rows}) => ({
             total: count,
             lessons: rows
         }))(countedLessons);
     }
 
-    async getStudentLesson(lessonId, studentId){
-        if(!await studentLessonService.studentLessonExists(lessonId, studentId)){
+    async getStudentLesson(lessonId, studentId) {
+        if (!await studentLessonService.studentLessonExists(lessonId, studentId)) {
             throw new NotFoundError(`No lesson ${lessonId} of such student ${studentId} found`);
         }
         return await Lesson.findOne({
@@ -199,24 +200,13 @@ class LessonService {
             }
         });
 
-        if(upd[0]){
+        if (upd[0]) {
             await pubsubService.publishLessonStarted(pubsub, lessonId, {
-                lessonId: lessonId, status:'ACTIVE'
+                lessonId: lessonId, status: 'ACTIVE'
             });
         }
 
         return !!upd[0];
-    }
-
-    /**
-     * Removes all students from lesson
-     * @param lessonId
-     * @return {Promise<void>}
-     */
-    async removeAllStudents(lessonId) {
-        await LessonStudent.destroy({
-            where: { lessonId },
-        });
     }
 
     async finishLesson(pubsub, lessonId, teacherId) {
@@ -237,7 +227,7 @@ class LessonService {
         });
 
         // clean up
-        await this.removeAllStudents(lessonId);
+        await studentLessonService.removeAllStudents(lessonId);
         await optionService.removeAllStudentsAnswersByLessonId(lessonId);
         store.clear();
 
@@ -245,35 +235,32 @@ class LessonService {
     }
 
     async joinLesson(pubsub, lessonId, studentId) {
-       if(!await this.lessonExists(lessonId)){
-           throw new NotFoundError(`No lesson ${lessonId} found`);
-       }
+        if (!await this.lessonExists(lessonId)) {
+            throw new NotFoundError(`No lesson ${lessonId} found`);
+        }
 
-       if (await studentLessonService.studentLessonExists(lessonId, studentId)){
+        if (await studentLessonService.studentLessonExists(lessonId, studentId)) {
             throw new ValidationError(`Student ${studentId} is already on lesson ${lessonId}`);
-       }
+        }
 
-       const lessonStudent = await LessonStudent.create({
-           lessonId,
-           studentId
-       });
+        await studentLessonService.joinLesson(studentId, lessonId);
 
-       const teacher = await teacherService.findOneByLessonId(lessonId)
-        const students = await studentService.studentsLesson(lessonId)
-        for(let student of students){
+        const teacher = await teacherLessonService.getLessonTeacher(lessonId)
+        const students = await studentLessonService.getLessonStudents(lessonId)
+        for (let student of students) {
             await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, student.userId, students)
         }
         await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
-       return (!!lessonStudent);
+        return true;
     }
 
     async deleteLesson(lessonId, teacherId) {
-        if(!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)){
-           throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
+        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
+            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
         }
 
         if (await this.existsActiveByLessonId(lessonId)) {
-           throw new ValidationError(`Cannot delete active lesson lessonId: ${lessonId}`);
+            throw new ValidationError(`Cannot delete active lesson lessonId: ${lessonId}`);
         }
 
         return await this.deleteById(lessonId);
@@ -281,14 +268,14 @@ class LessonService {
 
     async getStudentsAnswers(lessonId) {
         const lesson = await Lesson.findOne({
-            where: { lessonId },
+            where: {lessonId},
             include: lessonTasksInclude
         });
 
         const tasks = [];
 
-        for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
-            const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
+        for (let {taskListTaskTask: task} of lesson.lessonTaskList.taskListTaskListTasks) {
+            const newTask = {taskId: task.taskId, type: task.type, sentences: []};
 
             tasks.push(newTask);
         }
@@ -300,33 +287,33 @@ class LessonService {
         if (!await studentLessonService.studentLessonExists(lessonId, student.studentId)) {
             throw new NotFoundError(`No lesson ${lessonId} of student ${student.studentId} found`);
         }
-        const teacher = await teacherService.findOneByLessonId(lessonId)
+        const teacher = await teacherLessonService.getLessonTeacher(lessonId)
         const studentsCurrentTask = store.get(lessonId);
-        if(!studentsCurrentTask){
+        if (!studentsCurrentTask) {
             store(lessonId, [{taskId, student}])
-        }else {
-            if (studentsCurrentTask.find(el => el.student.studentId === student.studentId)){
-                const newStudentsCurrentTask = studentsCurrentTask.map((el)=>({
-                        ...el,
-                        taskId:(el.student.studentId===student.studentId)?taskId:el.taskId
-                    }))
-                store( lessonId, newStudentsCurrentTask)
+        } else {
+            if (studentsCurrentTask.find(el => el.student.studentId === student.studentId)) {
+                const newStudentsCurrentTask = studentsCurrentTask.map((el) => ({
+                    ...el,
+                    taskId: (el.student.studentId === student.studentId) ? taskId : el.taskId
+                }))
+                store(lessonId, newStudentsCurrentTask)
 
-            }else {
+            } else {
                 store.add(lessonId, [{taskId, student}])
             }
         }
-        const students = await studentService.studentsLesson(lessonId)
-        for(let student of students){
+        const students = await studentLessonService.getLessonStudents(lessonId)
+        for (let student of students) {
             await pubsubService.publishOnStudentPosition(pubsub, lessonId, student.userId, store.get(lessonId))
         }
         await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.userId, store.get(lessonId))
         return true;
     }
 
-    async getStudentCurrentPosition (pubsub, lessonId, userId){
+    async getStudentCurrentPosition(pubsub, lessonId, userId) {
         setTimeout(async () => await pubsubService.publishOnStudentPosition(pubsub, lessonId, userId,
-                 store.get(lessonId) || [] ), 0)
+            store.get(lessonId) || []), 0)
         return await pubsubService.subscribeOnStudentPosition(pubsub, userId, lessonId)
     }
 
@@ -364,7 +351,7 @@ class LessonService {
      * @param lessonId
      * @return {Promise<*[]>} all tasks by lesson id
      */
-    async studentGetAnswers(lessonId){
+    async studentGetAnswers(lessonId) {
         if (!await this.existsActiveByLessonId(lessonId)) {
             throw new ValidationError(`Lesson ${lessonId} already started`)
         }
@@ -375,43 +362,42 @@ class LessonService {
     }
 
     async studentLeaveLesson(pubsub, lessonId, studentId) {
-        if(!await this.lessonExists(lessonId)){
+        if (!await this.lessonExists(lessonId)) {
             throw new NotFoundError(`No lesson ${lessonId} found`);
         }
 
-        if (!await studentLessonService.studentLessonExists(lessonId, studentId)){
+        if (!await studentLessonService.studentLessonExists(lessonId, studentId)) {
             throw new ValidationError(`Student ${studentId} is not on lesson ${lessonId}`);
         }
 
-        const lessonStudent = await LessonStudent.destroy({
-            where: {
-                lessonId,
-                studentId
-            }
-        })
+        await studentLessonService.leaveLesson(studentId, lessonId);
 
-        const teacher = await teacherService.findOneByLessonId(lessonId)
-        const students = await studentService.studentsLesson(lessonId)
-        for(let student of students){
+        const teacher = await teacherLessonService.getLessonTeacher(lessonId)
+        const students = await studentLessonService.getLessonStudents(lessonId)
+        for (let student of students) {
             await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, student.userId, students)
         }
         await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
 
-        return !!lessonStudent;
+        return true;
     }
 
-    async getLessonsByCourse(courseId){
+    async getLessonsByCourse(courseId) {
         // todo: check if course belongs to teacher
         return await Lesson.findAll({
-            include:{
+            include: {
                 association: 'lessonCourses',
-                where:{
+                where: {
                     courseId,
                 },
                 required: true,
                 attributes: []
             }
         })
+    }
+
+    async subscribeOnStudentOnLesson(pubsub, lessonId, studentId) {
+        return await pubsubService.subscribeOnStudentOnLesson(pubsub, lessonId, studentId);
     }
 }
 

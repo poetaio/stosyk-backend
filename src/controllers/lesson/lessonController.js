@@ -2,6 +2,7 @@ const { lessonService, studentService, answerService} = require('../../services'
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {pubsubService} = require('../../services');
+const studentLessonService = require("../../services/lesson/studentLessonService");
 
 class LessonController {
     async createLesson({ lesson }, { user: { userId } }) {
@@ -94,9 +95,8 @@ class LessonController {
 
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {
         setTimeout(async ()=> await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, userId,
-            await studentService.studentsLesson(lessonId)),0)
+            await studentLessonService.getLessonStudents(lessonId)),0)
        return await pubsubService.subscribeOnPresentStudentsChanged(pubsub, userId, lessonId);
-
     }
 
     async studentAnswersChanged({ lessonId }, { pubsub, user: { userId } }) {
@@ -158,6 +158,17 @@ class LessonController {
         }
 
         return await answerService.setHomeworkAnswer(pubsub, student.studentId, answer)
+    }
+
+    async studentOnLesson({ lessonId }, { user: {userId}, pubsub }) {
+        const student = await studentService.findOneByUserId(userId);
+
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        lessonService.joinLesson(pubsub, lessonId, student.studentId);
+        return await lessonService.subscribeOnStudentOnLesson(pubsub, lessonId, student.studentId);
     }
 }
 

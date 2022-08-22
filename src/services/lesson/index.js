@@ -10,6 +10,7 @@ const attachmentService = require('./attachmentService');
 const answerService = require('./answerService');
 const courseService = require('./courseService')
 const homeworkService = require('./homeworkService');
+const teacherLessonService = require('./teacherLessonService');
 
 module.exports = {
     lessonService,
@@ -24,4 +25,5 @@ module.exports = {
     answerService,
     courseService,
     homeworkService,
+    teacherLessonService,
 };

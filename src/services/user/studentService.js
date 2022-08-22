@@ -14,16 +14,6 @@ class StudentService {
         return await Student.findOne({ where: { userId } });
     }
 
-    async studentsLesson(lessonId){
-        return await Student.findAll({
-            include: {
-                association: 'studentLessons',
-                where: {lessonId},
-                required: true
-            }
-        })
-    }
-
     async updateProfile(studentId, name) {
         const upd = await Student.update({
             name,
