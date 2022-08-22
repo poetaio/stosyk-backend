@@ -1,6 +1,6 @@
 const {GraphQLInputObjectType, GraphQLNonNull, GraphQLString, GraphQLList, GraphQLID} = require("graphql");
-const { TaskInputType } = require("../task");
 const {HomeworkInputType} = require("../homework");
+const {TaskListInputType} = require("../taskList");
 
 
 module.exports = new GraphQLInputObjectType({
@@ -9,7 +9,7 @@ module.exports = new GraphQLInputObjectType({
     fields: {
         name: { type: GraphQLNonNull(GraphQLString) },
         description: { type: GraphQLNonNull(GraphQLString) },
-        tasks: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskInputType))) },
+        sections: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskListInputType))) },
         homework: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(HomeworkInputType)))},
     }
 });

@@ -111,17 +111,22 @@ class LessonService {
         }
     }
 
-    async create({name, description, tasks, homework: homeworkList}, teacherId) {
+    async create({name, description, sections, homework: homeworkList}, teacherId) {
         // check if right option exists for every gap
-        await this.checkTasks(tasks);
+
+        sections.forEach(el => this.checkTasks(el.tasks))
 
         // check if anonymous, then delete all existing lessons
         if (await teacherService.existsAnonymousById(teacherId))
             await this.deleteByTeacherId(teacherId);
 
         const newLesson = await Lesson.create({name, description});
-        const taskList = await TaskList.create({lessonId: newLesson.lessonId});
-        await taskService.createTaskListTasks(taskList.taskListId, tasks);
+
+        sections.forEach((el) =>{
+            const taskList = TaskList.create({lessonId: newLesson.lessonId, name: el.name});
+            taskService.createTaskListTasks(taskList.taskListId, el.tasks);
+        })
+
         await LessonTeacher.create({teacherId, lessonId: newLesson.lessonId})
         await homeworkService.addAll(teacherId, {
                 lessonId: newLesson.lessonId, homeworkList

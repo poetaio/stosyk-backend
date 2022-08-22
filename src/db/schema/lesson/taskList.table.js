@@ -1,6 +1,6 @@
 const LessonTable = require("./lesson.table");
 
-module.exports = (DataTypes) => ['taskLists', {
+module.exports = (DataTypes) => ['tasklists', {
     taskListId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
