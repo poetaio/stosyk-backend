@@ -21,7 +21,10 @@ module.exports = (sequelize, DataTypes) => sequelize.define(
         status: {
             type: DataTypes.ENUM(...Object.values(accountStatusEnum)),
             defaultValue: accountStatusEnum.UNVERIFIED,
-        }
+        },
+        avatar_source: {
+            type: DataTypes.STRING,
+        },
     },
     {
         hooks: {
