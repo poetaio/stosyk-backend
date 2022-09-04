@@ -3,7 +3,7 @@ const {Task, Lesson, TaskSentence,
     DELETE_TASK_BY_LESSON_ID,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
-    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments, TaskListTask
+    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments, TaskListTask, TaskList
 } = require("../../db/models");
 const sentenceService = require('./sentenceService');
 const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum, TaskListTypeEnum} = require('../../utils');
@@ -162,7 +162,7 @@ class TaskService {
         return taskId;
     }
 
-    async getAll({ lessonId, homeworkId }) {
+    async getAll({ lessonId, homeworkId, taskListId }) {
         const where = {};
         // if lessonId is null, task will not have taskLessonTask as child,
         // thus no need to require = true
@@ -170,13 +170,25 @@ class TaskService {
         if (lessonId) {
             where.lessonId = lessonId;
             required = true;
+            return await Task.findAll({
+                include: {
+                    association: 'taskTaskListTask',
+                    include: {
+                        association: 'taskListTaskTaskList',
+                        include: {
+                            association: 'taskListLesson',
+                            where: {lessonId},
+                            required
+                        },
+                        required: true
+                    },
+                    required: true
+                }
+            })
         }
         if (homeworkId) {
             where.homeworkId = homeworkId;
             required = true;
-        }
-
-        if (homeworkId) {
             return await Task.findAll({
                 include: {
                     association: 'taskTaskListTask',
@@ -191,24 +203,24 @@ class TaskService {
                     },
                     required: true
                 }
-            });
+            })
         }
 
-        return await Task.findAll({
-            include: {
-                association: 'taskTaskListTask',
-                include: {
-                    association: 'taskListTaskTaskList',
+        if (taskListId){
+            return await Task.findAll({
                     include: {
-                        association: 'taskListLesson',
-                        where: {lessonId},
-                        required
+                        association: 'taskList',
+                        where: {taskListId},
+                        required: true
                     },
-                    required: true
-                },
-                required: true
-            }
-        });
+            })
+        }
+
+        // if (homeworkId) {
+        //     return
+        // }
+
+        // return
     }
 
     async deleteByLessonId(lessonId) {
@@ -324,6 +336,18 @@ class TaskService {
             await TaskListTask.create({taskListId: taskListId, taskId});
         }
     }
+
+    async getTaskLists({lessonId}) {
+        await TaskList.findAll({
+            include: {
+                association: "lesson",
+                where: {lessonId},
+                required: true,
+                attributes: [],
+            }
+        })
+    }
+
 }
 
 module.exports = new TaskService();

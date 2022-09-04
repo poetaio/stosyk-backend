@@ -1,7 +1,7 @@
 const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLString, GraphQLFloat} = require("graphql");
 const {homeworkController} = require("../../../../controllers");
 
-module.exports = new GraphQLObjectType({
+module. exports = new GraphQLObjectType({
     name: "StudentWithHWScoreType",
     description: "Student with completeness and correctness percentage",
     fields: {

@@ -1,4 +1,3 @@
-const {Task} = require("../../db/models");
 const {taskService} = require("../../services");
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
@@ -6,6 +5,10 @@ const {ValidationError} = require("../../utils");
 class TaskController {
     async getTasks(parent, args, context) {
         return await taskService.getAll(parent);
+    }
+
+    async getTaskLists(parent, args, context) {
+        return await taskService.getTaskLists(parent)
     }
 
     async showAnswers({ taskId }, { pubsub, user: { userId } }) {
