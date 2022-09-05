@@ -1,16 +1,16 @@
-const {GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLID, GraphQLFloat} = require("graphql");
-const {TeacherTaskInterfaceType} = require("../task");
+const {GraphQLObjectType, GraphQLNonNull, GraphQLList, GraphQLID} = require("graphql");
 const {taskController, homeworkController} = require("../../../../controllers");
 const {StudentWithHWScoreType} = require("../../../user/types");
+const {TeacherTaskListInterfaceType} = require("../taskList");
 module.exports = new GraphQLObjectType({
     name: "TeacherHomeworkType",
     description: "Teacher Homework type",
     fields: {
         homeworkId: { type: GraphQLNonNull(GraphQLID) },
-        tasks: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherTaskInterfaceType))),
+        sections: {
+            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherTaskListInterfaceType))),
             resolve: async (parent, args, context) =>
-                await taskController.getTasks(parent, args, context)
+                await taskController.getTaskLists(parent, args, context)
         },
         students: {
             type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentWithHWScoreType))),

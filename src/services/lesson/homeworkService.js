@@ -9,10 +9,12 @@ const lessonTeacherService = require("./lessonTeacherService");
 const studentLessonService = require("./studentLessonService");
 
 class HomeworkService {
-    async addToLesson(lessonId, { tasks }) {
+    async addToLesson(lessonId, { sections }) {
         const newHomework = await Homework.create({ lessonId });
-        const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
-        await taskService.createTaskListTasks(taskList.taskListId, tasks);
+        sections.forEach((el) =>{
+            const taskList = TaskList.create({lessonId: lessonId, name: el.name});
+            taskService.createTaskListTasks(taskList.taskListId, el.tasks);
+        })
         return newHomework.homeworkId;
     }
 
