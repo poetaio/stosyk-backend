@@ -1,18 +1,17 @@
-const {GraphQLInputObjectType, GraphQLNonNull, GraphQLInt, GraphQLString, GraphQLList, GraphQLID, GraphQLObjectType} = require("graphql");
-const { GapInputType } = require('../gap');
-const { MatchingTeacherOptionType, StudentAnswerType} = require("../option");
+const {GraphQLNonNull, GraphQLInt, GraphQLString, GraphQLList, GraphQLID, GraphQLObjectType} = require("graphql");
+const { MatchingTeacherOptionType, StudentAnswerType, OptionAnswerType} = require("../option");
 const {optionController} = require("../../../../controllers");
 
 
 module.exports = new GraphQLObjectType({
-    name: 'MatchingTeacherSentenceLeftType',
+    name: 'MatchingTeacherHWSentenceLeftType',
     description: 'MatchingTeacherSentenceLeftType. Contains sentence info (id, index, text) and correct option',
     fields: {
         sentenceId: { type: GraphQLNonNull(GraphQLID) },
         index: { type: GraphQLNonNull(GraphQLInt) },
         text: { type: GraphQLNonNull(GraphQLString) },
         correctOption: {
-            type: GraphQLNonNull(MatchingTeacherOptionType),
+            type: GraphQLNonNull(OptionAnswerType),
             resolve: async (parent, args, context) => await optionController.getMatchingCorrectOption(parent)
         },
         studentsAnswers: {

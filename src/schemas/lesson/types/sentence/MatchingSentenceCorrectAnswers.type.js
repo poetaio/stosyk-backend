@@ -12,6 +12,6 @@ module.exports = new GraphQLObjectType({
         matchingOption: {
             type: GraphQLNonNull(MatchingTeacherOptionType),
             resolve: async (parent, args, context) => await optionController.getMatchingCorrectOption(parent)
-        }
+        },
     }
 });

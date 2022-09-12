@@ -184,7 +184,7 @@ TeacherCourseRelation.isSingleAssociation = true;
 
 //Lesson-Task list One-to-One relationship
 
-Lesson.hasMany(TaskList, {
+Lesson.hasOne(TaskList, {
     foreignKey: 'lessonId',
     as: 'lessonTaskList',
     foreignKeyConstraint: true,
@@ -200,7 +200,7 @@ TaskList.belongsTo(Lesson, {
 TaskList.belongsToMany(Task, {
     through: TaskListTask,
     foreignKey: 'taskListId',
-    as: 'task',
+    as: 'tasks',
 });
 const TaskListTaskRelation = Task.belongsToMany(TaskList, {
     through: TaskListTask,

@@ -79,7 +79,7 @@ const studentProfile = {
     name: "StudentProfile",
     description: "Update student profile",
     args: {
-        studentProfile: { type: GraphQLNonNull(StudentProfileInputType)},
+        name: { type: GraphQLNonNull(GraphQLString)},
     },
     resolve: async (parent, args, context) => await studentController.updateProfile(args, context)
 }

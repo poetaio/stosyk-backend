@@ -33,6 +33,12 @@ class StudentService {
 
         return !!upd[0];
     }
+
+    async getInfo(studentId) {
+        return await Student.findOne({
+            where: {studentId},
+        });
+    }
 }
 
 

@@ -4,7 +4,7 @@ const { optionController } = require("../../../../controllers");
 const {gapService} = require("../../../../services");
 
 module.exports = new GraphQLObjectType({
-    name: 'TeacherGapType',
+    name: 'TeacherHWGapType',
     description: 'Teacher Gap Type',
     fields: {
         gapId: { type: GraphQLNonNull(GraphQLID) },

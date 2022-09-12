@@ -1,27 +1,23 @@
 const {GraphQLInputObjectType, GraphQLNonNull, GraphQLList, GraphQLString, GraphQLInt, GraphQLObjectType, GraphQLID} = require("graphql");
-const {TeacherOptionType, StudentOptionType, OptionAnswerType} = require("./option");
+const {TeacherOptionType, StudentAnswerType} = require("./option");
 const {optionService} = require("../../../services");
 const {optionController} = require("../../../controllers");
 
 module.exports = new GraphQLObjectType({
-    name: "QuestionType",
-    description: "Question Type",
+    name: "TeacherHWQuestionType",
+    description: "Teacher Question Type",
     fields: {
         questionId: { type: GraphQLNonNull(GraphQLID) },
         index: { type: GraphQLNonNull(GraphQLInt) },
         text: { type: GraphQLNonNull(GraphQLString) },
         options: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentOptionType))),
+            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherOptionType))),
             // parent - questionId, index, text
             resolve: async (parent, args, context) => await optionController.getAllByQuestionId(parent),
         },
-        chosenOption: {
-            type: StudentOptionType,
-            resolve: async (parent, args, context) => await optionController.getQuestionChosenOptionByStudentId(parent, context)
-        },
-        correctOption: {
-            type: OptionAnswerType,
-            resolve: async (parent, args, context) => await optionController.getQuestionCorrectOptionForStudent(parent),
+        studentAnswers: {
+            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentAnswerType))),
+            resolve: async (parent, args, context) => await optionController.getQAStudentsAnswersBySentenceId(parent)
         },
     },
 });
