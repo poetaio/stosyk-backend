@@ -34,6 +34,17 @@ const getAccountInfo = {
     resolve: async (parent, args, context) => await accountController.getAccountInfo(context)
 }
 
+const sendConfirmationEmail = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'sendConfirmationEmail',
+    description: 'Send confirmation email',
+    args:{
+        login: {type: GraphQLNonNull(GraphQLString)}
+    },
+    resolve: async (parent, args, context) => await accountController.sendConfirmationEmail(args)
+}
+
+
 const studentInfo = {
     type: GraphQLNonNull(StudentType),
     name: 'getAccountInfo',
@@ -47,4 +58,5 @@ module.exports = {
     isUserRegistered: resolveAuthMiddleware(UserRoleEnum.TEACHER)(isUserRegistered),
     getAccountInfo: resolveAuthMiddleware(UserRoleEnum.TEACHER)(getAccountInfo),
     studentInfo: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentInfo),
+    sendConfirmationEmail,
 };
