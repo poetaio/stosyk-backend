@@ -11,7 +11,7 @@ class LessonAnswersService {
             include: lessonShownTasksNewInclude
         });
 
-        return { tasksAnswers: lesson.lessonTaskList?.task || [] };
+        return { tasksAnswers: lesson.lessonTaskList?.tasks || [] };
     }
 }
 
