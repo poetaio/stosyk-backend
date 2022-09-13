@@ -1,6 +1,6 @@
 const { lessonService, studentService, answerService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
-const {ValidationError} = require("../../utils");
+const {ValidationError, NotFoundError} = require("../../utils");
 const {pubsubService} = require('../../services');
 
 class LessonController {
@@ -108,8 +108,12 @@ class LessonController {
         return await lessonService.subscribeOnStudentAnswersChanged(pubsub, lessonId, teacher.teacherId);
     }
 
-    async lessonStarted({ lessonId }, { pubsub }) {
-        return await lessonService.subscribeOnLessonStarted(pubsub, lessonId);
+    async lessonStatusChanged({ lessonId }, { pubsub }) {
+        if(!await lessonService.lessonExists(lessonId)){
+            throw new NotFoundError(`No lesson ${lessonId}`)
+        }
+
+        return await lessonService.subscribeOnLessonStatus(pubsub, lessonId);
     }
 
     async correctAnswerShown({ lessonId }, { pubsub, user: { userId } }) {
