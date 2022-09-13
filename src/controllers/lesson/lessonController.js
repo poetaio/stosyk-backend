@@ -108,8 +108,8 @@ class LessonController {
         return await lessonService.subscribeOnStudentAnswersChanged(pubsub, lessonId, teacher.teacherId);
     }
 
-    async lessonStarted({ lessonId }, { pubsub }) {
-        return await lessonService.subscribeOnLessonStarted(pubsub, lessonId);
+    async lessonStatusChanged({ lessonId }, { pubsub }) {
+        return await lessonService.subscribeOnLessonStatus(pubsub, lessonId);
     }
 
     async correctAnswerShown({ lessonId }, { pubsub, user: { userId } }) {

@@ -53,6 +53,15 @@ class LessonService {
         });
     }
 
+    async lessonStatusById(lessonId){
+        const lesson = await Lesson.findOne(({
+            where: {
+                lessonId,
+            }
+        }))
+        return lesson.status
+    }
+
     async deleteById(lessonId) {
         const lesson = await Lesson.findOne({
             where: { lessonId },
@@ -200,8 +209,8 @@ class LessonService {
         });
 
         if(upd[0]){
-            await pubsubService.publishLessonStarted(pubsub, lessonId, {
-                lessonId: lessonId, status:'ACTIVE'
+            await pubsubService.publishLessonStatus(pubsub, lessonId, {
+                lessonId: lessonId, status: LessonStatusEnum.ACTIVE
             });
         }
 
@@ -235,6 +244,13 @@ class LessonService {
                 lessonId
             }
         });
+
+
+        if(upd[0]){
+            await pubsubService.publishLessonStatus(pubsub, lessonId, {
+                lessonId: lessonId, status: LessonStatusEnum.PENDING
+            });
+        }
 
         // clean up
         await this.removeAllStudents(lessonId);
@@ -351,12 +367,12 @@ class LessonService {
         return await pubsubService.subscribeOnTeacherShowedRightAnswers(pubsub, lessonId, studentId)
     }
 
-    async subscribeOnLessonStarted(pubsub, lessonId) {
-        if (await this.existsActiveByLessonId(lessonId)) {
-            throw new ValidationError(`Lesson ${lessonId} already started`)
-        }
+    async subscribeOnLessonStatus(pubsub, lessonId) {
+        setTimeout(async () => await pubsubService.publishLessonStatus(pubsub, lessonId, {
+                            lessonId: lessonId, status: this.lessonStatusById(lessonId)
+                         }), 0);
 
-        return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
+        return await pubsubService.subscribeOnLessonStatus(pubsub, lessonId);
     }
 
     /**
