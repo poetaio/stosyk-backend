@@ -45,6 +45,14 @@ class AccountService {
                 userId
             }
         })
+         await Account.update({
+            status: accountStatusEnum.UNVERIFIED
+        },{
+            where:
+                {
+                    userId
+                }
+        })
         return !!upd[0]
     }
 
