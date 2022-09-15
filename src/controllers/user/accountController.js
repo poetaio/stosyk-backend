@@ -61,8 +61,10 @@ class AccountController {
         if (!account || !bcrypt.compareSync(password, account.account.passwordHash)) {
             throw new ValidationError('Wrong password');
         }
+        if(await accountService.existsByLogin(newEmail)){
+            throw new ValidationError(`User with email ${newEmail} already exists`);
+        }
         return await accountService.changeEmail(userId,  newEmail)
-
     }
 
     async anonymousAuth({ user: { userId, role } }) {
