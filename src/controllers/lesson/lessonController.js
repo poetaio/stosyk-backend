@@ -1,6 +1,6 @@
 const { lessonService, studentService, answerService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
-const {ValidationError} = require("../../utils");
+const {ValidationError, NotFoundError} = require("../../utils");
 const {pubsubService} = require('../../services');
 
 class LessonController {
@@ -108,8 +108,12 @@ class LessonController {
         return await lessonService.subscribeOnStudentAnswersChanged(pubsub, lessonId, teacher.teacherId);
     }
 
-    async lessonStarted({ lessonId }, { pubsub }) {
-        return await lessonService.subscribeOnLessonStarted(pubsub, lessonId);
+    async lessonStatusChanged({ lessonId }, { pubsub }) {
+        if(!await lessonService.lessonExists(lessonId)){
+            throw new NotFoundError(`No lesson ${lessonId}`)
+        }
+
+        return await lessonService.subscribeOnLessonStatus(pubsub, lessonId);
     }
 
     async correctAnswerShown({ lessonId }, { pubsub, user: { userId } }) {
@@ -128,7 +132,6 @@ class LessonController {
         }
 
         return await lessonService.studentLeaveLesson(pubsub, lessonId, student.studentId);
-
     }
 
     /**
@@ -147,7 +150,18 @@ class LessonController {
     }
 
     async getLessonsByCourse({courseId}, args, context){
+        // todo: check if course belongs to teacher
         return await lessonService.getLessonsByCourse(courseId)
+    }
+
+    async setHomeworkAnswer({ answer }, { pubsub, user: {userId}}, ) {
+        const student = await studentService.findOneByUserId(userId);
+
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        return await answerService.setHomeworkAnswer(pubsub, student.studentId, answer)
     }
 }
 

@@ -1,7 +1,7 @@
 const {  GraphQLString, GraphQLNonNull, GraphQLBoolean} = require("graphql");
 const { teacherController, studentController, accountController } =require('../../controllers');
-const { TeacherInputType, TokenType} = require("./types");
-const { resolveUserIdParsingMiddleware, resolveAuthMiddleware} = require("../../middleware");
+const { TeacherInputType, TokenType, StudentProfileInputType} = require("./types");
+const { resolveUserIdParsingMiddleware, resolveAuthMiddleware, resolveAuthMiddlewareUnverified} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
 
@@ -53,6 +53,43 @@ const changePassword = {
     resolve: async (parent, args, context) => await accountController.changePassword(args, context)
 }
 
+const confirmEmail = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'confirmEmail',
+    description: 'Confirm Email',
+    args: {
+        confirmationCode: {type: GraphQLNonNull(GraphQLString)}
+    },
+    resolve: async (parent, args, context) => await accountController.confirmEmail(args, context)
+}
+
+const changeEmail = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'changeEmail',
+    description: 'Change Email',
+    args:{
+        newEmail: {type: GraphQLNonNull(GraphQLString)},
+        password: {type: GraphQLNonNull(GraphQLString)}
+    },
+    resolve: async (parent, args, context) => await accountController.changeEmail(args, context)
+}
+
+const studentProfile = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: "StudentProfile",
+    description: "Update student profile",
+    args: {
+        name: { type: GraphQLNonNull(GraphQLString)},
+    },
+    resolve: async (parent, args, context) => await studentController.updateProfile(args, context)
+}
+
+const anonymousLogin = {
+    type: TokenType,
+    name: 'anonymousLogin',
+    description: 'Login Anonymous Teacher & Student',
+    resolve: async (parent, args, context) => await accountController.anonymousAuth(context)
+}
 
 module.exports = {
     createAnonymousTeacher,
@@ -60,4 +97,8 @@ module.exports = {
     loginTeacher,
     createAnonymousStudent,
     changePassword: resolveAuthMiddleware(UserRoleEnum.TEACHER)(changePassword),
+    changeEmail: resolveAuthMiddleware(UserRoleEnum.TEACHER)(changeEmail),
+    studentProfile: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentProfile),
+    anonymousLogin: resolveAuthMiddlewareUnverified(anonymousLogin),
+    confirmEmail
 };

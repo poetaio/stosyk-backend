@@ -3,4 +3,5 @@ module.exports = Object.freeze({
     PLAIN_INPUT: "PLAIN_INPUT",
     MATCHING: "MATCHING",
     QA: "QA",
+    MEDIA: "MEDIA",
 });

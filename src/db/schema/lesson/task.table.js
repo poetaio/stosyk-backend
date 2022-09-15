@@ -16,11 +16,6 @@ module.exports = (DataTypes) => ['tasks', {
         allowNull: false,
         defaultValue: TaskTypeEnum.MULTIPLE_CHOICE
     },
-    description: {
-        type: DataTypes.STRING(500),
-        allowNull: false,
-        defaultValue: ""
-    },
     createdAt: {
         type: DataTypes.DATE,
     },

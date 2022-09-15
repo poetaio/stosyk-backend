@@ -3,6 +3,7 @@ const PlainInputTaskStudentAnswersType = require('./PlainInputTaskStudentAnswers
 const TaskStudentsAnswersInterfaceType = require('./TaskStudentsAnswers.interface.type');
 const MatchingTaskStudentsAnswersType = require('./MatchingTaskStudentsAnswers.type');
 const QATaskStudentsAnswersType = require('./QATaskStudentsAnswers.type');
+const MediaTaskStudentsAnswersType = require('./MediaTaskStudentsAnswers.type');
 
 module.exports = {
     MultipleChoiceTaskStudentAnswersType,
@@ -10,4 +11,5 @@ module.exports = {
     TaskStudentsAnswersInterfaceType,
     MatchingTaskStudentsAnswersType,
     QATaskStudentsAnswersType,
+    MediaTaskStudentsAnswersType,
 };
