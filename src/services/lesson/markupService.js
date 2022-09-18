@@ -4,7 +4,9 @@ const {
     Lesson,
     allLessonsByLessonMarkupInclude,
     TaskList,
-    fullLessonMarkupInclude, Task, TaskListTask,
+    fullLessonMarkupInclude,
+    Task,
+    TaskListTask,
 } = require("../../db/models");
 const {LessonStatusEnum, ValidationError} = require("../../utils");
 const taskService = require("./taskService");
@@ -12,18 +14,22 @@ const homeworkService = require("./homeworkService");
 const lessonTeacherService = require("./lessonTeacherService");
 
 class MarkupService {
+    // returns only markup without tasks (model with proxy)
     async getMarkupByLessonId(lessonId) {
         return await LessonMarkup.findOne({
             include: lessonMarkupByLessonIdInclude(lessonId),
         });
     }
 
+    // returns model after "get" (without proxy dataValues)
+    // returns tasks and hw list
     async getMarkupWithTasksAndHomeworkByLessonId(lessonId) {
+        // todo: rewrite to awaits, remove then
         return await LessonMarkup.findOne({
             include: [
                 lessonMarkupByLessonIdInclude(lessonId),
                 ...fullLessonMarkupInclude,
-            ]
+            ],
         }).then(async markup => {
             markup = markup.get({ plain: true });
             markup.tasks = markup?.taskList.tasks;
@@ -74,9 +80,6 @@ class MarkupService {
         // checking if homework can be added to lesson (it's not started or finished already)
         // we forbid adding homework to active lessons, however, we must edit lesson markup to
         // its protege (pending lesson which is displayed in queries for teacher library)
-
-        await lessonTeacherService.lessonBelongsToTeacher(lessonId, teacherId);
-        await this.isLessonProtege(lessonId);
         if (
             !await lessonTeacherService.lessonBelongsToTeacher(lessonId, teacherId) ||
             !await this.isLessonProtege(lessonId)
@@ -88,6 +91,7 @@ class MarkupService {
         }
     }
 
+    // tasks appear as they are in graphql with type objects (e.g. plainInput)
     async createMarkup(schoolId, teacherId, name, description, tasks, homeworkList) {
         const {lessonMarkupId} = await LessonMarkup.create({
             name,
@@ -104,8 +108,10 @@ class MarkupService {
         return lessonMarkupId;
     }
 
-    async createProtege(name, description, tasks, homeworkList, lessonMarkupId) {
+    // tasks appear as they are in graphql with type objects (e.g. plainInput)
+    async createProtegeWithId(newLessonId, name, description, tasks, homeworkList, lessonMarkupId) {
         const {lessonId} = await Lesson.create({
+            ...(newLessonId ? {lessonId: newLessonId} : {}),
             name,
             description,
             lessonMarkupId,
@@ -119,27 +125,24 @@ class MarkupService {
         return lessonId;
     }
 
-    async createProtegeRawTasks(name, description, tasks, homeworkList, lessonMarkupId) {
-        const {lessonId} = await Lesson.create({
+    // tasks appear as they are in graphql with type objects (e.g. plainInput)
+    async createProtege(...args) {
+        return await this.createProtegeWithId(null, ...args);
+    }
+
+    // tasks appear as they are in db sentences->gaps->options
+    async createProtegeRawTasks(lessonId, name, description, tasks, homeworkList, lessonMarkupId) {
+        await Lesson.create({
+            lessonId,
             name,
             description,
             lessonMarkupId,
         });
 
         const protegeTaskList = await TaskList.create({lessonId});
-        // await taskService.createTaskListTasks(protegeTaskList.taskListId, tasks);
-        tasks.forEach(task => delete task.taskId);
-        await Promise.all(tasks.map(
-            task => Task.create(task)
-                .then(
-                    taskM => TaskListTask.create({
-                        taskId: taskM.taskId,
-                        taskListId: protegeTaskList.taskListId,
-                    })
-                )
-        ))
+        await taskService.createTaskListRawTasks(protegeTaskList.taskListId, tasks);
 
-        await homeworkService.addHomeworkListToLessonRawTasks(lessonId, homeworkList);
+        await homeworkService.addHomeworkListToLessonRaw(lessonId, homeworkList);
 
         return lessonId;
     }
@@ -148,10 +151,6 @@ class MarkupService {
         const lessonMarkupId = await this.createMarkup(schoolId, teacherId, name, description, tasks, homeworkList);
 
         return await this.createProtege(name, description, tasks, homeworkList, lessonMarkupId);
-    }
-
-    async deleteById(lessonMarkupId) {
-
     }
 }
 

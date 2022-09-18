@@ -33,6 +33,13 @@ class HomeworkService {
         return newHomework.homeworkId;
     }
 
+    async addToLessonMarkupRaw(lessonMarkupId, { tasks }) {
+        const newHomework = await Homework.create({ lessonMarkupId });
+        const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
+        await taskService.createTaskListRawTasks(taskList.taskListId, tasks);
+        return newHomework.homeworkId;
+    }
+
     /**
      * Add homework with such tasks t0 lesson (session)
      */
@@ -43,20 +50,15 @@ class HomeworkService {
         return newHomework.homeworkId;
     }
 
-    async addToLessonRawTasks(lessonId, {homeworkMarkupId, tasks}) {
+    async addToLessonRaw(lessonId, {homeworkMarkupId, tasks}) {
         const newHomework = await Homework.create({homeworkMarkupId, lessonId});
         const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
 
+        // removing taskId field from task, if tasks were fetched from db and processed with .get({ plain:true })
         tasks.forEach(task => delete task.taskId);
-        await Promise.all(tasks.map(
-            task => Task.create(task)
-                .then(
-                    taskM => TaskListTask.create({
-                        taskId: taskM.taskId,
-                        taskListId: taskList.taskListId,
-                    })
-                )
-        ))
+
+        // sequelize accepts tasks with sentences, gaps etc
+        await taskService.createTaskListRawTasks(taskList.taskListId, tasks);
 
         return newHomework.homeworkId;
     }
@@ -70,15 +72,23 @@ class HomeworkService {
         ));
     }
 
+    async addHomeworkListToLessonMarkupRaw(lessonMarkupId, homeworkList) {
+        return Promise.all(homeworkList.map(
+            (homework) => this.addToLessonMarkupRaw(lessonMarkupId, homework)
+        ));
+    }
+
     async addHomeworkListToLesson(lessonId, homeworkList) {
         return Promise.all(homeworkList.map(
             (homework) => this.addToLesson(lessonId, homework)
         ));
     }
 
-    async addHomeworkListToLessonRawTasks(lessonId, homeworkList) {
+    // tasks contain sentences->gaps->options, which can be accepted by sequelize without the need to parse it
+    // check HomeworkService#addToLessonRawTasks
+    async addHomeworkListToLessonRaw(lessonId, homeworkList) {
         return Promise.all(homeworkList.map(
-            (homework) => this.addToLessonRawTasks(lessonId, homework)
+            (homework) => this.addToLessonRaw(lessonId, homework)
         ));
     }
 
@@ -134,6 +144,12 @@ class HomeworkService {
     async getAllByLessonId(lessonId) {
         return await Homework.findAll({
             where: { lessonId },
+        });
+    }
+
+    async getAllByLessonMarkupId(lessonMarkupId) {
+        return await Homework.findAll({
+            where: { lessonMarkupId },
         });
     }
 
@@ -244,8 +260,6 @@ class HomeworkService {
     }
 
     async removeFromLesson(teacherId, lessonId, homeworkId) {
-        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacherId);
-
         if (!await this.homeworkExists(homeworkId)) {
             throw new NotFoundError(`No homework ${homeworkId} found`);
         }

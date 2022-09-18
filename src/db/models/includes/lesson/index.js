@@ -21,6 +21,7 @@ const allLessonTeacherByLessonIdInclude = require('./allLessonTeacherByLessonId.
 const allLessonsByLessonMarkupInclude = require('./allLessonsByLessonMarkup.include');
 const allLessonsByTeacherIdInclude = require('./allLessonsByTeacherId.include');
 const allLessonsRunByTeacherInclude = require('./allLessonsRunByTeacher.include');
+const lessonByHomeworkIdInclude = require('./lessonByHomeworkId.include');
 const allLessonsBySchoolIdInclude = require('./allLessonsBySchoolId.include');
 const allSchoolLessonsByTeacherIdInclude = require('./allSchoolLessonsByTeacherId.include');
 
@@ -42,6 +43,7 @@ module.exports = {
     allLessonsByLessonMarkupInclude,
     allLessonsByTeacherIdInclude,
     allLessonsRunByTeacherInclude,
+    lessonByHomeworkIdInclude,
 
     allLessonsBySchoolIdInclude,
     allSchoolLessonsByTeacherIdInclude,

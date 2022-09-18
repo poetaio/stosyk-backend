@@ -1,4 +1,10 @@
-const { lessonService, studentService, answerService, homeworkService} = require('../../services')
+const { 
+    lessonService, 
+    studentService, 
+    answerService,
+    markupService,
+    homeworkService,
+} = require('../../services');
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {pubsubService} = require('../../services');
@@ -38,6 +44,8 @@ class LessonController {
 
         if (!teacher)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacher.teacherId);
 
         return await lessonService.startLesson(pubsub, lessonId, teacher.teacherId);
     }
@@ -166,6 +174,17 @@ class LessonController {
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
 
         return lessonService.getLessonsRunByTeacher(teacher.teacherId);
+    }
+
+    async editLesson({lessonId, lesson}, {user: {userId}}) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacher.teacherId);
+
+        return await lessonService.editLesson(lessonId, lesson);
     }
 
     // complete = answered / correct
