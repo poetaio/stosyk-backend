@@ -24,10 +24,6 @@ module.exports = (DataTypes) => ['accounts', {
             key: 'userId',
         }
     },
-    status: {
-        type: DataTypes.ENUM(...Object.values(accountStatusEnum)),
-        defaultValue: accountStatusEnum.UNVERIFIED
-    },
     createdAt: {
         type: DataTypes.DATE,
     },
