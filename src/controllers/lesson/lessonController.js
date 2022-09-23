@@ -1,4 +1,4 @@
-const { lessonService, studentService, answerService} = require('../../services')
+const { lessonService, studentService, answerService, homeworkService} = require('../../services')
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {pubsubService} = require('../../services');
@@ -158,6 +158,21 @@ class LessonController {
         }
 
         return await answerService.setHomeworkAnswer(pubsub, student.studentId, answer)
+    }
+
+    // complete = answered / correct
+    async getStudentProgress({ studentId, lessonId }) {
+        return await lessonService.getStudentCompleteness(lessonId, studentId);
+    }
+
+    // correctness = correct / answered
+    async getStudentCorrectness({ studentId, parent: {lessonId} }) {
+        return await lessonService.getStudentScore(lessonId, studentId);
+    }
+
+    // total score = correct / total
+    async getTotalScore({ studentId, lessonId }) {
+        return await lessonService.getTotalScore(lessonId, studentId);
     }
 
     async studentOnLesson({ lessonId }, { user: {userId}, pubsub }) {
