@@ -55,7 +55,6 @@ const studentHomework = {
     resolve: async (parent, args, context) => await homeworkController.getAllForStudent(args, context),
 }
 
-
 module.exports = {
     //TEACHER
     teacherLessons: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherLessons),

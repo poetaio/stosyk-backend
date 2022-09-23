@@ -1,6 +1,9 @@
 const {  GraphQLString, GraphQLNonNull, GraphQLBoolean} = require("graphql");
 const { teacherController, studentController, accountController } =require('../../controllers');
-const {TokenType, StudentProfileInputType, UserAccInputType,
+const {
+    TokenType,
+    StudentProfileInputType,
+    UserAccInputType,
     UserLoginInputType
 } = require("./types");
 const { resolveUserIdParsingMiddleware, resolveAuthMiddleware, resolveAuthMiddlewareUnverified} = require("../../middleware");

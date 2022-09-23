@@ -8,6 +8,8 @@ const StudentOption = require('./studentOption.table');
 const TaskAttachments = require('./taskAttachment.table')
 const TeacherCourse = require('./teacherCourse.table')
 const LessonCourse = require('./lessonCourse.table')
+const SchoolTeacher = require('./schoolTeacher.table')
+const SchoolStudentSeat = require('./schoolStudentSeat.table')
 
 
 module.exports = (DataTypes) => ({
@@ -21,4 +23,6 @@ module.exports = (DataTypes) => ({
     TaskAttachmentsTable: TaskAttachments(DataTypes),
     TeacherCourseTable: TeacherCourse(DataTypes),
     LessonCourseTable: LessonCourse(DataTypes),
+    SchoolTeacherTable: SchoolTeacher(DataTypes),
+    SchoolStudentSeatTable: SchoolStudentSeat(DataTypes),
 });

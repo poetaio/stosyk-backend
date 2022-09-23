@@ -1,2 +1,2 @@
 name=$1
-npx sequelize-cli db:migrate $name
+npx sequelize-cli migration:generate --name $name

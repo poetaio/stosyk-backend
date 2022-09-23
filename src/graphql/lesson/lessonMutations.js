@@ -1,8 +1,10 @@
 const { lessonController, taskController, courseController, homeworkController} = require('../../controllers');
 const { LessonInputType, AnswerInputType, HomeworkInputType, HomeworkAnswerInputType} = require('./types');
-const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLString} = require("graphql");
+const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLString, GraphQLInt} = require("graphql");
 const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
+const {schoolService} = require("../../services/school");
+const {schoolController} = require("../../controllers/school");
 
 
 const createLesson = {
@@ -104,6 +106,7 @@ const createCourse = {
     args: {
         name: {type: GraphQLNonNull(GraphQLString)}
         // todo: Add initial list of lessons or lesson ids
+        // or even full lessons from scratch
     },
     resolve: async (parent, args, context) => await courseController.createCourse(args, context)
 }
@@ -203,7 +206,6 @@ const showHomeworkAnswers = {
     },
     resolve: async (parent, args, context) => await homeworkController.showAnswers(args, context)
 }
-
 
 module.exports = {
     // teacher

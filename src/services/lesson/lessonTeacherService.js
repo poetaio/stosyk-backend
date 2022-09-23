@@ -1,8 +1,12 @@
-const {LessonTeacher} = require("../../db/models");
+const {LessonTeacher, Lesson, allSchoolLessonsByTeacherIdInclude} = require("../../db/models");
 
 class LessonTeacherService {
-    async teacherLessonExists(lessonId, teacherId){
-        return !!await LessonTeacher.count({
+    async teacherLessonExists(lessonId, teacherId) {
+        return !!await Lesson.count({
+            where: { lessonId },
+            include: allSchoolLessonsByTeacherIdInclude(teacherId),
+        }) ||
+        !!await LessonTeacher.count({
             where: {
                 lessonId,
                 teacherId

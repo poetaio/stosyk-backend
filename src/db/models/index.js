@@ -22,6 +22,10 @@ const {
 } = require('./lesson')(sequelize, DataTypes);
 
 const {
+    School
+} = require('./school')(sequelize, DataTypes);
+
+const {
     LessonStudent,
     LessonTeacher,
     TaskListTask,
@@ -32,6 +36,8 @@ const {
     TaskAttachments,
     LessonCourse,
     TeacherCourse,
+    SchoolTeacher,
+    SchoolStudentSeat,
 } = require('./relations')(sequelize, DataTypes);
 
 //User-Account One-to-One relationship
@@ -450,6 +456,81 @@ TaskList.belongsTo(Homework, {
     as: 'homework',
 });
 
+School.hasMany(Lesson, {
+    foreignKey: 'schoolId',
+    as: 'lessons',
+});
+Lesson.belongsTo(School, {
+    foreignKey: 'schoolId',
+    as: 'school',
+});
+
+School.hasMany(Course, {
+    foreignKey: 'schoolId',
+    as: 'courses',
+});
+Course.belongsTo(School, {
+    foreignKey: 'schoolId',
+    as: 'school',
+});
+
+School.belongsToMany(Teacher, {
+    through: SchoolTeacher,
+    foreignKey: 'schoolId',
+    as: 'teachers',
+});
+Teacher.belongsToMany(School, {
+    through: SchoolTeacher,
+    foreignKey: 'teacherId',
+    as: 'schools',
+});
+
+Teacher.hasMany(SchoolTeacher, {
+    foreignKey: 'teacherId',
+    as: 'schoolTeachers',
+});
+SchoolTeacher.belongsTo(Teacher, {
+    foreignKey: 'teacherId',
+    as: 'teacher',
+});
+
+School.hasMany(SchoolTeacher, {
+    foreignKey: 'schoolId',
+    as: 'schoolTeachers',
+});
+SchoolTeacher.belongsTo(School, {
+    foreignKey: 'schoolId',
+    as: 'school',
+});
+
+School.belongsToMany(Student, {
+    through: SchoolStudentSeat,
+    foreignKey: 'schoolId',
+    as: 'students',
+});
+Student.belongsToMany(School, {
+    through: SchoolStudentSeat,
+    foreignKey: 'studentId',
+    as: 'schools',
+});
+
+Student.hasMany(SchoolStudentSeat, {
+    foreignKey: 'studentId',
+    as: 'seats',
+});
+SchoolStudentSeat.belongsTo(Student, {
+    foreignKey: 'studentId',
+    as: 'student',
+});
+
+School.hasMany(SchoolStudentSeat, {
+    foreignKey: 'schoolId',
+    as: 'seats',
+});
+SchoolStudentSeat.belongsTo(School, {
+    foreignKey: 'schoolId',
+    as: 'school',
+});
 
 module.exports = {
     sequelize,
@@ -466,6 +547,8 @@ module.exports = {
     Gap,
     Option,
     Course,
+    Homework,
+    School,
 
     LessonStudent,
     LessonTeacher,
@@ -477,7 +560,8 @@ module.exports = {
     TaskAttachments,
     TeacherCourse,
     LessonCourse,
-    Homework,
+    SchoolTeacher,
+    SchoolStudentSeat,
 
     ...queries,
     ...includes

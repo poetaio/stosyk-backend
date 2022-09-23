@@ -8,6 +8,8 @@ const StudentOption = require('./studentOption.model');
 const TaskAttachments = require('./taskAttachment.model')
 const LessonCourse = require('./lessonCourse.model')
 const TeacherCourse = require('./teacherCourse.model')
+const SchoolTeacher = require('./schoolTeacher.model')
+const SchoolStudentSeat = require('./schoolStudentSeat.model')
 
 
 module.exports = (sequelize, DataTypes) => ({
@@ -20,5 +22,7 @@ module.exports = (sequelize, DataTypes) => ({
     StudentOption: StudentOption(sequelize, DataTypes),
     TaskAttachments: TaskAttachments(sequelize, DataTypes),
     LessonCourse: LessonCourse(sequelize, DataTypes),
-    TeacherCourse: TeacherCourse(sequelize, DataTypes)
+    TeacherCourse: TeacherCourse(sequelize, DataTypes),
+    SchoolTeacher: SchoolTeacher(sequelize, DataTypes),
+    SchoolStudentSeat: SchoolStudentSeat(sequelize, DataTypes),
 });

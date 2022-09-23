@@ -2,7 +2,7 @@ const { execute, subscribe } = require('graphql');
 const { WebSocketServer } = require('ws');
 const {useServer} = require("graphql-ws/lib/use/ws");
 
-const schema = require('../schemas/index');
+const schema = require('../graphql/index');
 const {ApolloServer} = require("apollo-server-express");
 const {ApolloServerPluginDrainHttpServer} = require("apollo-server-core");
 const {errorHandlingMiddleware} = require("../middleware");

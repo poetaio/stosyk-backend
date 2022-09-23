@@ -20,7 +20,7 @@ class TeacherService {
         return await Teacher.create(
             { user: { role: UserRoleEnum.TEACHER } },
             { include: 'user' }
-        ).then(({ user }) => user.userId);
+        );
     }
 
     async create(email, password, name, avatar_source) {
