@@ -308,14 +308,14 @@ TaskSentence.belongsTo(Sentence, {
 
 Task.hasMany(TaskAttachments, {
     foreignKey: 'taskId',
-    as: 'taskAttachments',
+    as: 'attachments',
     foreignKeyConstraint: true,
     onDelete: 'CASCADE',
     hooks: true
 });
 TaskAttachments.belongsTo(Task,{
     foreignKey: 'taskId',
-    as: 'taskAttachments'
+    as: 'task'
 })
 
 //Sentence-Gap One-to-Many relationship

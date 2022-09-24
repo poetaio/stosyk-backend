@@ -138,13 +138,8 @@ class TaskService {
         return sentences;
     }
 
-    // task creation, accepts all types of task
-    async create(task) {
-        const {type, answerShown, attachments, description} = task;
-
-        // getting sentences from "type object" depending on type to insert in db
-        let sentences = await this.getSentencesFromTypeObject(task);
-
+    // task appear as they are in db (sentences->gaps->options)
+    async createRaw(description, type, answerShown, sentences, attachments) {
         const createdTask = await Task.create({ type, answerShown, description });
         const {taskId} = createdTask;
 
@@ -160,6 +155,17 @@ class TaskService {
         }
 
         return taskId;
+    }
+
+    // task creation, accepts all types of task as they are in GraphQL
+    // with type and type object (e.g. "PLAIN_INPUT" and plainInput)
+    async create(task) {
+        const {type, answerShown, attachments, description} = task;
+
+        // getting sentences from "type object" depending on type to insert in db
+        let sentences = await this.getSentencesFromTypeObject(task);
+
+        return await this.createRaw(description, type, answerShown, sentences, attachments);
     }
 
     async getAll({ lessonId, homeworkId }) {
@@ -297,10 +303,21 @@ class TaskService {
         }
     }
 
+    // tasks appear as in GraphQL with type and type object (e.g. "PLAIN_INPUT" and plainInput)
     async createTaskListTasks(taskListId, tasks) {
         // create and connect to lesson
-        for (const task of tasks) {
+        for (const task of tasks || []) {
             const taskId = await this.create(task);
+
+            await TaskListTask.create({taskListId: taskListId, taskId});
+        }
+    }
+
+    // tasks appear as in db (sentences->gaps->option)
+    async createTaskListRawTasks(taskListId, tasks) {
+        // create and connect to lesson
+        for (const {description, type, answerShown, sentences, attachments} of tasks || []) {
+            const taskId = await this.createRaw(description, type, answerShown, sentences, attachments);
 
             await TaskListTask.create({taskListId: taskListId, taskId});
         }

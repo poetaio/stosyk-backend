@@ -3,7 +3,7 @@ const fullLesson = {
     required: true,
     include: {
         association: 'tasks',
-        include: {
+        include: [{
             association: 'sentences',
             include: {
                 association: 'gaps',
@@ -11,7 +11,7 @@ const fullLesson = {
                     association: 'options',
                 }
             }
-        }
+        }, "attachments"]
     }
 }
 

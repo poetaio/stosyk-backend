@@ -3,7 +3,7 @@ module.exports = {
     required: true,
     include: {
         association: 'tasks',
-        include: {
+        include: [{
             association: 'sentences',
             include: {
                 association: 'gaps',
@@ -11,6 +11,6 @@ module.exports = {
                     association: 'options',
                 }
             }
-        }
+        }, "attachments"]
     }
 };

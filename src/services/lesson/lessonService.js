@@ -5,13 +5,15 @@ const {
     lessonTasksInclude,
     Task,
     allTasksByLessonIdInclude,
-    fullLessonInclude, 
-    LessonMarkup, 
-    allLessonsByLessonMarkupInclude, 
-    allLessonsByTeacherIdInclude, 
+    fullLessonInclude,
+    LessonMarkup,
+    allLessonsByLessonMarkupInclude,
+    allLessonsByTeacherIdInclude,
     LessonTeacher,
-    allLessonsRunByTeacherInclude, 
+    allLessonsRunByTeacherInclude,
     allLessonMarkupsByTeacherIdInclude,
+    lessonByHomeworkIdInclude,
+    fullLessonMarkupInclude,
     allLessonsBySchoolIdInclude,
     allSchoolLessonsByTeacherIdInclude,
     Gap,
@@ -71,20 +73,17 @@ class LessonService {
         });
     }
 
-    async deleteById(lessonId) {
-        const lesson = await Lesson.findOne({
-            where: {lessonId},
-            include: lessonInclude
-        });
-
-        if (!lesson)
-            return false;
-
-        if (lesson.lessonTaskList) {
-            for (let task of lesson.tasks || []) {
+    // used both for deleting markup and protege
+    async delete(lesson) {
+        if (lesson.taskList || lesson.lessonTaskList) {
+            // lesson is either markup or session
+            // for markup taskList association is "taskList"
+            // for lesson taskList association is "lessonTaskList"
+            const tasks = lesson?.taskList?.tasks || lesson?.lessonTaskList?.tasks || [];
+            for (let task of tasks) {
                 for (let sentence of task.sentences || []) {
                     for (let gap of sentence.gaps || []) {
-                        for (let option of option.gaps || []) {
+                        for (let option of gap.options || []) {
                             await option.destroy();
                         }
                         await gap.destroy();
@@ -102,13 +101,43 @@ class LessonService {
         return true;
     }
 
+    async deleteMarkupById(lessonMarkupId) {
+        const lesson = await LessonMarkup.findOne({
+            where: { lessonMarkupId },
+            include: fullLessonMarkupInclude,
+        });
+
+        if (!lesson)
+            return false;
+
+        return await this.delete(lesson);
+    }
+
+    async deleteProtegeById(lessonId) {
+        // todo: find markup and delete it
+        //       keep in mind refactoring LessonService#editLesson, where only protege is deleted
+        //       using this method
+        //       and LessonService#deleteByTeacherId
+        const lesson = await Lesson.findOne({
+            where: { lessonId },
+            include: lessonInclude,
+        });
+
+        if (!lesson)
+            return false;
+
+        return await this.delete(lesson);
+    }
+
     async deleteByTeacherId(teacherId) {
         const markups = await LessonMarkup.findAll({
             where: {teacherId},
         });
 
-        for (let markup of markups) {
-            await markupService.deleteById(markup.lessonMarkupId);
+        for (let {lessonMarkupId} of markups) {
+            const {lessonId} = await markupService.getMarkupProtege(lessonMarkupId);
+            await this.deleteProtegeById(lessonId);
+            await this.deleteMarkupById(lessonMarkupId);
         }
 
         return true;
@@ -123,10 +152,13 @@ class LessonService {
         })
 
         for (let lesson of lessons) {
-            await this.deleteById(lesson.lessonId);
+            const protege = await markupService.getMarkupProtege(markup.lessonMarkupId);
+            await this.deleteProtegeById(protege.lessonId);
+
+            await this.deleteMarkupById(lesson.lessonMarkupId);
         }
 
-        return !!lessons.length;
+        return true;
     }
 
     async checkTasks(tasks) {
@@ -142,10 +174,10 @@ class LessonService {
         const school = await schoolService.getOneByTeacherId(teacherId);
 
         // check if anonymous, then delete all existing lessons
-        // todo: fix when merging editing
-        // if (await teacherService.existsAnonymousById(teacherId))
-        //     await this.deleteBySchoolId(school.schoolId);
-
+        if (await teacherService.existsAnonymousById(teacherId)) {
+            await this.deleteBySchoolId(school.schoolId);
+        }
+        
         return await markupService.createMarkupAndProtege(school.schoolId, teacherId, name, description, tasks, homeworkList);
     }
 
@@ -213,6 +245,16 @@ class LessonService {
         });
     }
 
+    async recreateLessonProtegeByProtegeId(lessonId) {
+        const {lessonMarkupId, name, description, tasks} = await markupService.getMarkupWithTasksAndHomeworkByLessonId(lessonId);
+
+        const homeworks = await homeworkService.getFullHomeworkByLessonId(lessonId);
+        homeworks.forEach(homework => homework.tasks = homework.taskList.tasks);
+
+        await this.deleteProtegeById(lessonId);
+        await markupService.createProtegeRawTasks(lessonId, name, description, tasks, homeworks, lessonMarkupId);
+    }
+
     /*
         Markup-Lesson logic:
             For teacherLessons query we return already created proteges for markups.
@@ -221,8 +263,6 @@ class LessonService {
             we create new one for the correspondent markup
      */
     async startLesson(pubsub, lessonId, teacherId) {
-        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacherId);
-
         if (await this.existsActiveByLessonId(lessonId)) {
             throw new ValidationError(`Lesson is already active lessonId: ${lessonId}`);
         }
@@ -240,21 +280,14 @@ class LessonService {
             lessonId,
         });
 
-        if(upd[0]){
+        if (upd[0]) {
             await pubsubService.publishLessonStarted(pubsub, lessonId, {
                 lessonId: lessonId, status:'ACTIVE'
             });
         }
 
-        /*
-           creating new protege check markupService#getMarkupProtege for more details
-         */
-        const {lessonMarkupId, name, description, tasks} = await markupService.getMarkupWithTasksAndHomeworkByLessonId(lessonId);
-
-        const homeworks = await homeworkService.getFullHomeworkByLessonId(lessonId);
-        homeworks.forEach(homework => homework.tasks = homework.taskList.tasks);
-
-        await markupService.createProtegeRawTasks(name, description, tasks, homeworks, lessonMarkupId);
+        // creating new protege check markupService#getMarkupProtege for more details
+        await this.recreateLessonProtegeByProtegeId(lessonId);
 
         return true;
     }
@@ -282,8 +315,9 @@ class LessonService {
         });
 
         // clean up
-        // todo: test this, may be some problems
-        //       during lesson-sessions -- moving student to Redis merge
+        // todo: test clean up
+        // await studentLessonService.removeAllStudents(lessonId);
+        // await optionService.removeAllStudentsAnswersByLessonId(lessonId);
         store.clear();
 
         return !!upd[0];
@@ -316,7 +350,7 @@ class LessonService {
             throw new ValidationError(`Cannot delete active lesson lessonId: ${lessonId}`);
         }
 
-        return await this.deleteById(lessonId);
+        return await this.deleteProtegeById(lessonId);
     }
 
     async getStudentsAnswers(lessonId) {
@@ -356,6 +390,7 @@ class LessonService {
                 store.add(lessonId, [{taskId, student}])
             }
         }
+
         const students = await studentLessonService.getLessonStudents(lessonId)
         for (let student of students) {
             await pubsubService.publishOnStudentPosition(pubsub, lessonId, student.userId, store.get(lessonId))
@@ -482,6 +517,77 @@ class LessonService {
             lessons,
             total: lessons.length,
         }
+    }
+
+    async editLesson(lessonId, {name: newName, description: newDescription, tasks}) {
+        const markup = await markupService.getMarkupWithTasksAndHomeworkByLessonId(lessonId);
+
+        if (!markup)
+            return false;
+
+        // todo: refactor (try cascade)
+        //       otherwise use Promise.all or remove intermediate tables
+        // function (async () => {})() is used for asynchronous deleting
+        (async () => {
+            if (markup.taskList) {
+                for (let {taskId, sentences} of markup.tasks || []) {
+                    for (let {sentenceId, gaps} of sentences || []) {
+                        for (let {gapId, options} of gaps || []) {
+                            await Promise.all(
+                                options.map(
+                                    ({optionId}) => Option.destroy({
+                                        where: { optionId },
+                                    })
+                            ));
+                            await Gap.destroy({
+                                where: { gapId },
+                                cascade: true,
+                            });
+                        }
+                        await Sentence.destroy({
+                            where: { sentenceId },
+                            cascade: true,
+                        });
+                    }
+                    await TaskListTask.destroy({
+                        where: {taskId},
+                    });
+                    await Task.destroy({
+                        where: { taskId },
+                        cascade: true,
+                    });
+                }
+                await TaskList.destroy({
+                    where: { taskListId: markup.taskList.taskListId },
+                });
+            }
+        })();
+
+        const {name, description, homework, lessonMarkupId} = markup;
+
+        LessonMarkup.update({
+            name: newName,
+            description: newDescription,
+        }, {
+            where: { lessonMarkupId },
+        });
+
+        const newTaskList = await TaskList.create({lessonMarkupId});
+        await taskService.createTaskListTasks(newTaskList.taskListId, tasks);
+
+        const protege = await markupService.getMarkupProtege(markup.lessonMarkupId);
+
+        await this.deleteProtegeById(protege.lessonId);
+
+        markupService.createProtegeWithId(protege.lessonId, name, description, tasks || [], homework || [], lessonMarkupId);
+
+        return true;
+    }
+
+    async getLessonByHomeworkId(homeworkId) {
+        return await Lesson.findOne({
+            include: lessonByHomeworkIdInclude(homeworkId),
+        }).then(lesson => lesson?.get());
     }
 
     async subscribeOnStudentOnLesson(pubsub, lessonId, studentId) {

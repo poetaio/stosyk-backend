@@ -1,4 +1,4 @@
-const LessonMarkup = require("./LessonMarkup.table");
+const LessonMarkup = require("./lessonMarkup.table");
 const LessonCourse = require("./LessonCourse.table");
 
 module.exports = (DataTypes) => ({
