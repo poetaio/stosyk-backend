@@ -3,7 +3,7 @@ const {Task, Lesson, TaskSentence,
     DELETE_TASK_BY_LESSON_ID,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
-    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments, TaskListTask
+    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments, TaskListTask, allTasksByLessonIdInclude
 } = require("../../db/models");
 const sentenceService = require('./sentenceService');
 const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum, TaskListTypeEnum} = require('../../utils');
@@ -29,7 +29,7 @@ class TaskService {
                 include: {
                     association: 'taskListTaskTaskList',
                     include: {
-                        association: 'taskListLesson',
+                        association: 'lesson',
                         where: {
                             status: LessonStatusEnum.ACTIVE
                         },
@@ -78,7 +78,7 @@ class TaskService {
                 where: { taskId },
                 include: taskWithLessonInclude
             });
-            const lesson = task.taskTaskListTask.taskListTaskTaskList.taskListLesson;
+            const lesson = task.taskTaskListTask.taskListTaskTaskList.lesson;
             const lessonAnswers = await lessonAnswersService.getShownAnswers(lesson.lessonId);
             const students = await studentLessonService.getLessonStudents(lesson.lessonId);
             for (let { studentId } of students) {
@@ -163,30 +163,13 @@ class TaskService {
     }
 
     async getAll({ lessonId, homeworkId }) {
-        const where = {};
-        // if lessonId is null, task will not have taskLessonTask as child,
-        // thus no need to require = true
-        let required = false;
-        if (lessonId) {
-            where.lessonId = lessonId;
-            required = true;
-        }
-        if (homeworkId) {
-            where.homeworkId = homeworkId;
-            required = true;
-        }
-
         if (homeworkId) {
             return await Task.findAll({
                 include: {
-                    association: 'taskTaskListTask',
+                    association: 'taskList',
                     include: {
-                        association: 'taskListTaskTaskList',
-                        include: {
-                            association: 'homework',
-                            where: {homeworkId},
-                            required
-                        },
+                        association: 'homework',
+                        where: {homeworkId},
                         required: true
                     },
                     required: true
@@ -196,17 +179,15 @@ class TaskService {
 
         return await Task.findAll({
             include: {
-                association: 'taskTaskListTask',
+                association: 'taskList',
+                required: true,
+                attributes: [],
                 include: {
-                    association: 'taskListTaskTaskList',
-                    include: {
-                        association: 'taskListLesson',
-                        where: {lessonId},
-                        required
-                    },
-                    required: true
+                    association: 'lesson',
+                    attributes: [],
+                    required: true,
+                    where: {lessonId},
                 },
-                required: true
             }
         });
     }

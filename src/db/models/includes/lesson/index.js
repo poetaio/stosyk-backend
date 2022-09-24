@@ -14,6 +14,13 @@ const taskIncludes = require('./task');
 const homeworkIncludes = require('./homework');
 const allCoursesByTeacherIdInclude = require('./allCoursesByTeacherId.include');
 const lessonByTeacherAndTaskInclude = require('./lessonByTeacherAndTask.include');
+const fullLessonInclude = require('./fullLesson.include');
+const markupIncludes = require('./markup');
+const courseIncludes = require('./course');
+const allLessonTeacherByLessonIdInclude = require('./allLessonTeacherByLessonId.include');
+const allLessonsByLessonMarkupInclude = require('./allLessonsByLessonMarkup.include');
+const allLessonsByTeacherIdInclude = require('./allLessonsByTeacherId.include');
+const allLessonsRunByTeacherInclude = require('./allLessonsRunByTeacher.include');
 const allLessonsBySchoolIdInclude = require('./allLessonsBySchoolId.include');
 const allSchoolLessonsByTeacherIdInclude = require('./allSchoolLessonsByTeacherId.include');
 
@@ -30,6 +37,12 @@ module.exports = {
     lessonShownTasksInclude,
     allCoursesByTeacherIdInclude,
     lessonByTeacherAndTaskInclude,
+    fullLessonInclude,
+    allLessonTeacherByLessonIdInclude,
+    allLessonsByLessonMarkupInclude,
+    allLessonsByTeacherIdInclude,
+    allLessonsRunByTeacherInclude,
+
     allLessonsBySchoolIdInclude,
     allSchoolLessonsByTeacherIdInclude,
     ...sentencesIncludes,
@@ -37,4 +50,6 @@ module.exports = {
     ...optionIncludes,
     ...taskIncludes,
     ...homeworkIncludes,
+    ...markupIncludes,
+    ...courseIncludes,
 };

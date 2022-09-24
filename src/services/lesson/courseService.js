@@ -1,4 +1,4 @@
-const {Course, TeacherCourse, LessonCourse, allCoursesByTeacherIdInclude} = require("../../db/models");
+const {Course, TeacherCourse, LessonCourse, allCoursesByTeacherIdInclude, allLessonCoursesByMarkupIdInclude} = require("../../db/models");
 const {NotFoundError} = require("../../utils");
 
 class CourseService {
@@ -17,20 +17,21 @@ class CourseService {
         });
     }
 
-    async addLessonToCourse(courseId, lessonId, teacherId){
+    async addLessonMarkupToCourse(courseId, lessonMarkupId, teacherId){
         if (!await this.teacherCourseExists(courseId, teacherId)) {
             throw new NotFoundError(`No course ${courseId} of such teacher ${teacherId}`);
         }
-        return !! await LessonCourse.create({courseId, lessonId})
+        return !! await LessonCourse.create({courseId, lessonMarkupId})
     }
 
-    async removeLessonFromCourse(courseId, lessonId, teacherId){
+    async removeLessonMarkupFromCourse(courseId, lessonMarkupId, teacherId){
         if (!await this.teacherCourseExists(courseId, teacherId)) {
             throw new NotFoundError(`No course ${courseId} of such teacher ${teacherId}`);
         }
+
         return  !!await LessonCourse.destroy({
+            include: allLessonCoursesByMarkupIdInclude(lessonMarkupId),
             where: {
-                lessonId,
                 courseId,
             }
         })

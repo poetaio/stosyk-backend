@@ -102,6 +102,8 @@ class AccountController {
             throw new ValidationError(`No user with id ${userId} exists`);
         }
 
+        // todo: add verification if anonymous
+
         let token;
         if (UserRoleEnum.TEACHER === role) {
             token = tokenService.createTeacherToken(userId);

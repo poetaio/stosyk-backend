@@ -1,12 +1,17 @@
 const {
     Lesson,
-    LessonTeacher,
-    TaskList,
     LessonStudent,
     lessonInclude,
     lessonTasksInclude,
     Task,
     allTasksByLessonIdInclude,
+    fullLessonInclude, 
+    LessonMarkup, 
+    allLessonsByLessonMarkupInclude, 
+    allLessonsByTeacherIdInclude, 
+    LessonTeacher,
+    allLessonsRunByTeacherInclude, 
+    allLessonMarkupsByTeacherIdInclude,
     allLessonsBySchoolIdInclude,
     allSchoolLessonsByTeacherIdInclude,
     Gap,
@@ -32,10 +37,10 @@ const studentService = require("../user/studentService");
 const lessonAnswersService = require("./lessonAnswersService");
 const {Op} = Sequelize;
 const store = require("store2");
-const optionService = require("./optionService");
-const homeworkService = require("./homeworkService");
 const lessonTeacherService = require('./lessonTeacherService');
 const studentLessonService = require("./studentLessonService");
+const markupService = require("./markupService");
+const homeworkService = require("./homeworkService");
 const {schoolService} = require("../school");
 const teacherLessonService = require("./teacherLessonService");
 
@@ -75,19 +80,18 @@ class LessonService {
         if (!lesson)
             return false;
 
-        // todo: refactor
         if (lesson.lessonTaskList) {
-            for (let taskListTask of lesson?.lessonTaskList?.taskListTaskListTasks || []) {
-                for (let taskSentence of taskListTask?.taskListTaskTask?.taskTaskSentences || []) {
-                    for (let sentenceGap of taskSentence?.taskSentenceSentence?.sentenceSentenceGaps || []) {
-                        for (let gapOption of sentenceGap?.sentenceGapGap?.gapGapOptions || []) {
-                            await gapOption.gapOptionOption.destroy();
+            for (let task of lesson.tasks || []) {
+                for (let sentence of task.sentences || []) {
+                    for (let gap of sentence.gaps || []) {
+                        for (let option of option.gaps || []) {
+                            await option.destroy();
                         }
-                        await sentenceGap.sentenceGapGap.destroy();
+                        await gap.destroy();
                     }
-                    await taskSentence.taskSentenceSentence.destroy();
+                    await sentence.destroy();
                 }
-                await taskListTask.taskListTaskTask.destroy();
+                await task.destroy();
             }
         }
 
@@ -99,26 +103,19 @@ class LessonService {
     }
 
     async deleteByTeacherId(teacherId) {
-        const lessons = await Lesson.findAll({
-            include: [
-                {
-                    association: 'lessonLessonTeacher',
-                    where: {teacherId},
-                    required: true
-                },
-                lessonInclude
-            ]
-        })
+        const markups = await LessonMarkup.findAll({
+            where: {teacherId},
+        });
 
-        for (let lesson of lessons) {
-            await this.deleteById(lesson.lessonId);
+        for (let markup of markups) {
+            await markupService.deleteById(markup.lessonMarkupId);
         }
 
-        return !!lessons.length;
+        return true;
     }
 
     async deleteBySchoolId(schoolId) {
-        const lessons = await Lesson.findAll({
+        const lessons = await LessonMarkup.findAll({
             include: [
                 allLessonsBySchoolIdInclude(schoolId),
                 lessonInclude,
@@ -145,39 +142,42 @@ class LessonService {
         const school = await schoolService.getOneByTeacherId(teacherId);
 
         // check if anonymous, then delete all existing lessons
-        if (await teacherService.existsAnonymousById(teacherId))
-            await this.deleteBySchoolId(school.schoolId);
+        // todo: fix when merging editing
+        // if (await teacherService.existsAnonymousById(teacherId))
+        //     await this.deleteBySchoolId(school.schoolId);
 
-        const newLesson = await Lesson.create({name, description, schoolId: school.schoolId});
-        const taskList = await TaskList.create({lessonId: newLesson.lessonId});
-        await taskService.createTaskListTasks(taskList.taskListId, tasks);
-        await homeworkService.addAll(teacherId, {
-                lessonId: newLesson.lessonId, homeworkList
-            }
-        );
-
-        return newLesson.lessonId;
+        return await markupService.createMarkupAndProtege(school.schoolId, teacherId, name, description, tasks, homeworkList);
     }
 
     async getTeacherLessons(teacherId, whereParam, page, limit) {
         const {lessonId, name} = whereParam || {};
 
-        const and = [];
-
+        // if id is specified we return both run and library(protege) lessons
+        // otherwise only library
         if (lessonId) {
-            and.push({lessonId});
+            const lesson = await this.getTeacherLesson(teacherId, lessonId);
+
+            let lessons = [];
+
+            if (lesson) {
+                lessons.push(lesson);
+            }
+
+            return {
+                lessons,
+                total: lessons.length,
+            };
         }
+
+        let where = {};
         if (name) {
-            and.push(
-                Sequelize.where(
-                    Sequelize.fn('lower', Sequelize.col('name')),
-                    {
-                        [Op.like]: `%${name.toLowerCase()}%`
-                    }
-                )
-            )
+            where = Sequelize.where(
+                Sequelize.fn('lower', Sequelize.col('name')),
+                {
+                    [Op.like]: `%${name.toLowerCase()}%`
+                }
+            );
         }
-        const where = {[Op.and]: and};
 
         const options = {
             where,
@@ -189,12 +189,17 @@ class LessonService {
             options.offset = (page - 1) * limit;
         }
 
-        const countedLessons = await Lesson.findAndCountAll(options);
+        // getting all teacher's markups
+        const countedLessons = await LessonMarkup.findAndCountAll(options);
+        const {count: total, rows} = countedLessons;
 
-        return (({count, rows}) => ({
-            total: count,
-            lessons: rows
-        }))(countedLessons);
+        // converting them to their proteges
+        const lessons = await this.convertLessonMarkupsToProteges(rows);
+
+        return {
+            total,
+            lessons,
+        };
     }
 
     async getStudentLesson(lessonId, studentId) {
@@ -208,9 +213,15 @@ class LessonService {
         });
     }
 
+    /*
+        Markup-Lesson logic:
+            For teacherLessons query we return already created proteges for markups.
+            For startLesson mutation we accept id of protege from Lesson table,
+            after starting this protege it's no longer protege so
+            we create new one for the correspondent markup
+     */
     async startLesson(pubsub, lessonId, teacherId) {
-        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId))
-            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
+        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacherId);
 
         if (await this.existsActiveByLessonId(lessonId)) {
             throw new ValidationError(`Lesson is already active lessonId: ${lessonId}`);
@@ -220,26 +231,46 @@ class LessonService {
             status: LessonStatusEnum.ACTIVE
         }, {
             where: {
-                lessonId
+                lessonId,
             }
         });
 
-        if (upd[0]) {
+        await LessonTeacher.create({
+            teacherId,
+            lessonId,
+        });
+
+        if(upd[0]){
             await pubsubService.publishLessonStarted(pubsub, lessonId, {
-                lessonId: lessonId, status: 'ACTIVE'
+                lessonId: lessonId, status:'ACTIVE'
             });
         }
 
-        return !!upd[0];
+        /*
+           creating new protege check markupService#getMarkupProtege for more details
+         */
+        const {lessonMarkupId, name, description, tasks} = await markupService.getMarkupWithTasksAndHomeworkByLessonId(lessonId);
+
+        const homeworks = await homeworkService.getFullHomeworkByLessonId(lessonId);
+        homeworks.forEach(homework => homework.tasks = homework.taskList.tasks);
+
+        await markupService.createProtegeRawTasks(name, description, tasks, homeworks, lessonMarkupId);
+
+        return true;
+    }
+
+    /**
+     * Removes all students from lesson
+     */
+    async removeAllStudents(lessonId) {
+        await LessonStudent.destroy({
+            where: { lessonId },
+        });
     }
 
     async finishLesson(pubsub, lessonId, teacherId) {
         if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
-            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
-        }
-
-        if (await this.existsPendingByLessonId(lessonId)) {
-            throw new ValidationError(`Lesson is already pending lessonId: ${lessonId}`);
+            throw new NotFoundError(`No lesson active ${lessonId} of such teacher ${teacherId}`);
         }
 
         const upd = await Lesson.update({
@@ -251,8 +282,8 @@ class LessonService {
         });
 
         // clean up
-        await studentLessonService.removeAllStudents(lessonId);
-        await optionService.removeAllStudentsAnswersByLessonId(lessonId);
+        // todo: test this, may be some problems
+        //       during lesson-sessions -- moving student to Redis merge
         store.clear();
 
         return !!upd[0];
@@ -279,9 +310,7 @@ class LessonService {
     }
 
     async deleteLesson(lessonId, teacherId) {
-        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
-            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
-        }
+        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacherId);
 
         if (await this.existsActiveByLessonId(lessonId)) {
             throw new ValidationError(`Cannot delete active lesson lessonId: ${lessonId}`);
@@ -292,14 +321,14 @@ class LessonService {
 
     async getStudentsAnswers(lessonId) {
         const lesson = await Lesson.findOne({
-            where: {lessonId},
+            where: { lessonId },
             include: lessonTasksInclude
         });
 
         const tasks = [];
 
-        for (let {taskListTaskTask: task} of lesson.lessonTaskList.taskListTaskListTasks) {
-            const newTask = {taskId: task.taskId, type: task.type, sentences: []};
+        for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
+            const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
 
             tasks.push(newTask);
         }
@@ -311,7 +340,8 @@ class LessonService {
         if (!await studentLessonService.studentLessonExists(lessonId, student.studentId)) {
             throw new NotFoundError(`No lesson ${lessonId} of student ${student.studentId} found`);
         }
-        const teacher = await teacherLessonService.getLessonTeacher(lessonId)
+
+        // todo: use redis
         const studentsCurrentTask = store.get(lessonId);
         if (!studentsCurrentTask) {
             store(lessonId, [{taskId, student}])
@@ -330,7 +360,10 @@ class LessonService {
         for (let student of students) {
             await pubsubService.publishOnStudentPosition(pubsub, lessonId, student.userId, store.get(lessonId))
         }
+
+        const teacher = await teacherService.findOneByLessonId(lessonId)
         await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.userId, store.get(lessonId))
+
         return true;
     }
 
@@ -340,10 +373,9 @@ class LessonService {
         return await pubsubService.subscribeOnStudentPosition(pubsub, userId, lessonId)
     }
 
-
     async subscribeOnStudentAnswersChanged(pubsub, lessonId, teacherId) {
         if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
-            throw new NotFoundError(`No lesson ${lessonId} of such teacher ${teacherId}`);
+            throw new NotFoundError(`No active lesson ${lessonId} of such teacher ${teacherId}`);
         }
 
         setTimeout(async () => await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacherId,
@@ -371,8 +403,6 @@ class LessonService {
 
     /**
      * Returns all tasks by lessonId, students answers are got in resolve for every task type
-     * @param lessonId
-     * @return {Promise<*[]>} all tasks by lesson id
      */
     async studentGetAnswers(lessonId) {
         if (!await this.existsActiveByLessonId(lessonId)) {
@@ -406,17 +436,52 @@ class LessonService {
     }
 
     async getLessonsByCourse(courseId) {
-        // todo: check if course belongs to teacher
-        return await Lesson.findAll({
+        const lessons = await LessonMarkup.findAll({
             include: {
-                association: 'lessonCourses',
+                association: 'courses',
                 where: {
                     courseId,
                 },
                 required: true,
                 attributes: []
             }
-        })
+        });
+
+        return await this.convertLessonMarkupsToProteges(lessons);
+    }
+
+    async convertLessonMarkupsToProteges(lessons) {
+        return await Promise.all(
+            lessons.map(lesson => markupService.getMarkupProtege(lesson.lessonMarkupId))
+        );
+    }
+
+    async getFullLesson(lessonId) {
+        return await Lesson.findOne({
+            include: fullLessonInclude,
+            lessonId,
+        });
+    }
+
+    async getTeacherLesson(teacherId, lessonId) {
+        if (!await lessonTeacherService.lessonBelongsToTeacher(lessonId, teacherId)) {
+            throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`)
+        }
+
+        return await Lesson.findOne({
+            where: {lessonId},
+        });
+    }
+
+    async getLessonsRunByTeacher(teacherId) {
+        const lessons = await Lesson.findAll({
+            include: allLessonsRunByTeacherInclude(teacherId),
+        });
+
+        return {
+            lessons,
+            total: lessons.length,
+        }
     }
 
     async subscribeOnStudentOnLesson(pubsub, lessonId, studentId) {

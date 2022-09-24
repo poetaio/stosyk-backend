@@ -19,6 +19,7 @@ const {
     Option,
     Course,
     Homework,
+    LessonMarkup,
 } = require('./lesson')(sequelize, DataTypes);
 
 const {
@@ -101,7 +102,7 @@ LessonTeacher.belongsTo(Teacher, {
     foreignKey: 'teacherId',
     as: 'lessonTeacherTeacher'
 });
-Lesson.hasOne(LessonTeacher, {
+LessonMarkup.hasOne(LessonTeacher, {
     foreignKey: {
         name: 'lessonId',
         unique: true,
@@ -111,7 +112,7 @@ Lesson.hasOne(LessonTeacher, {
     onDelete: 'CASCADE',
     hooks: true,
 });
-LessonTeacher.belongsTo(Lesson, {
+LessonTeacher.belongsTo(LessonMarkup, {
     foreignKey: {
         name: 'lessonId',
         unique: true,
@@ -135,16 +136,33 @@ LessonTeacherRelation.isMultiAssociation = false;
 LessonTeacherRelation.isSingleAssociation = true;
 
 //Course-Lesson One-to-Many relationship
-Course.belongsToMany(Lesson, {
+Course.belongsToMany(LessonMarkup, {
     foreignKey: 'courseId',
-    as: 'courseLessons',
+    as: 'lessons',
     through: LessonCourse,
 });
-Lesson.belongsToMany(Course, {
-    foreignKey: 'lessonId',
-    as: 'lessonCourses',
+LessonMarkup.belongsToMany(Course, {
+    foreignKey: 'lessonMarkupId',
+    as: 'courses',
     through: LessonCourse,
+});
 
+LessonCourse.belongsTo(LessonMarkup, {
+    foreignKey: 'lessonMarkupId',
+    as: 'lesson',
+});
+LessonMarkup.hasMany(LessonCourse, {
+    foreignKey: 'lessonMarkupId',
+    as: 'lessonCourses'
+});
+
+LessonCourse.belongsTo(Course, {
+    foreignKey: 'courseId',
+    as: 'course',
+});
+Course.hasMany(LessonCourse, {
+    foreignKey: 'courseId',
+    as: 'lessonCourses'
 });
 
 //Teacher-Course list One-to-Many relationship
@@ -190,23 +208,23 @@ TeacherCourseRelation.isSingleAssociation = true;
 
 //Lesson-Task list One-to-One relationship
 
-Lesson.hasMany(TaskList, {
+Lesson.hasOne(TaskList, {
     foreignKey: 'lessonId',
     as: 'lessonTaskList',
     foreignKeyConstraint: true,
     onDelete: 'CASCADE',
-    hooks: true
+    hooks: true,
 })
 TaskList.belongsTo(Lesson, {
     foreignKey: 'lessonId',
-    as: 'taskListLesson'
+    as: 'lesson'
 });
 
 //TaskList-Task One-to-Many relationship
 TaskList.belongsToMany(Task, {
     through: TaskListTask,
     foreignKey: 'taskListId',
-    as: 'task',
+    as: 'tasks',
 });
 const TaskListTaskRelation = Task.belongsToMany(TaskList, {
     through: TaskListTask,
@@ -447,6 +465,15 @@ Homework.belongsTo(Lesson, {
     as: 'lesson',
 });
 
+Homework.belongsTo(Homework, {
+    foreignKey: 'homeworkMarkupId',
+    as: 'homeworkMarkup',
+});
+Homework.hasMany(Homework, {
+    foreignKey: 'homeworkMarkupId',
+    as: 'homeworks',
+});
+
 Homework.hasOne(TaskList, {
     foreignKey: 'homeworkId',
     as: 'taskList',
@@ -456,11 +483,49 @@ TaskList.belongsTo(Homework, {
     as: 'homework',
 });
 
-School.hasMany(Lesson, {
+LessonMarkup.hasMany(Lesson, {
+    foreignKey: 'lessonMarkupId',
+    as: 'lessons',
+});
+Lesson.belongsTo(LessonMarkup, {
+    foreignKey: 'lessonMarkupId',
+    as: 'lessonMarkup',
+});
+
+LessonMarkup.hasOne(TaskList, {
+    foreignKey: 'lessonMarkupId',
+    as: 'taskList',
+    foreignKeyConstraint: true,
+    onDelete: 'CASCADE',
+    hooks: true
+});
+TaskList.belongsTo(LessonMarkup, {
+    foreignKey: 'lessonMarkupId',
+    as: 'lessonMarkup'
+});
+
+LessonMarkup.hasMany(Homework, {
+    foreignKey: 'lessonMarkupId',
+    as: 'homeworks',
+});
+Homework.belongsTo(LessonMarkup, {
+    foreignKey: 'lessonMarkupId',
+    as: 'lessonMarkup',
+});
+
+Teacher.hasMany(LessonMarkup, {
+    foreignKey: 'teacherId',
+    as: 'lessonMarkups',
+});
+LessonMarkup.belongsTo(Teacher, {
+    foreignKey: 'teacherId',
+    as: 'teacher',
+});
+School.hasMany(LessonMarkup, {
     foreignKey: 'schoolId',
     as: 'lessons',
 });
-Lesson.belongsTo(School, {
+LessonMarkup.belongsTo(School, {
     foreignKey: 'schoolId',
     as: 'school',
 });
@@ -549,6 +614,7 @@ module.exports = {
     Course,
     Homework,
     School,
+    LessonMarkup,
 
     LessonStudent,
     LessonTeacher,
