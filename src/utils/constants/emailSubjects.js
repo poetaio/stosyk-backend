@@ -1,5 +1,5 @@
 const EmailSubjects = {
-    CONFIRMATION: "Please confirm your Stosyk account"
+    CONFIRMATION: "Реєстрація"
 }
 
 module.exports = EmailSubjects
