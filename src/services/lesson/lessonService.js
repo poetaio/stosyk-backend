@@ -253,11 +253,26 @@ class LessonService {
         }
 
         // clean up
-        await this.removeAllStudents(lessonId);
         await optionService.removeAllStudentsAnswersByLessonId(lessonId);
+        await this.removeAllStudents(lessonId);
+        await this.hideAnswers(lessonId);
         store.clear();
 
         return !!upd[0];
+    }
+
+    async hideAnswers(lessonId) {
+        const tasks = await taskService.getAll({lessonId});
+        const taskIds = tasks.map(task => task.taskId);
+        await Task.update({
+            answersShown: false,
+        }, {
+            where: {
+                taskId: taskIds,
+            },
+        });
+
+        return true;
     }
 
     async joinLesson(pubsub, lessonId, studentId) {
