@@ -1,12 +1,17 @@
 // all lessons which belong to any student_seat of this teacher
 module.exports = (teacherId) => ({
-    association: 'school',
-    attributes: [],
+    association: "lessonMarkup",
     required: true,
+    attributes: [],
     include: {
-        association: 'teachers',
+        association: 'school',
         attributes: [],
         required: true,
-        where: { teacherId },
+        include: {
+            association: 'teachers',
+            attributes: [],
+            required: true,
+            where: {teacherId},
+        },
     },
 });

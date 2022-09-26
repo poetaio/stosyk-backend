@@ -190,7 +190,6 @@ class SchoolService {
         }, {
             where: {
                 inviteEmail,
-                studentId,
                 status: SchoolStudentSeatStatusEnum.INVITED,
             },
         });
@@ -217,7 +216,13 @@ class SchoolService {
                 include: [[Sequelize.col('seats.status'), 'status']],
             },
             raw: true,
-        });
+        }).then(studentModels => studentModels.map(
+            student => {
+                // including schoolId cause it's needed for SchoolStudentType's lessons and courses
+                student.schoolId = schoolId;
+                return student;
+            }
+        ));
     }
 }
 

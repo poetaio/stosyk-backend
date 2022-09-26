@@ -75,7 +75,7 @@ class SchoolController {
         try {
             const {email: inviteEmail} = jwt.verify(inviteToken, process.env.JWT_SECRET);
 
-            if (student.email !== inviteEmail) {
+            if (student.login !== inviteEmail) {
                 return false;
             }
 

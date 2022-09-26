@@ -1,12 +1,16 @@
-const {GraphQLObjectType, GraphQLNonNull, GraphQLID, GraphQLString, GraphQLFloat} = require("graphql");
+const {
+    GraphQLObjectType,
+    GraphQLNonNull,
+    GraphQLID,
+    GraphQLFloat
+} = require("graphql");
 const {homeworkController} = require("../../../../controllers");
 
 module.exports = new GraphQLObjectType({
-    name: "StudentWithHWScoreType",
-    description: "Student with completeness and correctness percentage for a homework",
+    name: "StudentHomeworkResultType",
+    description: "Homework with results",
     fields: {
-        studentId: { type: GraphQLNonNull(GraphQLID) },
-        name: { type: GraphQLNonNull(GraphQLString) },
+        homeworkId: { type: GraphQLNonNull(GraphQLID) },
         progress: {
             // value in percents
             type: GraphQLNonNull(GraphQLFloat),
@@ -19,5 +23,5 @@ module.exports = new GraphQLObjectType({
             resolve: async (parent, args, context) =>
                 await homeworkController.getTotalScore(parent),
         },
-    }
+    },
 });

@@ -5,13 +5,13 @@ const {
     allLessonsByLessonMarkupInclude,
     TaskList,
     fullLessonMarkupInclude,
-    Task,
-    TaskListTask,
+    allLessonsByStudentIdInclude,
 } = require("../../db/models");
 const {LessonStatusEnum, ValidationError} = require("../../utils");
 const taskService = require("./taskService");
 const homeworkService = require("./homeworkService");
 const lessonTeacherService = require("./lessonTeacherService");
+const scoreService = require("./scoreService");
 
 class MarkupService {
     // returns only markup without tasks (model with proxy)
@@ -81,7 +81,7 @@ class MarkupService {
         // we forbid adding homework to active lessons, however, we must edit lesson markup to
         // its protege (pending lesson which is displayed in queries for teacher library)
         if (
-            !await lessonTeacherService.lessonBelongsToTeacher(lessonId, teacherId) ||
+            !await lessonTeacherService.protegeBelongsToTeacher(lessonId, teacherId) ||
             !await this.isLessonProtege(lessonId)
         ) {
             const errMessage =
@@ -130,10 +130,14 @@ class MarkupService {
         return await this.createProtegeWithId(null, ...args);
     }
 
+    async createProtegeRawTasks(name, description, tasks, homeworkList, lessonMarkupId) {
+        return await this.createProtegeRawTasksWithId(null, name, description, tasks, homeworkList, lessonMarkupId);
+    }
+
     // tasks appear as they are in db sentences->gaps->options
-    async createProtegeRawTasks(lessonId, name, description, tasks, homeworkList, lessonMarkupId) {
+    async createProtegeRawTasksWithId(lessonId, name, description, tasks, homeworkList, lessonMarkupId) {
         await Lesson.create({
-            lessonId,
+            ...(lessonId ? {lessonId} : {}),
             name,
             description,
             lessonMarkupId,
@@ -151,6 +155,45 @@ class MarkupService {
         const lessonMarkupId = await this.createMarkup(schoolId, teacherId, name, description, tasks, homeworkList);
 
         return await this.createProtege(name, description, tasks, homeworkList, lessonMarkupId);
+    }
+
+    async getLastLessonStudentTookByMarkup(lessonMarkupId, studentId) {
+        // todo: change to start date
+        // todo: include courseId in this (all markups are mixed now)
+        // if student has taken the lesson several times the last result is returned
+        return await Lesson.findOne({
+            include: [
+                allLessonsByLessonMarkupInclude(lessonMarkupId),
+                allLessonsByStudentIdInclude(studentId),
+            ],
+            order: [
+                ['createdAt', 'DESC'],
+            ],
+            raw: true,
+        });
+    }
+
+    // returns null if student didn't took lesson
+    async getStudentTotalScore(lessonMarkupId, studentId) {
+        const lesson = await this.getLastLessonStudentTookByMarkup(lessonMarkupId, studentId);
+        if (!lesson) return null;
+        return await scoreService.getStudentScore(lesson.lessonId, studentId);
+    }
+
+    // returns null if student didn't took lesson
+    async getStudentProgress(lessonMarkupId, studentId) {
+        const lesson = await this.getLastLessonStudentTookByMarkup(lessonMarkupId, studentId);
+        if (!lesson) return null;
+        return await scoreService.getStudentProgress(lesson.lessonId, studentId);
+    }
+
+    async createMarkupProtegeByLessonId(lessonId) {
+        const {lessonMarkupId, name, description, tasks} = await this.getMarkupWithTasksAndHomeworkByLessonId(lessonId);
+
+        const homeworks = await homeworkService.getFullHomeworkByLessonId(lessonId);
+        homeworks.forEach(homework => homework.tasks = homework.taskList.tasks);
+
+        await this.createProtegeRawTasks(name, description, tasks, homeworks, lessonMarkupId);
     }
 }
 

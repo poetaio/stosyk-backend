@@ -9,6 +9,7 @@ const {
     AnswerInputType,
     HomeworkInputType,
     HomeworkAnswerInputType,
+    LessonEditInputType,
 } = require('./types');
 const {
     GraphQLBoolean,
@@ -17,8 +18,6 @@ const {
     GraphQLString,
     GraphQLInt,
 } = require("graphql");
-const { LessonInputType, AnswerInputType, HomeworkInputType, HomeworkAnswerInputType, LessonEditInputType} = require('./types');
-const { GraphQLBoolean, GraphQLID, GraphQLNonNull, GraphQLString} = require("graphql");
 const { resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 const {schoolService} = require("../../services/school");

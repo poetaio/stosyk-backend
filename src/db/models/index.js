@@ -102,7 +102,7 @@ LessonTeacher.belongsTo(Teacher, {
     foreignKey: 'teacherId',
     as: 'lessonTeacherTeacher'
 });
-LessonMarkup.hasOne(LessonTeacher, {
+Lesson.hasOne(LessonTeacher, {
     foreignKey: {
         name: 'lessonId',
         unique: true,
@@ -112,7 +112,7 @@ LessonMarkup.hasOne(LessonTeacher, {
     onDelete: 'CASCADE',
     hooks: true,
 });
-LessonTeacher.belongsTo(LessonMarkup, {
+LessonTeacher.belongsTo(Lesson, {
     foreignKey: {
         name: 'lessonId',
         unique: true,
@@ -121,7 +121,7 @@ LessonTeacher.belongsTo(LessonMarkup, {
 });
 
 
-//TaskList-Task One-to-Many relationship
+//Lesson-Teacher One-to-Many relationship
 const LessonTeacherRelation = Lesson.belongsToMany(Teacher, {
     through: LessonTeacher,
     foreignKey: 'lessonId',
@@ -142,17 +142,17 @@ Course.belongsToMany(LessonMarkup, {
     through: LessonCourse,
 });
 LessonMarkup.belongsToMany(Course, {
-    foreignKey: 'lessonMarkupId',
+    foreignKey: 'lessonId',
     as: 'courses',
     through: LessonCourse,
 });
 
 LessonCourse.belongsTo(LessonMarkup, {
-    foreignKey: 'lessonMarkupId',
+    foreignKey: 'lessonId',
     as: 'lesson',
 });
 LessonMarkup.hasMany(LessonCourse, {
-    foreignKey: 'lessonMarkupId',
+    foreignKey: 'lessonId',
     as: 'lessonCourses'
 });
 
@@ -210,7 +210,7 @@ TeacherCourseRelation.isSingleAssociation = true;
 
 Lesson.hasOne(TaskList, {
     foreignKey: 'lessonId',
-    as: 'lessonTaskList',
+    as: 'taskList',
     foreignKeyConstraint: true,
     onDelete: 'CASCADE',
     hooks: true,
@@ -246,20 +246,14 @@ TaskListTask.belongsTo(TaskList, {
     as: 'taskListTaskTaskList'
 });
 Task.hasOne(TaskListTask, {
-    foreignKey: {
-        name: 'taskId',
-        unique: true
-    },
+    foreignKey: 'taskId',
     as: 'taskTaskListTask',
     foreignKeyConstraint: true,
     onDelete: 'CASCADE',
     hooks: true
 });
 TaskListTask.belongsTo(Task, {
-    foreignKey: {
-        name: 'taskId',
-        unique: true
-    },
+    foreignKey: 'taskId',
     as: 'taskListTaskTask'
 });
 

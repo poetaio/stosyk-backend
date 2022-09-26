@@ -1,6 +1,6 @@
 module.exports = (teacherId, taskId) => [
     {
-        association: 'lessonTaskList',
+        association: 'taskList',
         include: {
             association: 'taskListTaskListTasks',
             include: {

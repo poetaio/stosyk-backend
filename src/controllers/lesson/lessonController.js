@@ -3,12 +3,13 @@ const {
     studentService, 
     answerService,
     markupService,
-    homeworkService,
+    teacherService,
+    pubsubService,
+    scoreService,
+    studentLessonService,
 } = require('../../services');
-const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
-const {pubsubService} = require('../../services');
-const studentLessonService = require("../../services/lesson/studentLessonService");
+const {LessonMarkup, allLessonsBySchoolIdInclude} = require("../../db/models");
 
 class LessonController {
     async createLesson({ lesson }, { user: { userId } }) {
@@ -104,6 +105,7 @@ class LessonController {
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {
         setTimeout(async ()=> await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, userId,
             await studentLessonService.getLessonStudents(lessonId)),0)
+
        return await pubsubService.subscribeOnPresentStudentsChanged(pubsub, userId, lessonId);
     }
 
@@ -167,15 +169,6 @@ class LessonController {
         return await answerService.setHomeworkAnswer(pubsub, student.studentId, answer)
     }
 
-    async getTeacherLessonHistory({ user: { userId } }) {
-        const teacher = await teacherService.findOneByUserId(userId);
-
-        if (!teacher)
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
-
-        return lessonService.getLessonsRunByTeacher(teacher.teacherId);
-    }
-
     async editLesson({lessonId, lesson}, {user: {userId}}) {
         const teacher = await teacherService.findOneByUserId(userId);
 
@@ -189,17 +182,17 @@ class LessonController {
 
     // complete = answered / correct
     async getStudentProgress({ studentId, lessonId }) {
-        return await lessonService.getStudentCompleteness(lessonId, studentId);
+        return await scoreService.getStudentProgress(lessonId, studentId);
     }
 
     // correctness = correct / answered
     async getStudentCorrectness({ studentId, parent: {lessonId} }) {
-        return await lessonService.getStudentScore(lessonId, studentId);
+        return await scoreService.getStudentScore(lessonId, studentId);
     }
 
     // total score = correct / total
     async getTotalScore({ studentId, lessonId }) {
-        return await lessonService.getTotalScore(lessonId, studentId);
+        return await scoreService.getTotalScore(lessonId, studentId);
     }
 
     async getTeacherLessonHistory({ user: { userId } }) {
@@ -218,8 +211,24 @@ class LessonController {
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
-        lessonService.joinLesson(pubsub, lessonId, student.studentId);
+        await lessonService.joinLesson(pubsub, lessonId, student.studentId);
         return await lessonService.subscribeOnStudentOnLesson(pubsub, lessonId, student.studentId);
+    }
+
+    async getStudents({lessonId}) {
+        return await lessonService.getStudents(lessonId);
+    }
+
+    async getLessonsBySchoolId({schoolId}) {
+        const markups = await LessonMarkup.findAll({
+            include: allLessonsBySchoolIdInclude(schoolId),
+        });
+
+        const lessons = await Promise.all(
+            markups.map(({lessonMarkupId}) =>
+                lessonService.getLessonsByMarkup(lessonMarkupId)
+        ));
+        return lessons.flat();
     }
 }
 

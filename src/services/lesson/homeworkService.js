@@ -19,7 +19,6 @@ const {
 const taskService = require("./taskService");
 const lessonTeacherService = require("./lessonTeacherService");
 const studentLessonService = require("./studentLessonService");
-const markupService = require("./markupService");
 
 class HomeworkService {
 
@@ -109,7 +108,7 @@ class HomeworkService {
             where.homeworkId = homeworkId;
         }
         if (lessonId) {
-            if (!await lessonTeacherService.lessonBelongsToTeacher(lessonId, teacherId)) {
+            if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
                 throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`);
             }
             where.lessonId = lessonId;
@@ -153,11 +152,14 @@ class HomeworkService {
         });
     }
 
+    // return homeworkId as well in order for score to work (parent of parent query in graphql)
     async getStudents(homeworkId) {
         // all students who have at least one answer on any task of this homework
         return await Student.findAll({
             include: allStudentsByHomeworkIdInclude(homeworkId),
-        }).then(students => students.map(student => ({...student.dataValues, homeworkId})));
+        }).then(students => students.map(
+            student => ({...student.get({plain: true}), homeworkId}))
+        );
     }
 
     async getMultipleChoicePlainInputTotalCount(homeworkId) {
@@ -232,9 +234,13 @@ class HomeworkService {
         return multipleChoiceAndPlainInputCorrectAnsweredCount + matchingQACorrectAnsweredCount;
     }
 
-    async getStudentCompleteness(homeworkId, studentId) {
+    async getStudentProgress(homeworkId, studentId) {
         const totalCount = await this.getTotalCount(homeworkId);
         const answeredCount = await this.getAnsweredCount(homeworkId, studentId);
+
+        if (!totalCount) {
+            return 100;
+        }
 
         return answeredCount / totalCount * 100;
     }
@@ -243,12 +249,20 @@ class HomeworkService {
         const answeredCount = await this.getAnsweredCount(homeworkId, studentId);
         const correctCount = await this.getCorrectAnsweredCount(homeworkId, studentId);
 
+        if (!correctCount) {
+            return null;
+        }
+
         return correctCount / answeredCount * 100;
     }
 
     async getTotalScore(homeworkId, studentId) {
         const totalCount = await this.getTotalCount(homeworkId);
         const correctCount = await this.getCorrectAnsweredCount(homeworkId, studentId);
+
+        if (!totalCount) {
+            return 100;
+        }
 
         return correctCount / totalCount * 100;
     }

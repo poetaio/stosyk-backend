@@ -1,5 +1,5 @@
 module.exports = {
-    association: 'lessonTaskList',
+    association: 'taskList',
     include: {
         association: 'tasks',
         include: [{

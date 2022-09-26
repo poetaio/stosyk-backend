@@ -1,13 +1,13 @@
 const {
     LessonTeacher,
     Lesson,
-    allLessonTeacherByLessonIdInclude,
     allLessonsByTeacherIdInclude,
     allSchoolLessonsByTeacherIdInclude,
 } = require("../../db/models");
-const {ValidationError} = require("../../utils");
 
 class LessonTeacherService {
+    // todo: seems like these two are the same and
+    //       condition LessonTeacher.count doesn't play any role
     async teacherLessonExists(lessonId, teacherId) {
         return !!await Lesson.count({
             where: { lessonId },
@@ -18,17 +18,20 @@ class LessonTeacherService {
                 teacherId,
                 lessonId,
             }
-        })
+        });
     }
 
     /**
      * Lesson is either started or is protege - doesn't matter
      * it's been created by teacher
      */
-    async lessonBelongsToTeacher(lessonId, teacherId) {
+    async protegeBelongsToTeacher(lessonId, teacherId) {
         return !!await Lesson.count({
             include: allLessonsByTeacherIdInclude(teacherId),
             where: {lessonId},
+        }) || !!await Lesson.count({
+            where: { lessonId },
+            include: allSchoolLessonsByTeacherIdInclude(teacherId),
         });
     }
 
