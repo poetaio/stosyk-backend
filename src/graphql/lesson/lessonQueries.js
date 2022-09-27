@@ -1,4 +1,4 @@
-const {StudentLessonType, TeacherCountedLessonsType, LessonsWhereType, CourseType, TeacherHomeworkType,
+const {StudentLessonType, TeacherCountedLessonsType, LessonsWhereType, TeacherCourseType, TeacherHomeworkType,
     HomeworkWhereInputType, StudentHomeworkType
 } = require("./types");
 const { lessonController, courseController, homeworkController} = require("../../controllers");
@@ -28,7 +28,7 @@ const studentLesson = {
 };
 
 const getAllCourses = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(CourseType))),
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherCourseType))),
     name: 'getAllCourses',
     description: 'Get All Courses',
     resolve: async (parent, args, context) => await courseController.getAllCourses(context)

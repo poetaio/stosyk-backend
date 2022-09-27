@@ -3,7 +3,7 @@ const {homeworkController, lessonController} = require("../../../../controllers"
 
 module.exports = new GraphQLObjectType({
     name: "StudentWithLessonScoreType",
-    description: "Student with completeness and correctness percentage",
+    description: "Student with completeness and correctness percentage for a lesson",
     fields: {
         studentId: { type: GraphQLNonNull(GraphQLID) },
         name: { type: GraphQLNonNull(GraphQLString) },

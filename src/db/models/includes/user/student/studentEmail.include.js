@@ -1,6 +1,6 @@
 module.exports = {
     association: "user",
-    attributes: [],
+    // attributes: [],
     include: {
         association: "account",
         attributes: ["login"],

@@ -9,7 +9,6 @@ const jwt = require("jsonwebtoken");
 class AccountController {
 
     async registerUser({user: {role, name, email, password, avatar_source}}, {userId}) {
-
         if (await accountService.existsByLogin(email))
             throw new ValidationError(`User with login ${email} already exists`);
 

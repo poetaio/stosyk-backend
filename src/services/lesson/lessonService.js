@@ -7,23 +7,16 @@ const {
     allTasksByLessonIdInclude,
     fullLessonInclude,
     LessonMarkup,
-    allLessonsByLessonMarkupInclude,
-    allLessonsByTeacherIdInclude,
     LessonTeacher,
     allLessonsRunByTeacherInclude,
-    allLessonMarkupsByTeacherIdInclude,
     lessonByHomeworkIdInclude,
     fullLessonMarkupInclude,
     allLessonsBySchoolIdInclude,
     allSchoolLessonsByTeacherIdInclude,
     Gap,
     Sentence,
-    allGapsByLessonIdInclude,
-    allSentencesByLessonIdInclude,
-    allAnsweredGapsByLessonIdAndStudentIdInclude,
-    allAnsweredSentencesByLessonIdAndStudentIdInclude,
-    allCorrectAnsweredGapsByLessonIdAndStudentIdInclude,
-    allCorrectAnsweredSentencesByLessonIdAndStudentIdInclude,
+    Student,
+    allStudentsByLessonIdInclude, allLessonsByLessonMarkupInclude, allSchoolMarkupsByTeacherIdInclude,
 } = require('../../db/models');
 const {
     LessonStatusEnum,
@@ -42,6 +35,7 @@ const store = require("store2");
 const lessonTeacherService = require('./lessonTeacherService');
 const studentLessonService = require("./studentLessonService");
 const markupService = require("./markupService");
+const optionService = require("./optionService");
 const homeworkService = require("./homeworkService");
 const {schoolService} = require("../school");
 const teacherLessonService = require("./teacherLessonService");
@@ -75,23 +69,19 @@ class LessonService {
 
     // used both for deleting markup and protege
     async delete(lesson) {
-        if (lesson.taskList || lesson.lessonTaskList) {
-            // lesson is either markup or session
-            // for markup taskList association is "taskList"
-            // for lesson taskList association is "lessonTaskList"
-            const tasks = lesson?.taskList?.tasks || lesson?.lessonTaskList?.tasks || [];
-            for (let task of tasks) {
-                for (let sentence of task.sentences || []) {
-                    for (let gap of sentence.gaps || []) {
-                        for (let option of gap.options || []) {
-                            await option.destroy();
-                        }
-                        await gap.destroy();
+        // lesson is either markup or session
+        const tasks = lesson?.taskList?.tasks || [];
+        for (let task of tasks) {
+            for (let sentence of task.sentences || []) {
+                for (let gap of sentence.gaps || []) {
+                    for (let option of gap.options || []) {
+                        await option.destroy();
                     }
-                    await sentence.destroy();
+                    await gap.destroy();
                 }
-                await task.destroy();
+                await sentence.destroy();
             }
+            await task.destroy();
         }
 
         // todo: delete attachments
@@ -152,7 +142,7 @@ class LessonService {
         })
 
         for (let lesson of lessons) {
-            const protege = await markupService.getMarkupProtege(markup.lessonMarkupId);
+            const protege = await markupService.getMarkupProtege(lesson.lessonMarkupId);
             await this.deleteProtegeById(protege.lessonId);
 
             await this.deleteMarkupById(lesson.lessonMarkupId);
@@ -177,7 +167,7 @@ class LessonService {
         if (await teacherService.existsAnonymousById(teacherId)) {
             await this.deleteBySchoolId(school.schoolId);
         }
-        
+
         return await markupService.createMarkupAndProtege(school.schoolId, teacherId, name, description, tasks, homeworkList);
     }
 
@@ -213,7 +203,7 @@ class LessonService {
 
         const options = {
             where,
-            include: allSchoolLessonsByTeacherIdInclude(teacherId),
+            include: allSchoolMarkupsByTeacherIdInclude(teacherId),
         };
 
         page = page && 1;
@@ -252,7 +242,7 @@ class LessonService {
         homeworks.forEach(homework => homework.tasks = homework.taskList.tasks);
 
         await this.deleteProtegeById(lessonId);
-        await markupService.createProtegeRawTasks(lessonId, name, description, tasks, homeworks, lessonMarkupId);
+        await markupService.createProtegeRawTasksWithId(lessonId, name, description, tasks, homeworks, lessonMarkupId);
     }
 
     /*
@@ -287,7 +277,8 @@ class LessonService {
         }
 
         // creating new protege check markupService#getMarkupProtege for more details
-        await this.recreateLessonProtegeByProtegeId(lessonId);
+        // await this.recreateLessonProtegeByProtegeId(lessonId);
+        await markupService.createMarkupProtegeByLessonId(lessonId);
 
         return true;
     }
@@ -317,7 +308,7 @@ class LessonService {
         // clean up
         // todo: test clean up
         // await studentLessonService.removeAllStudents(lessonId);
-        // await optionService.removeAllStudentsAnswersByLessonId(lessonId);
+        await optionService.removeAllStudentsAnswersByLessonId(lessonId);
         store.clear();
 
         return !!upd[0];
@@ -339,7 +330,8 @@ class LessonService {
         for (let student of students) {
             await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, student.userId, students)
         }
-        await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
+        if (teacher)
+            await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
         return true;
     }
 
@@ -361,7 +353,7 @@ class LessonService {
 
         const tasks = [];
 
-        for (let { taskListTaskTask : task } of lesson.lessonTaskList.taskListTaskListTasks) {
+        for (let { taskListTaskTask : task } of lesson.taskList.taskListTaskListTasks) {
             const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
 
             tasks.push(newTask);
@@ -396,8 +388,10 @@ class LessonService {
             await pubsubService.publishOnStudentPosition(pubsub, lessonId, student.userId, store.get(lessonId))
         }
 
-        const teacher = await teacherService.findOneByLessonId(lessonId)
-        await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.userId, store.get(lessonId))
+        const teacher = await teacherLessonService.getLessonTeacher(lessonId)
+
+        if (teacher)
+            await pubsubService.publishOnStudentPosition(pubsub, lessonId, teacher.userId, store.get(lessonId))
 
         return true;
     }
@@ -465,13 +459,15 @@ class LessonService {
         for (let student of students) {
             await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, student.userId, students)
         }
-        await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
+
+        if (teacher)
+            await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, teacher.userId, students)
 
         return true;
     }
 
-    async getLessonsByCourse(courseId) {
-        const lessons = await LessonMarkup.findAll({
+    async getMarkupsByCourse(courseId) {
+        return await LessonMarkup.findAll({
             include: {
                 association: 'courses',
                 where: {
@@ -481,8 +477,12 @@ class LessonService {
                 attributes: []
             }
         });
+    }
 
-        return await this.convertLessonMarkupsToProteges(lessons);
+    async getLessonsByCourse(courseId) {
+        const markups = await this.getMarkupsByCourse(courseId);
+
+        return await this.convertLessonMarkupsToProteges(markups);
     }
 
     async convertLessonMarkupsToProteges(lessons) {
@@ -499,7 +499,7 @@ class LessonService {
     }
 
     async getTeacherLesson(teacherId, lessonId) {
-        if (!await lessonTeacherService.lessonBelongsToTeacher(lessonId, teacherId)) {
+        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
             throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`)
         }
 
@@ -594,97 +594,23 @@ class LessonService {
         return await pubsubService.subscribeOnStudentOnLesson(pubsub, lessonId, studentId);
     }
 
-    async getMultipleChoicePlainInputTotalCount(lessonId) {
-        const types = [TaskTypeEnum.MULTIPLE_CHOICE, TaskTypeEnum.PLAIN_INPUT];
 
-        return await Gap.count({
-            include: allGapsByLessonIdInclude(lessonId, types),
+
+    async getStudents(lessonId) {
+        // all students who have at least one answer on any task of this homework
+        return await Student.findAll({
+            include: allStudentsByLessonIdInclude(lessonId),
+        }).then(students => students.map(
+            // adding lesson id to returned object, cause it's needed for
+            // StudentWithLessonScoreType's progress and score
+            student => ({...student.get({plain: true}), lessonId}))
+        );
+    }
+
+    async getLessonsByMarkup(lessonMarkupId) {
+        return await Lesson.findAll({
+            include: allLessonsByLessonMarkupInclude(lessonMarkupId),
         });
-    }
-
-    async getMatchingQATotalCount(lessonId) {
-        const types = [TaskTypeEnum.MATCHING, TaskTypeEnum.QA];
-
-        return await Sentence.count({
-            include: allSentencesByLessonIdInclude(lessonId, types),
-        });
-    }
-
-    // all tasks "subtasks" (answers in QA, or left column sentences in MATCHING)
-    async getTotalCount(lessonId) {
-        const multipleChoiceAndPlainInputTotalCount = await this.getMultipleChoicePlainInputTotalCount(lessonId);
-        const matchingQATotalCount = await this.getMatchingQATotalCount(lessonId);
-
-        return multipleChoiceAndPlainInputTotalCount + matchingQATotalCount;
-    }
-
-    async getMultipleChoicePlainInputAnsweredCount(lessonId, studentId) {
-        const types = [TaskTypeEnum.MULTIPLE_CHOICE, TaskTypeEnum.PLAIN_INPUT];
-
-        return await Gap.count({
-            include: allAnsweredGapsByLessonIdAndStudentIdInclude(lessonId, studentId, types),
-        });
-    }
-
-    async getMatchingQAAnsweredCount(lessonId, studentId) {
-        const types = [TaskTypeEnum.MATCHING, TaskTypeEnum.QA];
-
-        return await Sentence.count({
-            include: allAnsweredSentencesByLessonIdAndStudentIdInclude(lessonId, studentId, types),
-        });
-    }
-
-    // all tasks, which student answered to
-    async getAnsweredCount(lessonId, studentId) {
-        const multipleChoiceAndPlainInputAnsweredCount = await this.getMultipleChoicePlainInputAnsweredCount(lessonId, studentId);
-        const matchingQAAnsweredCount = await this.getMatchingQAAnsweredCount(lessonId, studentId);
-
-        return multipleChoiceAndPlainInputAnsweredCount + matchingQAAnsweredCount;
-    }
-
-    async getMultipleChoicePlainInputCorrectAnsweredCount(lessonId, studentId) {
-        const types = [TaskTypeEnum.MULTIPLE_CHOICE, TaskTypeEnum.PLAIN_INPUT];
-
-        return await Gap.count({
-            include: allCorrectAnsweredGapsByLessonIdAndStudentIdInclude(lessonId, studentId, types),
-        });
-    }
-
-    async getMatchingQACorrectAnsweredCount(lessonId, studentId) {
-        const types = [TaskTypeEnum.MATCHING, TaskTypeEnum.QA];
-
-        return await Sentence.count({
-            include: allCorrectAnsweredSentencesByLessonIdAndStudentIdInclude(lessonId, studentId, types),
-        });
-    }
-
-    // all tasks, which student answered correctly to
-    async getCorrectAnsweredCount(lessonId, studentId) {
-        const multipleChoiceAndPlainInputCorrectAnsweredCount = await this.getMultipleChoicePlainInputCorrectAnsweredCount(lessonId, studentId);
-        const matchingQACorrectAnsweredCount = await this.getMatchingQACorrectAnsweredCount(lessonId, studentId);
-
-        return multipleChoiceAndPlainInputCorrectAnsweredCount + matchingQACorrectAnsweredCount;
-    }
-
-    async getStudentCompleteness(lessonId, studentId) {
-        const totalCount = await this.getTotalCount(lessonId);
-        const answeredCount = await this.getAnsweredCount(lessonId, studentId);
-
-        return answeredCount / totalCount * 100;
-    }
-
-    async getStudentScore(lessonId, studentId) {
-        const answeredCount = await this.getAnsweredCount(lessonId, studentId);
-        const correctCount = await this.getCorrectAnsweredCount(lessonId, studentId);
-
-        return correctCount / answeredCount * 100;
-    }
-
-    async getTotalScore(lessonId, studentId) {
-        const totalCount = await this.getTotalCount(lessonId);
-        const correctCount = await this.getCorrectAnsweredCount(lessonId, studentId);
-
-        return correctCount / totalCount * 100;
     }
 }
 

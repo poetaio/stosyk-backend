@@ -10,7 +10,7 @@ const {
     hashPassword,
     UserTypeEnum
 } = require("../../utils");
-
+const Sequelize = require('sequelize');
 
 class StudentService {
     async createAnonymous(name) {
@@ -29,9 +29,9 @@ class StudentService {
             where: {userId},
             include: studentEmailInclude,
             attributes: {
-                include: [['user.account.login', 'login']]
+                include: [[Sequelize.col('user.account.login'), 'login']]
             }
-        })
+        }).then(student => student.get({plain: true}));
     }
 
     async studentsLesson(lessonId){

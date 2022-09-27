@@ -4,10 +4,10 @@ class TeacherLessonService {
     async getLessonTeacher(lessonId) {
         return await Teacher.findOne({
             include: {
-                association: 'teacherLessonTeachers',
+                association: 'lessons',
                 attributes: [],
+                required: true,
                 where: { lessonId },
-                required: true
             }
         });
     }

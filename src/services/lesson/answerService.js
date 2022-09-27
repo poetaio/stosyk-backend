@@ -135,8 +135,9 @@ class AnswerService {
 
     async publishOnStudentSetAnswer(pubsub, lessonId) {
         const teacher = await teacherLessonService.getLessonTeacher(lessonId);
-        await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
-            await lessonService.getStudentsAnswers(lessonId));
+        if (teacher)
+            await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
+                await lessonService.getStudentsAnswers(lessonId));
     }
 
     async setTaskAnswer(studentId, answer) {

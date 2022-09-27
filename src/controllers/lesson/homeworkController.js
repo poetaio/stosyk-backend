@@ -95,7 +95,7 @@ class HomeworkController {
 
     // complete = answered / correct
     async getStudentProgress({ studentId, homeworkId }) {
-        return await homeworkService.getStudentCompleteness(homeworkId, studentId);
+        return await homeworkService.getStudentProgress(homeworkId, studentId);
     }
 
     // correctness = correct / answered
