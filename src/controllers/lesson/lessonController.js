@@ -1,15 +1,15 @@
-const { 
-    lessonService, 
-    studentService, 
+const {
+    lessonService,
+    studentService,
     answerService,
     markupService,
-    teacherService,
     pubsubService,
     scoreService,
     studentLessonService,
 } = require('../../services');
-const {ValidationError} = require("../../utils");
 const {LessonMarkup, allLessonsBySchoolIdInclude} = require("../../db/models");
+const teacherService = require("../../services/user/teacherService");
+const {ValidationError, NotFoundError} = require("../../utils");
 
 class LessonController {
     async createLesson({ lesson }, { user: { userId } }) {
@@ -118,8 +118,12 @@ class LessonController {
         return await lessonService.subscribeOnStudentAnswersChanged(pubsub, lessonId, teacher.teacherId);
     }
 
-    async lessonStarted({ lessonId }, { pubsub }) {
-        return await lessonService.subscribeOnLessonStarted(pubsub, lessonId);
+    async lessonStatusChanged({ lessonId }, { pubsub }) {
+        if(!await lessonService.lessonExists(lessonId)){
+            throw new NotFoundError(`No lesson ${lessonId}`)
+        }
+
+        return await lessonService.subscribeOnLessonStatus(pubsub, lessonId);
     }
 
     async correctAnswerShown({ lessonId }, { pubsub, user: { userId } }) {

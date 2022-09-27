@@ -99,6 +99,12 @@ class StudentService {
             }
         );
     }
+
+    async getInfo(studentId) {
+        return await Student.findOne({
+            where: {studentId},
+        });
+    }
 }
 
 

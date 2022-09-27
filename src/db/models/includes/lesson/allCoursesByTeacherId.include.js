@@ -4,5 +4,4 @@ module.exports = (teacherId) =>({
         teacherId,
     },
     required: true,
-        attributes: []
 })

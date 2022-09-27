@@ -10,5 +10,5 @@ module.exports = {
     TeacherGapType,
     StudentGapType,
     GapCorrectAnswersType,
-    GapStudentsAnswersType
+    GapStudentsAnswersType,
 };

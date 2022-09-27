@@ -129,9 +129,8 @@ class HomeworkService {
             where.homeworkId = homeworkId;
         }
         if (lessonId) {
-            if (!await studentLessonService.studentLessonExists(lessonId, studentId)) {
-                throw new NotFoundError(`No lesson ${lessonId} found of student ${studentId}`);
-            }
+            // todo: add access check when homework belongs to school,
+            //       so that only school students have access
             where.lessonId = lessonId;
         }
 

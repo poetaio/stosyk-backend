@@ -5,6 +5,7 @@ const allCorrectAnsweredGapsByHWIdAndStudentIdInclude = require('./allCorrectAns
 const allGapsByLessonIdInclude = require('./allGapsByLessonId.include');
 const allAnsweredGapsByLessonIdAndStudentIdInclude = require('./allAnsweredGapsByLessonIdAndStudentId.include')
 const allCorrectAnsweredGapsByLessonIdAndStudentIdInclude = require('./allCorrectAnsweredGapsByLessonId.include')
+const allGapsWithAnswersShownInclude = require('./allGapsWithAnswersShown.include');
 
 module.exports = {
     taskGapsInclude,
@@ -14,4 +15,5 @@ module.exports = {
     allGapsByLessonIdInclude,
     allAnsweredGapsByLessonIdAndStudentIdInclude,
     allCorrectAnsweredGapsByLessonIdAndStudentIdInclude,
+    allGapsWithAnswersShownInclude,
 };

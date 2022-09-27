@@ -67,6 +67,15 @@ class LessonService {
         });
     }
 
+    async lessonStatusById(lessonId){
+        const lesson = await Lesson.findOne(({
+            where: {
+                lessonId,
+            }
+        }))
+        return lesson.status
+    }
+
     // used both for deleting markup and protege
     async delete(lesson) {
         // lesson is either markup or session
@@ -270,9 +279,9 @@ class LessonService {
             lessonId,
         });
 
-        if (upd[0]) {
-            await pubsubService.publishLessonStarted(pubsub, lessonId, {
-                lessonId: lessonId, status:'ACTIVE'
+        if(upd[0]){
+            await pubsubService.publishLessonStatus(pubsub, lessonId, {
+                lessonId: lessonId, status: LessonStatusEnum.ACTIVE
             });
         }
 
@@ -305,13 +314,34 @@ class LessonService {
             }
         });
 
+
+        if(upd[0]){
+            await pubsubService.publishLessonStatus(pubsub, lessonId, {
+                lessonId: lessonId, status: LessonStatusEnum.PENDING
+            });
+        }
+
         // clean up
-        // todo: test clean up
-        // await studentLessonService.removeAllStudents(lessonId);
         await optionService.removeAllStudentsAnswersByLessonId(lessonId);
+        await this.removeAllStudents(lessonId);
+        await this.hideAnswers(lessonId);
         store.clear();
 
         return !!upd[0];
+    }
+
+    async hideAnswers(lessonId) {
+        const tasks = await taskService.getAll({lessonId});
+        const taskIds = tasks.map(task => task.taskId);
+        await Task.update({
+            answersShown: false,
+        }, {
+            where: {
+                taskId: taskIds,
+            },
+        });
+
+        return true;
     }
 
     async joinLesson(pubsub, lessonId, studentId) {
@@ -353,7 +383,7 @@ class LessonService {
 
         const tasks = [];
 
-        for (let { taskListTaskTask : task } of lesson.taskList.taskListTaskListTasks) {
+        for (let task of lesson.lessonTaskList.tasks || []) {
             const newTask = { taskId: task.taskId, type: task.type, sentences: [] };
 
             tasks.push(newTask);
@@ -422,12 +452,12 @@ class LessonService {
         return await pubsubService.subscribeOnTeacherShowedRightAnswers(pubsub, lessonId, studentId)
     }
 
-    async subscribeOnLessonStarted(pubsub, lessonId) {
-        if (await this.existsActiveByLessonId(lessonId)) {
-            throw new ValidationError(`Lesson ${lessonId} already started`)
-        }
+    async subscribeOnLessonStatus(pubsub, lessonId) {
+        setTimeout(async () => await pubsubService.publishLessonStatus(pubsub, lessonId, {
+                            lessonId: lessonId, status: this.lessonStatusById(lessonId)
+                         }), 0);
 
-        return await pubsubService.subscribeOnLessonStarted(pubsub, lessonId);
+        return await pubsubService.subscribeOnLessonStatus(pubsub, lessonId);
     }
 
     /**
