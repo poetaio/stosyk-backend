@@ -11,6 +11,7 @@ const allCorrectAnsweredSentencesByHWIdAndStudentIdInclude = require('./allCorre
 const allSentencesByLessonIdInclude = require('./allSentencesByLessonId.include');
 const allAnsweredSentencesByLessonIdAndStudentIdInclude = require('./allAnsweredSentencesByLessonIdAndStudentId.include');
 const allCorrectAnsweredSentencesByLessonIdAndStudentIdInclude = require('./allCorrectAnsweredSentencesByLessonIdAndStudentId.include');
+const allSentencesWithAnswersShownInclude = require('./allSentencesWithAnswersShown.include');
 
 module.exports = {
     multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
@@ -26,4 +27,5 @@ module.exports = {
     allSentencesByLessonIdInclude,
     allAnsweredSentencesByLessonIdAndStudentIdInclude,
     allCorrectAnsweredSentencesByLessonIdAndStudentIdInclude,
+    allSentencesWithAnswersShownInclude,
 };

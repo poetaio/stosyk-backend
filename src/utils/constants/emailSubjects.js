@@ -1,5 +1,5 @@
 const EmailSubjects = {
-    CONFIRMATION: "Please confirm your Stosyk account",
+    CONFIRMATION: "Реєстрація",
     createInviteStudentSubject: (schoolName) => `
         You've been invited to ${schoolName}!
     `,

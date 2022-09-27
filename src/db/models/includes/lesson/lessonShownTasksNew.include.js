@@ -1,7 +1,7 @@
 module.exports = {
     association: 'taskList',
     include: {
-        association: 'task',
+        association: 'tasks',
         where: { answersShown: true },
         required: true,
     }

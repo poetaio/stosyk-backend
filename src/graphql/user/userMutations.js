@@ -114,7 +114,7 @@ const changeAvatar = {
     name: 'changeAvatar',
     description: 'Change Avatar',
     args: {
-        newAvatarSource: {type: GraphQLNonNull(GraphQLString)}
+        name: { type: GraphQLNonNull(GraphQLString)},
     },
     resolve: async  (parent, args, context) => await accountController.changeAvatar(args, context)
 }

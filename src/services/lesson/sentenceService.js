@@ -4,7 +4,7 @@ const {
     multipleChoiceSentenceCorrectAnswersByTaskIdInclude,
     plainInputSentencesCorrectAnswersByTaskIdInclude,
     StudentOption,
-    allStudentOptionsBySentenceIdInclude,
+    allStudentOptionsBySentenceIdInclude, allSentencesWithAnswersShownInclude,
 } = require("../../db/models");
 const gapService = require('./gapService');
 const {
@@ -187,6 +187,13 @@ class SentenceService {
         }
 
         return sentences;
+    }
+
+    async answersShown(sentenceId) {
+        return !!await Sentence.count({
+            include: allSentencesWithAnswersShownInclude,
+            where: {sentenceId},
+        })
     }
 }
 

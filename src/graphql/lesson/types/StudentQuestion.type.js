@@ -1,5 +1,5 @@
 const {GraphQLInputObjectType, GraphQLNonNull, GraphQLList, GraphQLString, GraphQLInt, GraphQLObjectType, GraphQLID} = require("graphql");
-const {TeacherOptionType, StudentOptionType} = require("./option");
+const {TeacherOptionType, StudentOptionType, OptionAnswerType} = require("./option");
 const {optionService} = require("../../../services");
 const {optionController} = require("../../../controllers");
 
@@ -18,6 +18,10 @@ module.exports = new GraphQLObjectType({
         chosenOption: {
             type: StudentOptionType,
             resolve: async (parent, args, context) => await optionController.getQuestionChosenOptionByStudentId(parent, context)
-        }
+        },
+        correctOption: {
+            type: OptionAnswerType,
+            resolve: async (parent, args, context) => await optionController.getQuestionCorrectOptionForStudent(parent),
+        },
     },
 });
