@@ -40,6 +40,7 @@
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.5",
     "pg": "^8.7.3",
+    "redis": "^4.3.1",
     "redis-om": "^0.3.6",
     "sequelize": "^6.18.0",
     "sequelize-pg-utilities": "^2.0.1",
