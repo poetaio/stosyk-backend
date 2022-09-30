@@ -16,7 +16,12 @@ const {
     Gap,
     Sentence,
     Student,
-    allStudentsByLessonIdInclude, allLessonsByLessonMarkupInclude, allSchoolMarkupsByTeacherIdInclude,
+    allStudentsByLessonIdInclude,
+    allLessonsByLessonMarkupInclude,
+    allSchoolMarkupsByTeacherIdInclude,
+    TaskList,
+    TaskListTask,
+    Option,
 } = require('../../db/models');
 const {
     LessonStatusEnum,
