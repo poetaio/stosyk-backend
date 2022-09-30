@@ -614,7 +614,7 @@ class LessonService {
 
         await this.deleteProtegeById(protege.lessonId);
 
-        markupService.createProtegeWithId(protege.lessonId, name, description, tasks || [], homework || [], lessonMarkupId);
+        markupService.createProtegeWithId(protege.lessonId, newName, newDescription, tasks || [], homework || [], lessonMarkupId);
 
         return true;
     }
