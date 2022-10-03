@@ -148,18 +148,18 @@ class LessonService {
     }
 
     async deleteBySchoolId(schoolId) {
-        const lessons = await LessonMarkup.findAll({
+        const markups = await LessonMarkup.findAll({
             include: [
                 allLessonsBySchoolIdInclude(schoolId),
                 lessonInclude,
             ]
         })
 
-        for (let lesson of lessons) {
-            const protege = await markupService.getMarkupProtege(lesson.lessonMarkupId);
+        for (let markup of markups) {
+            const protege = await markupService.getMarkupProtege(markup.lessonMarkupId);
             await this.deleteProtegeById(protege.lessonId);
 
-            await this.deleteMarkupById(lesson.lessonMarkupId);
+            await this.deleteMarkupById(markup.lessonMarkupId);
         }
 
         return true;
@@ -377,7 +377,11 @@ class LessonService {
             throw new ValidationError(`Cannot delete active lesson lessonId: ${lessonId}`);
         }
 
-        return await this.deleteProtegeById(lessonId);
+        const {lessonMarkupId} = await markupService.getMarkupByLessonId(lessonId);
+        await this.deleteProtegeById(lessonId);
+        await this.deleteMarkupById(lessonMarkupId);
+
+        return true;
     }
 
     async getStudentsAnswers(lessonId) {

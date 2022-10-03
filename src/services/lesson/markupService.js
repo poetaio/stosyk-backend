@@ -136,14 +136,14 @@ class MarkupService {
 
     // tasks appear as they are in db sentences->gaps->options
     async createProtegeRawTasksWithId(lessonId, name, description, tasks, homeworkList, lessonMarkupId) {
-        await Lesson.create({
+        const {lessonId: newLessonId} = await Lesson.create({
             ...(lessonId ? {lessonId} : {}),
             name,
             description,
             lessonMarkupId,
         });
 
-        const protegeTaskList = await TaskList.create({lessonId});
+        const protegeTaskList = await TaskList.create({lessonId: lessonId || newLessonId});
         await taskService.createTaskListRawTasks(protegeTaskList.taskListId, tasks);
 
         await homeworkService.addHomeworkListToLessonRaw(lessonId, homeworkList);
