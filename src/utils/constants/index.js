@@ -1,4 +1,4 @@
-const emailHTMLs = require('./emailHTMLs')
+const emailHTMLs = require('./emailHTMLs/emailHTMLs')
 const emailSubjects = require('./emailSubjects')
 
 module.exports = {

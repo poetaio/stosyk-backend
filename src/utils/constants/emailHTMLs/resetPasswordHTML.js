@@ -1,7 +1,5 @@
-class EmailHTMLs {
-    createConfirmationHTML(verificationCode) {
-        //todo: move html to different file
-        return `<head>
+module.exports = (resetPassCode)  => {
+    return `<head>
     <title></title>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -182,8 +180,8 @@ class EmailHTMLs {
                                         <tr>
                                             <td class="pad">
                                                 <div style="color:#242424;direction:ltr;font-family:'Roboto', Tahoma, Verdana, Segoe, sans-serif;font-size:17px;font-weight:400;letter-spacing:0px;line-height:180%;text-align:center;mso-line-height-alt:30.6px;">
-                                                    <p style="margin: 0;"><strong>Дякуємо, що приєдналися до
-                                                        Stosyk!</strong></p>
+                                                    <p style="margin: 0;"><strong>Скидання паролю на
+                                                        Stosyk</strong></p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -195,9 +193,8 @@ class EmailHTMLs {
                                         <tr>
                                             <td class="pad">
                                                 <div style="color:#242424;direction:ltr;font-family:'Roboto', Tahoma, Verdana, Segoe, sans-serif;font-size:15px;font-weight:400;letter-spacing:0px;line-height:150%;text-align:center;mso-line-height-alt:22.5px;">
-                                                    <p style="margin: 0;">Щоб завершити реєстрацію та почати
-                                                        використовувати свій обліковий запис, підтвердіть свою
-                                                        електронну адресу.</p>
+                                                    <p style="margin: 0;">Щоб завершити процес скидання паролю та підтвердити
+                                                    свою особу, перейдіть за посиланням.</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -209,7 +206,7 @@ class EmailHTMLs {
                                             <td class="pad"
                                                 style="padding-bottom:15px;padding-left:15px;padding-right:15px;padding-top:30px;width:100%;">
                                                 <div align="center" class="alignment" style="line-height:10px"><a
-                                                        href="https://www.stosyk.app/confirm/${verificationCode}" style="outline:none"
+                                                        href="https://www.stosyk.app/resetpass/${resetPassCode}" style="outline:none"
                                                         tabindex="-1" target="_blank"><img src="https://i.ibb.co/SdxHp4s/Button.png" alt="Button"
                                                                                            style="display: block; height: auto; border: 0; width: 288px; max-width: 100%;"
                                                                                            width="288"/></a></div>
@@ -301,22 +298,6 @@ class EmailHTMLs {
     </tbody>
 </table><!-- End -->
 </body>`
-    }
-
-    createInviteStudentHTML = (schoolName, inviteToken) => `
-            <div>
-                Hey! You've been invited to ${schoolName}
-                To accept invitation please follow the link:
-            </div>
-            <a href=https://www.stosyk.app/accept-invite/${inviteToken}> Click here</a>
-    `
-
-    createResetPassHTML(resetPassCode) {
-        return `<h1>Reset password</h1>
-        <p>To reset password click the following link:</p>
-        <a href=https://www.stosyk.app/resetpass/${resetPassCode}> Click here</a>
-        </div>`
-    }
 }
 
-module.exports = new EmailHTMLs()
+

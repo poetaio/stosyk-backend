@@ -15,7 +15,10 @@ class EmailFactoryService {
 
     async createResetPassEmail(email, resetPassCode){
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: {
+                name: "Stosyk",
+                address: process.env.EMAIL_USER
+            },
             to: email,
             subject: emailConstants.emailSubjects.RESET_PASSWORD ,
             html: emailConstants.emailHTMLs.createResetPassHTML(resetPassCode)
