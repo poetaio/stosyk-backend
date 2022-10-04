@@ -152,6 +152,9 @@ class AccountController {
         } catch (e) {
             throw new UnauthorizedError(e.message);
         }
+        if(user.type !== "resetpass"){
+            throw new ValidationError("Wrong type of token");
+        }
         user = await accountService.getOneByLogin(user.email)
         if(!user) {
             throw new UnauthorizedError('Invalid code');

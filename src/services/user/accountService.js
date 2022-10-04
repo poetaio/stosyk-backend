@@ -108,7 +108,7 @@ class AccountService {
 
     async sendResetPassEmail(email){
         const resetPassCode = jwt.sign(
-            { email },
+            { email, "type":"resetpass" },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
