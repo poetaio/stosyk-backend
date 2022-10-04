@@ -1,33 +1,20 @@
 module.exports = {
-    association: 'lessonTaskList',
+    association: 'taskList',
+    attributes: ['taskListId'],
     include: {
-        separate: true,
-        association: 'taskListTaskListTasks',
-        include: {
-            association: 'taskListTaskTask',
-            include: [{
-                separate: true,
-                association: 'taskTaskSentences',
+        association: 'tasks',
+        attributes: ['taskId'],
+        include: [{
+            association: 'sentences',
+            attributes: ['sentenceId'],
+            include: {
+                association: 'gaps',
+                attributes: ['gapId'],
                 include: {
-                    association: 'taskSentenceSentence',
-                    include: {
-                        separate: true,
-                        association: 'sentenceSentenceGaps',
-                        include: {
-                            association: 'sentenceGapGap',
-                            include: {
-                                separate: true,
-                                association: 'gapGapOptions',
-                                include: 'gapOptionOption'
-                            },
-                            required: true,
-                        }
-                    },
-                    required: true,
-                }
-            }, "taskAttachments" ],
-            // if no task related to taskListTask - do not include
-            required: true,
-        }
-    }
+                    association: 'options',
+                    attributes: ['optionId'],
+                },
+            },
+        }, "attachments"],
+    },
 };

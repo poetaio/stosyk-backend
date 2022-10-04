@@ -3,6 +3,8 @@ const UserRoleEnum = require('./UserRole.enum');
 const UserTypeEnum = require('./UserType.enum');
 const EventNameEnum = require('./EventName.enum');
 const TaskTypeEnum = require('./taskType.enum');
+const SchoolTeacherAccessEnum = require('./schoolTeacherAccessRight.enum');
+const SchoolStudentSeatStatusEnum = require('./schoolStudentSeatStatus.enum');
 
 
 module.exports = {
@@ -11,4 +13,6 @@ module.exports = {
     UserTypeEnum,
     EventNameEnum,
     TaskTypeEnum,
+    SchoolTeacherAccessEnum,
+    SchoolStudentSeatStatusEnum,
 };

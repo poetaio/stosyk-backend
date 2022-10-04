@@ -20,10 +20,10 @@ class TeacherService {
         return await Teacher.create(
             { user: { role: UserRoleEnum.TEACHER } },
             { include: 'user' }
-        ).then(({ user }) => user.userId);
+        );
     }
 
-    async create(email, password) {
+    async create(email, password, name, avatar_source) {
         const passwordHash = await hashPassword(password);
 
         return await Teacher.create({
@@ -31,9 +31,10 @@ class TeacherService {
                     role: UserRoleEnum.TEACHER,
                     type: UserTypeEnum.REGISTERED,
                     account: {
-                        login: email, passwordHash
+                        login: email, passwordHash,
+                        avatar_source
                     }
-                }
+                }, name
             },
             {
                 include: {
@@ -44,11 +45,12 @@ class TeacherService {
         );
     }
 
-    async updateAnonymousTeacherToRegistered(userId, email, password) {
+    async updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source) {
         const passwordHash = await hashPassword(password);
 
         await User.update({
                 type: UserTypeEnum.REGISTERED,
+                name: name
             },
             {
                 where: {
@@ -60,22 +62,13 @@ class TeacherService {
         await Account.create({
             login: email,
             passwordHash,
-            userId
+            userId,
+            avatar_source
         })
     }
 
     async findOneByUserId(userId) {
         return await Teacher.findOne({ where: { userId } });
-    }
-
-    async findOneByLessonId(lessonId) {
-        return await Teacher.findOne({
-            include: {
-                association: 'teacherLessonTeachers',
-                where: { lessonId },
-                required: true
-            }
-        });
     }
 }
 

@@ -1,5 +1,8 @@
 const EmailSubjects = {
-    CONFIRMATION: "Please confirm your Stosyk account",
+    CONFIRMATION: "Реєстрація",
+    createInviteStudentSubject: (schoolName) => `
+        You've been invited to ${schoolName}!
+    `,
     RESET_PASSWORD: "Reset password to your Stosyk account"
 
 }

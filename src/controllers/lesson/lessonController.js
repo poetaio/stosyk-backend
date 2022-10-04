@@ -1,7 +1,15 @@
-const { lessonService, studentService, answerService} = require('../../services')
+const {
+    lessonService,
+    studentService,
+    answerService,
+    markupService,
+    pubsubService,
+    scoreService,
+    studentLessonService,
+} = require('../../services');
+const {LessonMarkup, allLessonsBySchoolIdInclude} = require("../../db/models");
 const teacherService = require("../../services/user/teacherService");
-const {ValidationError} = require("../../utils");
-const {pubsubService} = require('../../services');
+const {ValidationError, NotFoundError} = require("../../utils");
 
 class LessonController {
     async createLesson({ lesson }, { user: { userId } }) {
@@ -37,6 +45,8 @@ class LessonController {
 
         if (!teacher)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacher.teacherId);
 
         return await lessonService.startLesson(pubsub, lessonId, teacher.teacherId);
     }
@@ -94,9 +104,9 @@ class LessonController {
 
     async presentStudentsChanged({ lessonId }, { pubsub, user: {userId}}) {
         setTimeout(async ()=> await pubsubService.publishOnPresentStudentsChanged(pubsub, lessonId, userId,
-            await studentService.studentsLesson(lessonId)),0)
-       return await pubsubService.subscribeOnPresentStudentsChanged(pubsub, userId, lessonId);
+            await studentLessonService.getLessonStudents(lessonId)),0)
 
+       return await pubsubService.subscribeOnPresentStudentsChanged(pubsub, userId, lessonId);
     }
 
     async studentAnswersChanged({ lessonId }, { pubsub, user: { userId } }) {
@@ -108,8 +118,12 @@ class LessonController {
         return await lessonService.subscribeOnStudentAnswersChanged(pubsub, lessonId, teacher.teacherId);
     }
 
-    async lessonStarted({ lessonId }, { pubsub }) {
-        return await lessonService.subscribeOnLessonStarted(pubsub, lessonId);
+    async lessonStatusChanged({ lessonId }, { pubsub }) {
+        if(!await lessonService.lessonExists(lessonId)){
+            throw new NotFoundError(`No lesson ${lessonId}`)
+        }
+
+        return await lessonService.subscribeOnLessonStatus(pubsub, lessonId);
     }
 
     async correctAnswerShown({ lessonId }, { pubsub, user: { userId } }) {
@@ -146,7 +160,6 @@ class LessonController {
     }
 
     async getLessonsByCourse({courseId}, args, context){
-        // todo: check if course belongs to teacher
         return await lessonService.getLessonsByCourse(courseId)
     }
 
@@ -158,6 +171,68 @@ class LessonController {
         }
 
         return await answerService.setHomeworkAnswer(pubsub, student.studentId, answer)
+    }
+
+    async editLesson({lessonId, lesson}, {user: {userId}}) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        await markupService.checkIfLessonIsProtegeAndBelongsToTeacher(lessonId, teacher.teacherId);
+
+        return await lessonService.editLesson(lessonId, lesson);
+    }
+
+    // complete = answered / correct
+    async getStudentProgress({ studentId, lessonId }) {
+        return await scoreService.getStudentProgress(lessonId, studentId);
+    }
+
+    // correctness = correct / answered
+    async getStudentCorrectness({ studentId, parent: {lessonId} }) {
+        return await scoreService.getStudentScore(lessonId, studentId);
+    }
+
+    // total score = correct / total
+    async getTotalScore({ studentId, lessonId }) {
+        return await scoreService.getTotalScore(lessonId, studentId);
+    }
+
+    async getTeacherLessonHistory({ user: { userId } }) {
+        const teacher = await teacherService.findOneByUserId(userId);
+
+        if (!teacher)
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+
+        return lessonService.getLessonsRunByTeacher(teacher.teacherId);
+    }
+
+    async studentOnLesson({ lessonId }, { user: {userId}, pubsub }) {
+        const student = await studentService.findOneByUserId(userId);
+
+        if(!student){
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        await lessonService.joinLesson(pubsub, lessonId, student.studentId);
+        return await lessonService.subscribeOnStudentOnLesson(pubsub, lessonId, student.studentId);
+    }
+
+    async getStudents({lessonId}) {
+        return await lessonService.getStudents(lessonId);
+    }
+
+    async getLessonsBySchoolId({schoolId}) {
+        const markups = await LessonMarkup.findAll({
+            include: allLessonsBySchoolIdInclude(schoolId),
+        });
+
+        const lessons = await Promise.all(
+            markups.map(({lessonMarkupId}) =>
+                lessonService.getLessonsByMarkup(lessonMarkupId)
+        ));
+        return lessons.flat();
     }
 }
 

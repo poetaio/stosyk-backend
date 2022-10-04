@@ -8,4 +8,5 @@ module.exports = (sequelize, DataTypes) => sequelize.define('course', {
         type: DataTypes.STRING,
         allowNull: false
     },
+
 });

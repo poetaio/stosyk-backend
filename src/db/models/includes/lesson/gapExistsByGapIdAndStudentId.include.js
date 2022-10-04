@@ -18,7 +18,7 @@ module.exports = (studentId) => ({
                 //     include: {
                 //         association: 'taskListTaskTaskList',
                 //         include: {
-                //             association: 'taskListLesson',
+                //             association: 'lesson',
                 //             // include: {
                 //             //     model: LessonStudent
                 //             // }

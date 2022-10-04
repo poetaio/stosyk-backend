@@ -29,7 +29,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     return queryInterface.removeColumn(
-        'task',
+        'tasks',
         'description',
     );
   }

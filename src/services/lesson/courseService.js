@@ -1,9 +1,14 @@
-const {Course, TeacherCourse, LessonCourse, allCoursesByTeacherIdInclude} = require("../../db/models");
+const {Course, TeacherCourse, LessonCourse, allCoursesByTeacherIdInclude, allLessonCoursesByMarkupIdInclude,
+    Student,
+    allStudentsByCourseIdInclude
+} = require("../../db/models");
 const {NotFoundError} = require("../../utils");
+const lessonService = require("./lessonService");
+const markupService = require('./markupService');
 
 class CourseService {
-    async createCourse(name, teacherId){
-        const newCourse = await Course.create({name});
+    async createCourse(name, teacherId, schoolId  ){
+        const newCourse = await Course.create({name, schoolId});
         await TeacherCourse.create({courseId: newCourse.courseId, teacherId});
         return newCourse.courseId
     }
@@ -17,20 +22,21 @@ class CourseService {
         });
     }
 
-    async addLessonToCourse(courseId, lessonId, teacherId){
+    async addLessonMarkupToCourse(courseId, lessonMarkupId, teacherId){
         if (!await this.teacherCourseExists(courseId, teacherId)) {
             throw new NotFoundError(`No course ${courseId} of such teacher ${teacherId}`);
         }
-        return !! await LessonCourse.create({courseId, lessonId})
+        return !! await LessonCourse.create({courseId, lessonId: lessonMarkupId})
     }
 
-    async removeLessonFromCourse(courseId, lessonId, teacherId){
+    async removeLessonMarkupFromCourse(courseId, lessonMarkupId, teacherId){
         if (!await this.teacherCourseExists(courseId, teacherId)) {
             throw new NotFoundError(`No course ${courseId} of such teacher ${teacherId}`);
         }
+
         return  !!await LessonCourse.destroy({
+            include: allLessonCoursesByMarkupIdInclude(lessonMarkupId),
             where: {
-                lessonId,
                 courseId,
             }
         })
@@ -71,6 +77,37 @@ class CourseService {
         })
 
         return !!upd[0]
+    }
+
+    async getAllStudentsWhoTookLessons(courseId) {
+        return await Student.findAll({
+            include: allStudentsByCourseIdInclude(courseId),
+        });
+    }
+
+    async getStudentResult(courseId, studentId, funcToGetResult) {
+        const lessons = await lessonService.getMarkupsByCourse(courseId);
+
+        if (!lessons.length) {
+            return null;
+        }
+
+        // todo: fix if... forgot... but something requires to be fixed definitely
+        const lessonScores = await Promise.all(
+            lessons.map(({lessonMarkupId}) => funcToGetResult(lessonMarkupId, studentId))
+        );
+
+        const lessonsScoresSum = lessonScores.reduce((sum, next) => sum + next, 0);
+
+        return lessonsScoresSum / lessons.length;
+    }
+
+    async getTotalScore(courseId, studentId) {
+        return await this.getStudentResult(courseId, studentId, markupService.getStudentTotalScore.bind(markupService));
+    }
+
+    async getStudentProgress(courseId, studentId) {
+        return await this.getStudentResult(courseId, studentId, markupService.getStudentProgress.bind(markupService));
     }
 }
 

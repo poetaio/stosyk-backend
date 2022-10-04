@@ -1,47 +1,110 @@
 const {NotFoundError, ValidationError, TaskTypeEnum} = require("../../utils");
-const {Homework, TaskList, homeworkByTeacherIdInclude, allStudentsByHomeworkIdInclude, Student, Sentence,
-    allGapsByHWIdInclude, allSentencesByHWIdInclude, allAnsweredSentencesByHWIdAndStudentIdInclude,
-    allAnsweredGapsByHWIdAndStudentIdInclude, allCorrectAnsweredSentencesByHWIdAndStudentIdInclude,
-    allCorrectAnsweredGapsByHWIdAndStudentIdInclude, Task, Gap
+const {
+    Homework,
+    TaskList,
+    allStudentsByHomeworkIdInclude,
+    Student,
+    Sentence,
+    allGapsByHWIdInclude,
+    allSentencesByHWIdInclude,
+    allAnsweredSentencesByHWIdAndStudentIdInclude,
+    allAnsweredGapsByHWIdAndStudentIdInclude,
+    allCorrectAnsweredSentencesByHWIdAndStudentIdInclude,
+    allCorrectAnsweredGapsByHWIdAndStudentIdInclude,
+    Task,
+    Gap,
+    fullHomeworkInclude,
+    TaskListTask,
 } = require("../../db/models");
 const taskService = require("./taskService");
 const lessonTeacherService = require("./lessonTeacherService");
 const studentLessonService = require("./studentLessonService");
 
 class HomeworkService {
-    async addToLesson(lessonId, { tasks }) {
-        const newHomework = await Homework.create({ lessonId });
+
+    /**
+     * Add homework with such tasks t0 lesson (markup)
+     */
+    async addToLessonMarkup(lessonMarkupId, { tasks }) {
+        const newHomework = await Homework.create({ lessonMarkupId });
         const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
         await taskService.createTaskListTasks(taskList.taskListId, tasks);
         return newHomework.homeworkId;
     }
 
-    async add(teacherId, { lessonId, homework }) {
-        // if lesson doesn't belong to teacher or it doesn't exist
-        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
-            throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`);
-        }
-        return await this.addToLesson(lessonId, homework);
+    async addToLessonMarkupRaw(lessonMarkupId, { tasks }) {
+        const newHomework = await Homework.create({ lessonMarkupId });
+        const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
+        await taskService.createTaskListRawTasks(taskList.taskListId, tasks);
+        return newHomework.homeworkId;
     }
 
-    async addAll(teacherId, { lessonId, homeworkList }) {
-        // if lesson doesn't belong to teacher or it doesn't exist
-        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
-            throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`);
-        }
-
-        for (let homework of homeworkList) {
-            await this.addToLesson(lessonId, homework);
-        }
+    /**
+     * Add homework with such tasks t0 lesson (session)
+     */
+    async addToLesson(lessonId, {homeworkMarkupId, tasks}) {
+        const newHomework = await Homework.create({homeworkMarkupId, lessonId});
+        const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
+        await taskService.createTaskListTasks(taskList.taskListId, tasks);
+        return newHomework.homeworkId;
     }
 
-    async getAllByLessonIdOrHomeworkIdForTeacher(teacherId, {homeworkId, lessonId}) {
+    async addToLessonRaw(lessonId, {homeworkMarkupId, tasks}) {
+        const newHomework = await Homework.create({homeworkMarkupId, lessonId});
+        const taskList = await TaskList.create({homeworkId: newHomework.homeworkId});
+
+        // removing taskId field from task, if tasks were fetched from db and processed with .get({ plain:true })
+        tasks.forEach(task => delete task.taskId);
+
+        // sequelize accepts tasks with sentences, gaps etc
+        await taskService.createTaskListRawTasks(taskList.taskListId, tasks);
+
+        return newHomework.homeworkId;
+    }
+
+    // make sure to set homeworkMarkupId after creating hw, as it's used as reference to create protege hw
+    async addHomeworkListToLessonMarkup(lessonMarkupId, homeworkList) {
+        return Promise.all(homeworkList.map(
+            (homework) =>
+                this.addToLessonMarkup(lessonMarkupId, homework)
+                    .then(homeworkId => homework.homeworkMarkupId = homeworkId)
+        ));
+    }
+
+    async addHomeworkListToLessonMarkupRaw(lessonMarkupId, homeworkList) {
+        return Promise.all(homeworkList.map(
+            (homework) => this.addToLessonMarkupRaw(lessonMarkupId, homework)
+        ));
+    }
+
+    async addHomeworkListToLesson(lessonId, homeworkList) {
+        return Promise.all(homeworkList.map(
+            (homework) => this.addToLesson(lessonId, homework)
+        ));
+    }
+
+    // tasks contain sentences->gaps->options, which can be accepted by sequelize without the need to parse it
+    // check HomeworkService#addToLessonRawTasks
+    async addHomeworkListToLessonRaw(lessonId, homeworkList) {
+        return Promise.all(homeworkList.map(
+            (homework) => this.addToLessonRaw(lessonId, homework)
+        ));
+    }
+
+    /**
+     * Returns all homework of specified lesson or with such homeworkId
+     */
+    async getAllByLessonIdOrHomeworkIdForTeacher(teacherId, homeworkId, lessonId) {
         const where = {};
         if (!homeworkId && !lessonId) {
             throw new ValidationError(`No homeworkId and lessonId specified`);
         }
         // teacher must also own the lesson homework belongs to
         if (homeworkId) {
+            // todo: implement teacherHomeworkExists
+            // if (!await this.teacherHomeworkExists()) {
+            //     throw new NotFoundError(`No homework ${homeworkId} found of teacher ${teacherId}`)
+            // }
             where.homeworkId = homeworkId;
         }
         if (lessonId) {
@@ -53,12 +116,10 @@ class HomeworkService {
 
         return await Homework.findAll({
             where,
-            // teacher cannot only get homework which belongs to lesson he created
-            include: homeworkByTeacherIdInclude(teacherId)
         });
     }
 
-    async getAllByLessonIdOrHomeworkIdForStudent(studentId, {homeworkId, lessonId}) {
+    async getAllByLessonIdOrHomeworkIdForStudent(studentId, homeworkId, lessonId) {
         const where = {};
         if (!homeworkId && !lessonId) {
             throw new ValidationError(`No homeworkId and lessonId specified`);
@@ -68,9 +129,8 @@ class HomeworkService {
             where.homeworkId = homeworkId;
         }
         if (lessonId) {
-            if (!await studentLessonService.studentLessonExists(lessonId, studentId)) {
-                throw new NotFoundError(`No lesson ${lessonId} found of student ${studentId}`);
-            }
+            // todo: add access check when homework belongs to school,
+            //       so that only school students have access
             where.lessonId = lessonId;
         }
 
@@ -85,11 +145,20 @@ class HomeworkService {
         });
     }
 
+    async getAllByLessonMarkupId(lessonMarkupId) {
+        return await Homework.findAll({
+            where: { lessonMarkupId },
+        });
+    }
+
+    // return homeworkId as well in order for score to work (parent of parent query in graphql)
     async getStudents(homeworkId) {
         // all students who have at least one answer on any task of this homework
         return await Student.findAll({
             include: allStudentsByHomeworkIdInclude(homeworkId),
-        }).then(students => students.map(student => ({...student.dataValues, homeworkId})));
+        }).then(students => students.map(
+            student => ({...student.get({plain: true}), homeworkId}))
+        );
     }
 
     async getMultipleChoicePlainInputTotalCount(homeworkId) {
@@ -164,9 +233,13 @@ class HomeworkService {
         return multipleChoiceAndPlainInputCorrectAnsweredCount + matchingQACorrectAnsweredCount;
     }
 
-    async getStudentCompleteness(homeworkId, studentId) {
+    async getStudentProgress(homeworkId, studentId) {
         const totalCount = await this.getTotalCount(homeworkId);
         const answeredCount = await this.getAnsweredCount(homeworkId, studentId);
+
+        if (!totalCount) {
+            return 100;
+        }
 
         return answeredCount / totalCount * 100;
     }
@@ -175,12 +248,20 @@ class HomeworkService {
         const answeredCount = await this.getAnsweredCount(homeworkId, studentId);
         const correctCount = await this.getCorrectAnsweredCount(homeworkId, studentId);
 
+        if (!correctCount) {
+            return null;
+        }
+
         return correctCount / answeredCount * 100;
     }
 
     async getTotalScore(homeworkId, studentId) {
         const totalCount = await this.getTotalCount(homeworkId);
         const correctCount = await this.getCorrectAnsweredCount(homeworkId, studentId);
+
+        if (!totalCount) {
+            return 100;
+        }
 
         return correctCount / totalCount * 100;
     }
@@ -192,16 +273,25 @@ class HomeworkService {
     }
 
     async removeFromLesson(teacherId, lessonId, homeworkId) {
-        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
-            throw new NotFoundError(`No lesson ${lessonId} found of teacher ${teacherId}`);
-        }
-
         if (!await this.homeworkExists(homeworkId)) {
             throw new NotFoundError(`No homework ${homeworkId} found`);
         }
 
         await Homework.update({
             lessonId: null,
+        }, {
+            where: { homeworkId },
+        });
+        return true;
+    }
+
+    async removeFromLessonMarkup(teacherId, lessonMarkupId, homeworkId) {
+        if (!await this.homeworkExists(homeworkId)) {
+            throw new NotFoundError(`No homework ${homeworkId} found`);
+        }
+
+        await Homework.update({
+            lessonMarkupId: null,
         }, {
             where: { homeworkId },
         });
@@ -217,8 +307,11 @@ class HomeworkService {
     }
 
     async showAnswers(teacherId, homeworkId) {
-        const res = await this.getAllByLessonIdOrHomeworkIdForTeacher(teacherId, {homeworkId: homeworkId, lessonId: null})
-        if(!res[0]){
+        const res = await this.getAllByLessonIdOrHomeworkIdForTeacher(teacherId, {
+            homeworkId: homeworkId,
+            lessonId: null
+        })
+        if (!res[0]) {
             throw new NotFoundError(`No homework ${homeworkId}  of teacher ${teacherId} found`);
         }
        const tasks = await Task.findAll({
@@ -238,11 +331,17 @@ class HomeworkService {
             answersShown: true
         }, {
             where:{
-                taskId:
-                    taskIds
+                taskId: taskIds
             }
         })
         return !!upd[0]
+    }
+
+    async getFullHomeworkByLessonId(lessonId) {
+        return await Homework.findAll({
+            include: fullHomeworkInclude,
+            where: {lessonId},
+        }).then(homeworks => homeworks.map(homework => homework.get({ plain: true })));
     }
 }
 

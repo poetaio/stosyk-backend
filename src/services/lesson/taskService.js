@@ -3,7 +3,7 @@ const {Task, Lesson, TaskSentence,
     DELETE_TASK_BY_LESSON_ID,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
-    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments, TaskListTask
+    DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments, TaskListTask, allTasksByLessonIdInclude
 } = require("../../db/models");
 const sentenceService = require('./sentenceService');
 const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum, TaskListTypeEnum} = require('../../utils');
@@ -11,6 +11,7 @@ const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
 const lessonByTeacherAndTaskInclude = require("../../db/models/includes/lesson/lessonByTeacherAndTask.include");
+const studentLessonService = require("./studentLessonService");
 
 class TaskService {
     // todo: existsWithAnswerShown
@@ -28,7 +29,7 @@ class TaskService {
                 include: {
                     association: 'taskListTaskTaskList',
                     include: {
-                        association: 'taskListLesson',
+                        association: 'lesson',
                         where: {
                             status: LessonStatusEnum.ACTIVE
                         },
@@ -77,9 +78,10 @@ class TaskService {
                 where: { taskId },
                 include: taskWithLessonInclude
             });
-            const lesson = task.taskTaskListTask.taskListTaskTaskList.taskListLesson;
+            const lesson = task.taskTaskListTask.taskListTaskTaskList.lesson;
             const lessonAnswers = await lessonAnswersService.getShownAnswers(lesson.lessonId);
-            for (let { studentId } of await studentService.studentsLesson(lesson.lessonId)) {
+            const students = await studentLessonService.getLessonStudents(lesson.lessonId);
+            for (let { studentId } of students) {
                 await pubsubService.publishOnTeacherShowedRightAnswers(pubsub, lesson.lessonId, studentId, lessonAnswers);
             }
         }
@@ -136,13 +138,8 @@ class TaskService {
         return sentences;
     }
 
-    // task creation, accepts all types of task
-    async create(task) {
-        const {type, answerShown, attachments, description} = task;
-
-        // getting sentences from "type object" depending on type to insert in db
-        let sentences = await this.getSentencesFromTypeObject(task);
-
+    // task appear as they are in db (sentences->gaps->options)
+    async createRaw(description, type, answerShown, sentences, attachments) {
         const createdTask = await Task.create({ type, answerShown, description });
         const {taskId} = createdTask;
 
@@ -160,31 +157,25 @@ class TaskService {
         return taskId;
     }
 
-    async getAll({ lessonId, homeworkId }) {
-        const where = {};
-        // if lessonId is null, task will not have taskLessonTask as child,
-        // thus no need to require = true
-        let required = false;
-        if (lessonId) {
-            where.lessonId = lessonId;
-            required = true;
-        }
-        if (homeworkId) {
-            where.homeworkId = homeworkId;
-            required = true;
-        }
+    // task creation, accepts all types of task as they are in GraphQL
+    // with type and type object (e.g. "PLAIN_INPUT" and plainInput)
+    async create(task) {
+        const {type, answerShown, attachments, description} = task;
 
+        // getting sentences from "type object" depending on type to insert in db
+        let sentences = await this.getSentencesFromTypeObject(task);
+
+        return await this.createRaw(description, type, answerShown, sentences, attachments);
+    }
+
+    async getAll({ lessonId, homeworkId }) {
         if (homeworkId) {
             return await Task.findAll({
                 include: {
-                    association: 'taskTaskListTask',
+                    association: 'taskList',
                     include: {
-                        association: 'taskListTaskTaskList',
-                        include: {
-                            association: 'homework',
-                            where: {homeworkId},
-                            required
-                        },
+                        association: 'homework',
+                        where: {homeworkId},
                         required: true
                     },
                     required: true
@@ -194,17 +185,15 @@ class TaskService {
 
         return await Task.findAll({
             include: {
-                association: 'taskTaskListTask',
+                association: 'taskList',
+                required: true,
+                attributes: [],
                 include: {
-                    association: 'taskListTaskTaskList',
-                    include: {
-                        association: 'taskListLesson',
-                        where: {lessonId},
-                        required
-                    },
-                    required: true
+                    association: 'lesson',
+                    attributes: [],
+                    required: true,
+                    where: {lessonId},
                 },
-                required: true
             }
         });
     }
@@ -314,10 +303,21 @@ class TaskService {
         }
     }
 
+    // tasks appear as in GraphQL with type and type object (e.g. "PLAIN_INPUT" and plainInput)
     async createTaskListTasks(taskListId, tasks) {
         // create and connect to lesson
-        for (const task of tasks) {
+        for (const task of tasks || []) {
             const taskId = await this.create(task);
+
+            await TaskListTask.create({taskListId: taskListId, taskId});
+        }
+    }
+
+    // tasks appear as in db (sentences->gaps->option)
+    async createTaskListRawTasks(taskListId, tasks) {
+        // create and connect to lesson
+        for (const {description, type, answerShown, sentences, attachments} of tasks || []) {
+            const taskId = await this.createRaw(description, type, answerShown, sentences, attachments);
 
             await TaskListTask.create({taskListId: taskListId, taskId});
         }

@@ -15,5 +15,9 @@ module.exports = (sequelize, DataTypes) => sequelize.define('user', {
     type: {
         type: DataTypes.ENUM(...Object.values(userTypeEnum)),
         defaultValue: userTypeEnum.ANONYMOUS
+    },
+    name: {
+        type: DataTypes.STRING,
+        defaultValue: "Name",
     }
 });

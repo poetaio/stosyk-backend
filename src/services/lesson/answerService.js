@@ -8,6 +8,7 @@ const pubsubService = require("../pubsubService");
 const lessonService = require("./lessonService");
 const studentLessonService = require("./studentLessonService");
 const homeworkService = require("./homeworkService");
+const teacherLessonService = require("./teacherLessonService");
 
 class AnswerService {
     async setMultipleChoiceAnswer(studentId, taskId, { sentenceId, gapId, optionId }) {
@@ -133,20 +134,22 @@ class AnswerService {
     }
 
     async publishOnStudentSetAnswer(pubsub, lessonId) {
-        const teacher = await teacherService.findOneByLessonId(lessonId);
-        await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
-            await lessonService.getStudentsAnswers(lessonId));
+        const teacher = await teacherLessonService.getLessonTeacher(lessonId);
+        if (teacher)
+            await pubsubService.publishOnStudentsAnswersChanged(pubsub, lessonId, teacher.teacherId,
+                await lessonService.getStudentsAnswers(lessonId));
     }
 
     async setTaskAnswer(studentId, answer) {
         const { taskId } = answer;
         const task = await taskService.getOneById(taskId);
         // todo: fix for homework
+        //       upd: wtf it means?
         // const { taskId, lessonId } = answer;
         // const task = await taskService.getOneByIdAndLessonId(taskId, lessonId);
-        // if (!task) {
-        //     throw new NotFoundError(`No task ${taskId} of lesson ${lessonId} found`)
-        // }
+        if (!task) {
+            throw new NotFoundError(`No task ${taskId}`)
+        }
 
         if (task.type === TaskTypeEnum.MULTIPLE_CHOICE && answer.multipleChoice) {
             await this.setMultipleChoiceAnswer(studentId, taskId, answer.multipleChoice);
@@ -156,7 +159,7 @@ class AnswerService {
             await this.setMatchingAnswer(studentId, taskId, answer.matching);
         } else if (task.type === TaskTypeEnum.QA && answer.qa) {
             await this.setQAAnswer(studentId, taskId, answer.qa);
-        } else throw new ValidationError(`Invalid input: type-type object mismatch`);
+        } else throw new ValidationError(`Invalid input: type object does not match task type with id ${task.taskId}`);
     }
 
     async setAnswer(pubsub, studentId, answer){
