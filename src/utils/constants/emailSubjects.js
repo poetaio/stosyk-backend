@@ -3,7 +3,7 @@ const EmailSubjects = {
     createInviteStudentSubject: (schoolName) => `
         You've been invited to ${schoolName}!
     `,
-    RESET_PASSWORD: "Скидання паролю"
+    RESET_PASSWORD: "Зміна паролю"
 
 }
 
