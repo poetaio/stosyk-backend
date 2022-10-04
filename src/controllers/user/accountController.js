@@ -124,12 +124,42 @@ class AccountController {
     }
 
     async confirmEmail({confirmationCode}){
-        let user = jwt.verify(confirmationCode, process.env.JWT_SECRET);
+        let user
+        try {
+            user = jwt.verify(confirmationCode, process.env.JWT_SECRET);
+        } catch (e) {
+            throw new UnauthorizedError(e.message);
+        }
         user = await accountService.getOneByLogin(user.email)
         if(!user){
             throw new UnauthorizedError('Invalid code');
         }
         return await accountService.confirmEmail(user.login)
+    }
+
+    async sendResetPassEmail({login}){
+        const account = await accountService.getOneByLogin(login)
+        if(!account){
+            throw new UnauthorizedError('Invalid login');
+        }
+        return await accountService.sendResetPassEmail(login)
+    }
+
+    async resetPassword({resetPassCode, password}){
+        let user
+        try {
+            user = jwt.verify(resetPassCode, process.env.JWT_SECRET);
+        } catch (e) {
+            throw new UnauthorizedError(e.message);
+        }
+        if(user.type !== "resetpass"){
+            throw new ValidationError("Wrong type of token");
+        }
+        user = await accountService.getOneByLogin(user.email)
+        if(!user) {
+            throw new UnauthorizedError('Invalid code');
+        }
+        return await accountService.changePassword(user.userId, password)
     }
 }
 

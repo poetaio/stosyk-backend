@@ -74,7 +74,18 @@ const confirmEmail = {
     args: {
         confirmationCode: {type: GraphQLNonNull(GraphQLString)}
     },
-    resolve: async (parent, args, context) => await accountController.confirmEmail(args, context)
+    resolve: async (parent, args, context) => await accountController.confirmEmail(args)
+}
+
+const resetPassword = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'resetPassword',
+    description: 'Reset password',
+    args: {
+        resetPassCode: {type: GraphQLNonNull(GraphQLString)},
+        password: {type: GraphQLNonNull(GraphQLString)}
+    },
+    resolve: async (parent, args, context) => await accountController.resetPassword(args)
 }
 
 const changeEmail = {
@@ -130,5 +141,6 @@ module.exports = {
     changeEmail: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changeEmail),
     changeName: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changeName),
     changeAvatar: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changeAvatar),
-    confirmEmail
+    confirmEmail,
+    resetPassword,
 };

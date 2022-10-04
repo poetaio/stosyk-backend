@@ -45,6 +45,16 @@ const sendConfirmationEmail = {
     resolve: async (parent, args, context) => await accountController.sendConfirmationEmail(args)
 }
 
+const sendResetPassEmail = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'sendResetPassEmail',
+    description: 'Send reset password email',
+    args:{
+        login: {type: GraphQLNonNull(GraphQLString),}
+    },
+    resolve: async  (parent, args, context) => await accountController.sendResetPassEmail(args)
+}
+
 
 const studentInfo = {
     type: GraphQLNonNull(StudentType),
@@ -60,4 +70,5 @@ module.exports = {
     getAccountInfo: resolveAuthMiddleware(UserRoleEnum.STUDENT, UserRoleEnum.TEACHER)(getAccountInfo),
     studentInfo: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentInfo),
     sendConfirmationEmail,
+    sendResetPassEmail,
 };
