@@ -303,6 +303,14 @@ class EmailHTMLs {
 </body>`
     }
 
+    createInviteStudentHTML = (schoolName, inviteToken) => `
+            <div>
+                Hey! You've been invited to ${schoolName}
+                To accept invitation please follow the link:
+            </div>
+            <a href=https://www.stosyk.app/accept-invite/${inviteToken}> Click here</a>
+    `
+
     createResetPassHTML(resetPassCode) {
         return `<h1>Reset password</h1>
         <p>To reset password click the following link:</p>
