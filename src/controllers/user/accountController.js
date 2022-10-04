@@ -26,7 +26,7 @@ class AccountController {
                 const userToProceed = await studentService.create(email, password, name, avatar_source);
                 userId = userToProceed.user.userId;
             } else {
-                const userToProceed = await teacherService.create(email, password);
+                const userToProceed = await teacherService.create(email, password, name, avatar_source);
                 await schoolService.create(userToProceed.teacherId);
                 userId = userToProceed.user.userId;
             }
