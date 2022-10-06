@@ -1,4 +1,4 @@
 module.exports = {
-    association: 'lessonTaskList',
+    association: 'taskList',
     include: 'tasks',
 };
