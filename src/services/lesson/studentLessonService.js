@@ -4,11 +4,11 @@ const {client} = require("../../db/redis");
 
 class StudentLessonService {
     async studentLessonExists(lessonId, studentId){
-        return await client().redis.sIsMember(lessonId, studentId);
+        return await client().sIsMember(lessonId, studentId);
     }
 
     async getLessonStudents(lessonId) {
-        const studentIds = await client().redis.sMembers(lessonId);
+        const studentIds = await client().sMembers(lessonId);
 
         return await Student.findAll({
             where: {studentId: studentIds}
@@ -16,15 +16,15 @@ class StudentLessonService {
     }
 
     async joinLesson(studentId, lessonId) {
-        await client().redis.sAdd(lessonId, studentId);
+        await client().sAdd(lessonId, studentId);
     }
 
     async leaveLesson(studentId, lessonId) {
-        await client().redis.sRem(lessonId, studentId);
+        await client().sRem(lessonId, studentId);
     }
 
     async removeAllStudents(lessonId) {
-        await client().redis.del(lessonId);
+        await client().del(lessonId);
     }
 }
 

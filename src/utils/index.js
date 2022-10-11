@@ -7,6 +7,7 @@ const factories = require('./factories');
 const dateUtils = require('./date');
 const emailTransport = require('./nodemailerTransport')
 const useUnsubscribeCb = require('./useUnsubscribeCb');
+const logger = require('./logger');
 
 module.exports = {
     httpStatusCodes,
@@ -18,4 +19,5 @@ module.exports = {
     convertToGraphQLEnum,
     emailTransport,
     useUnsubscribeCb,
+    logger,
 };

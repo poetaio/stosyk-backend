@@ -1,5 +1,5 @@
 const teacherService = require("../../services/user/teacherService");
-const {ValidationError} = require("../../utils");
+const {ValidationError, logger} = require("../../utils");
 const {schoolService} = require("../../services/school");
 const jwt = require("jsonwebtoken");
 const {studentService} = require("../../services");
@@ -83,7 +83,7 @@ class SchoolController {
             //         will be accepted
             return await schoolService.occupySeat(inviteEmail, student.studentId);
         } catch (e) {
-            console.error(`Could not occupy seat: `, e);
+            logger.error(`Could not occupy seat: `, e);
             return false;
         }
     }

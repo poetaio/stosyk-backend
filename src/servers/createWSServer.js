@@ -6,13 +6,14 @@ const schema = require('../graphql/index');
 const {ApolloServer} = require("apollo-server-express");
 const {ApolloServerPluginDrainHttpServer} = require("apollo-server-core");
 const {errorHandlingMiddleware} = require("../middleware");
+const {logger} = require("../utils");
 
 
 module.exports = async (httpServer, expressServer, pubsub) => {
     const wsServer = new WebSocketServer({
         server: httpServer,
         path: '/subscriptions',
-    }, () => console.log(`WebSocket server is running on http://localhost:8889/subscriptions`));
+    }, () => logger.info(`WebSocket server is running on http://localhost:8889/subscriptions`));
 
     const serverCleanup = useServer({
         schema,
