@@ -22,14 +22,16 @@ class AccountController {
                 await teacherService.updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source);
             }
         } else {
+            let userToProceed;
             if (role === UserRoleEnum.STUDENT) {
-                const userToProceed = await studentService.create(email, password, name, avatar_source);
+                userToProceed = await studentService.create(email, password, name, avatar_source);
                 userId = userToProceed.user.userId;
             } else {
-                const userToProceed = await teacherService.create(email, password, name, avatar_source);
+                userToProceed = await teacherService.create(email, password, name, avatar_source);
                 await schoolService.create(userToProceed.teacherId);
                 userId = userToProceed.user.userId;
             }
+            await this.sendConfirmationEmail({login: userToProceed.user.account.login});
         }
 
         if (role === UserRoleEnum.STUDENT) {

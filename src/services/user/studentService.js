@@ -31,7 +31,7 @@ class StudentService {
             attributes: {
                 include: [[Sequelize.col('user.account.login'), 'login']]
             }
-        }).then(student => student.get({plain: true}));
+        }).then(student => student?.get({plain: true}));
     }
 
     async studentsLesson(lessonId){

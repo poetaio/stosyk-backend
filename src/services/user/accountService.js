@@ -86,11 +86,13 @@ class AccountService {
             { expiresIn: '24h' }
         );
         await emailTransport.sendMail(await emailFactoryService.createConfirmationEmail(email, verificationCode), function (err,info) {
-            if(err)
-            {
+            if (err) {
                 throw err
             }
         });
+        if ("production" !== process.env.NODE_ENV) {
+            console.log(`Sent verification code to email ${email}: ${verificationCode}`)
+        }
         return true
     }
 
