@@ -11,6 +11,7 @@ const {
     UserTypeEnum
 } = require("../../utils");
 const Sequelize = require('sequelize');
+const accountStatusEnum = require("../../utils/enums/accountStatus.enum");
 
 class StudentService {
     async createAnonymous(name) {
@@ -54,7 +55,7 @@ class StudentService {
         return !!upd[0];
     }
 
-    async updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source) {
+    async updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source, automatic_verification) {
         const passwordHash = await hashPassword(password);
 
         await User.update({
@@ -68,16 +69,28 @@ class StudentService {
             }
         );
 
+        let status = accountStatusEnum.UNVERIFIED
+        if(automatic_verification && process.env.ENVIRONMENT==="DEV"){
+            status = accountStatusEnum.VERIFIED
+        }
+
         await Account.create({
             login: email,
             passwordHash,
             userId,
-            avatar_source
+            avatar_source,
+            status
         })
     }
 
-    async create(email, password, name, avatar_source) {
+    async create(email, password, name, avatar_source, automatic_verification) {
         const passwordHash = await hashPassword(password);
+
+        let status = accountStatusEnum.UNVERIFIED
+        if(automatic_verification && process.env.ENVIRONMENT==="DEV"){
+            status = accountStatusEnum.VERIFIED
+        }
+
         return await Student.create(
             {
                 user: {
@@ -85,8 +98,10 @@ class StudentService {
                     type: UserTypeEnum.REGISTERED,
                     name: name,
                     account: {
-                        login: email, passwordHash,
-                        avatar_source
+                        login: email,
+                        passwordHash,
+                        avatar_source,
+                        status,
                     }
                 },
                 name

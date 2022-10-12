@@ -52,8 +52,9 @@ class TeacherService {
         );
     }
 
-    async updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source) {
+    async updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source, automatic_verification) {
         const passwordHash = await hashPassword(password);
+
 
         await User.update({
                 type: UserTypeEnum.REGISTERED,
@@ -66,11 +67,17 @@ class TeacherService {
             }
         );
 
+        let status = accountStatusEnum.UNVERIFIED
+        if(automatic_verification && process.env.ENVIRONMENT==="DEV"){
+            status = accountStatusEnum.VERIFIED
+        }
+
         await Account.create({
             login: email,
             passwordHash,
             userId,
-            avatar_source
+            avatar_source,
+            status
         })
     }
 

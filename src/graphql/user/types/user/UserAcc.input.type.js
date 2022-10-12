@@ -10,6 +10,6 @@ module.exports = new GraphQLInputObjectType({
         email: { type: GraphQLNonNull(GraphQLString) },
         password: { type: GraphQLNonNull(GraphQLString) },
         avatar_source: {type: GraphQLNonNull(GraphQLString) },
-        automatic_verification: {type: GraphQLBoolean}
+        ...(process.env.ENVIRONMENT === "DEV" && {automatic_verification: {type: GraphQLBoolean}})
     }
 });

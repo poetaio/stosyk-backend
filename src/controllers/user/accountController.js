@@ -21,14 +21,18 @@ class AccountController {
             if (user.type === REGISTERED)
                 throw new ValidationError(`User is already registered`);
             else if (role === UserRoleEnum.STUDENT) {
-                await studentService.updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source);
+                await studentService.updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source, automatic_verification);
             } else {
-                await teacherService.updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source);
+                await teacherService.updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source, automatic_verification);
+            }
+            const account = await accountService.getOneByLogin(email)
+            if(account.status === accountStatusEnum.UNVERIFIED){
+                await this.sendConfirmationEmail({login: email});
             }
         } else {
             let userToProceed;
             if (role === UserRoleEnum.STUDENT) {
-                userToProceed = await studentService.create(email, password, name, avatar_source);
+                userToProceed = await studentService.create(email, password, name, avatar_source, automatic_verification);
                 userId = userToProceed.user.userId;
             } else {
                 userToProceed = await teacherService.create(email, password, name, avatar_source, automatic_verification);
