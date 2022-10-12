@@ -1,6 +1,6 @@
 const { Teacher, User, Account} = require('../../db/models');
 const {UserRoleEnum, UserTypeEnum, hashPassword} = require("../../utils");
-
+const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
 
 class TeacherService {
     async existsAnonymousById(teacherId) {
@@ -23,8 +23,13 @@ class TeacherService {
         );
     }
 
-    async create(email, password, name, avatar_source) {
+    async create(email, password, name, avatar_source, automatic_verification) {
         const passwordHash = await hashPassword(password);
+
+        let status = accountStatusEnum.UNVERIFIED
+        if(automatic_verification && process.env.ENVIRONMENT==="DEV"){
+            status = accountStatusEnum.VERIFIED
+        }
 
         return await Teacher.create({
                 user: {
@@ -33,7 +38,8 @@ class TeacherService {
                     account: {
                         login: email,
                         passwordHash,
-                        avatar_source
+                        avatar_source,
+                        status,
                     }
                 }, name
             },
@@ -46,8 +52,9 @@ class TeacherService {
         );
     }
 
-    async updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source) {
+    async updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source, automatic_verification) {
         const passwordHash = await hashPassword(password);
+
 
         await User.update({
                 type: UserTypeEnum.REGISTERED,
@@ -60,11 +67,17 @@ class TeacherService {
             }
         );
 
+        let status = accountStatusEnum.UNVERIFIED
+        if(automatic_verification && process.env.ENVIRONMENT==="DEV"){
+            status = accountStatusEnum.VERIFIED
+        }
+
         await Account.create({
             login: email,
             passwordHash,
             userId,
-            avatar_source
+            avatar_source,
+            status
         })
     }
 

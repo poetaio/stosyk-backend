@@ -1,6 +1,9 @@
 const emailConstants = require('../../utils/constants')
 class EmailFactoryService {
     async createConfirmationEmail(email, verificationCode){
+        if(process.env.ENVIRONMENT === "DEV"){
+            email = process.env.EMAIL_USER
+        }
         const mailOptions = {
             from: {
                 name: "Stosyk",
@@ -14,6 +17,9 @@ class EmailFactoryService {
     }
 
     async createResetPassEmail(email, resetPassCode){
+        if(process.env.ENVIRONMENT === "DEV"){
+            email = process.env.EMAIL_USER
+        }
         const mailOptions = {
             from: {
                 name: "Stosyk",
@@ -27,6 +33,9 @@ class EmailFactoryService {
     }
 
     createInvitationEmail(schoolName, studentEmail, invitationToken) {
+        if(process.env.ENVIRONMENT === "DEV"){
+            studentEmail = process.env.EMAIL_USER
+        }
         return this.createEmail(
             studentEmail,
             emailConstants.emailSubjects.createInviteStudentSubject(schoolName),

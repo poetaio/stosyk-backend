@@ -1,4 +1,4 @@
-const { GraphQLNonNull, GraphQLString, GraphQLInputObjectType, GraphQLEnumType} = require("graphql");
+const { GraphQLNonNull, GraphQLString, GraphQLInputObjectType, GraphQLBoolean} = require("graphql");
 const UserRoleEnumType = require('./UserRoleEnum.type')
 
 module.exports = new GraphQLInputObjectType({
@@ -9,6 +9,7 @@ module.exports = new GraphQLInputObjectType({
         name: {type: GraphQLNonNull(GraphQLString) },
         email: { type: GraphQLNonNull(GraphQLString) },
         password: { type: GraphQLNonNull(GraphQLString) },
-        avatar_source: {type: GraphQLNonNull(GraphQLString) }
+        avatar_source: {type: GraphQLNonNull(GraphQLString) },
+        ...(process.env.ENVIRONMENT === "DEV" && {automatic_verification: {type: GraphQLBoolean}})
     }
 });
