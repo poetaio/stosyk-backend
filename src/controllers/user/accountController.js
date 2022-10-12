@@ -89,7 +89,11 @@ class AccountController {
         if(await accountService.existsByLogin(newEmail)){
             throw new ValidationError(`User with email ${newEmail} already exists`);
         }
-        return await accountService.changeEmail(userId,  newEmail)
+        await accountService.changeEmail(userId,  newEmail)
+
+        await this.sendConfirmationEmail({login: newEmail});
+
+        return true;
     }
 
     async changeName({newName}, {user: {userId}}){
