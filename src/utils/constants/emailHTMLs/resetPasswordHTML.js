@@ -174,7 +174,7 @@ module.exports = (resetPassCode)  => {
                                         <tr>
                                             <td class="pad">
                                                 <div align="center" class="alignment" style="line-height:10px"><a
-                                                        href="https://www.stosyk.app/resetpass/${resetPassCode}" style="outline:none"
+                                                        href="https://www.stosyk.app/resetpassword/${resetPassCode}" style="outline:none"
                                                         tabindex="-1" target="_blank"><img src="https://i.ibb.co/BPv6gqT/Button.png"
                                                                                            alt="Button"
                                                                                            style="display: block; height: auto; border: 0; width: 150px; max-width: 100%;"
