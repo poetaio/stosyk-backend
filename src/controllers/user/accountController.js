@@ -8,7 +8,11 @@ const jwt = require("jsonwebtoken");
 
 class AccountController {
 
-    async registerUser({user: {role, name, email, password, avatar_source}}, {userId}) {
+    async registerUser({user: {role, name, email, password, avatar_source, automatic_verification}}, {userId}) {
+
+        if(automatic_verification === null)
+            automatic_verification = false
+
         if (await accountService.existsByLogin(email))
             throw new ValidationError(`User with login ${email} already exists`);
 
@@ -27,11 +31,14 @@ class AccountController {
                 userToProceed = await studentService.create(email, password, name, avatar_source);
                 userId = userToProceed.user.userId;
             } else {
-                userToProceed = await teacherService.create(email, password, name, avatar_source);
+                userToProceed = await teacherService.create(email, password, name, avatar_source, automatic_verification);
                 await schoolService.create(userToProceed.teacherId);
                 userId = userToProceed.user.userId;
             }
-            await this.sendConfirmationEmail({login: userToProceed.user.account.login});
+
+            if(userToProceed.user.account.status === accountStatusEnum.UNVERIFIED) {
+                await this.sendConfirmationEmail({login: userToProceed.user.account.login});
+            }
         }
 
         if (role === UserRoleEnum.STUDENT) {
