@@ -21,7 +21,7 @@ const run = async () => {
         const [expressServer, httpServer] = createExpressServer(pubsub);
         await createWSServer(httpServer, expressServer, pubsub);
     } catch (e) {
-        console.error(e);
+        logger.error(e);
     }
 }
 

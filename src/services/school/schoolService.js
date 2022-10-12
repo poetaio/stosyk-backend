@@ -6,7 +6,7 @@ const {
     Student,
     allStudentsBySchoolIdInclude, allSeatsByStudentEmailInclude, studentAccountInclude
 } = require("../../db/models");
-const {SchoolTeacherAccessEnum, SchoolStudentSeatStatusEnum, ValidationError, normalizeDate, emailTransport} = require("../../utils");
+const {SchoolTeacherAccessEnum, SchoolStudentSeatStatusEnum, ValidationError, normalizeDate, emailTransport, logger} = require("../../utils");
 const {Op, literal, fn} = require('sequelize');
 const {tokenService} = require("../user");
 const Sequelize = require("sequelize");
@@ -60,7 +60,7 @@ class SchoolService {
     async addStudentsSeats(schoolId, count) {
         for (let i = 0; i < count; ++i) {
             this.addStudentSeat(schoolId)
-                .catch(e => console.error(e));
+                .catch(e => logger.error(e));
         }
 
         return true;

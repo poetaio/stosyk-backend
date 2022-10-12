@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const multer  = require("multer");
 
+const {logger} = require("../utils");
+
 const storageController = require('../controllers/storageController')
 
 const PORT = process.env.PORT || 5000;
@@ -23,5 +25,5 @@ module.exports = (pubsub) => {
     app.post('/storage',  upload.single('file'), (req, res, next) =>
         storageController.uploadFileAndGetLink(req, res));
 
-    return [app, app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`))];
+    return [app, app.listen(PORT, () => logger.info(`Server is listening on port ${PORT}`))];
 };

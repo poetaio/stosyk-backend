@@ -1,4 +1,5 @@
 const fetch = require('node-fetch')
+const {logger} = require("../utils");
 
 class PaymentController {
 
@@ -18,7 +19,7 @@ class PaymentController {
                 return data
             })
             .catch((e) => {
-                console.log(e)
+                logger.info(e)
             })
         return result
     }
@@ -35,7 +36,7 @@ class PaymentController {
                 return data
             })
             .catch((e) => {
-                console.log(e)
+                logger.info(e)
             })
         return result
     }
