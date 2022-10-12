@@ -11,7 +11,7 @@ class EmailHTMLs {
                 Hey! You've been invited to ${schoolName}
                 To accept invitation please follow the link:
             </div>
-            <a href=https://www.stosyk.app/accept-invite/${inviteToken}> Click here</a>
+            <a href=https://www.stosyk.app/acceptschoolinvitation/${inviteToken}> Click here</a>
     `
 
     createResetPassHTML(resetPassCode) {

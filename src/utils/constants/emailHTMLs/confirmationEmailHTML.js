@@ -207,7 +207,7 @@ module.exports = (verificationCode)  => {
                                             <td class="pad"
                                                 style="padding-bottom:15px;padding-left:15px;padding-right:15px;padding-top:30px;width:100%;">
                                                 <div align="center" class="alignment" style="line-height:10px"><a
-                                                        href="https://www.stosyk.app/confirm/${verificationCode}" style="outline:none"
+                                                        href="https://www.stosyk.app/confirmemail/${verificationCode}" style="outline:none"
                                                         tabindex="-1" target="_blank"><img src="https://i.ibb.co/SdxHp4s/Button.png" alt="Button"
                                                                                            style="display: block; height: auto; border: 0; width: 288px; max-width: 100%;"
                                                                                            width="288"/></a></div>
