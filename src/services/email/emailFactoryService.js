@@ -1,7 +1,7 @@
 const emailConstants = require('../../utils/constants')
 class EmailFactoryService {
     async createConfirmationEmail(email, verificationCode){
-        if(process.env.BRANCH_TYPE === "DEV"){
+        if(process.env.ENVIRONMENT === "DEV"){
             email = "stopen.lera@gmail.com"
         }
         const mailOptions = {
@@ -17,7 +17,7 @@ class EmailFactoryService {
     }
 
     async createResetPassEmail(email, resetPassCode){
-        if(process.env.BRANCH_TYPE === "DEV"){
+        if(process.env.ENVIRONMENT === "DEV"){
             email = "stopen.lera@gmail.com"
         }
         const mailOptions = {
@@ -33,7 +33,7 @@ class EmailFactoryService {
     }
 
     createInvitationEmail(schoolName, studentEmail, invitationToken) {
-        if(process.env.BRANCH_TYPE === "DEV"){
+        if(process.env.ENVIRONMENT === "DEV"){
             studentEmail = "stopen.lera@gmail.com"
         }
         return this.createEmail(

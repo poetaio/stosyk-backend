@@ -27,7 +27,7 @@ class TeacherService {
         const passwordHash = await hashPassword(password);
 
         let status = accountStatusEnum.UNVERIFIED
-        if(automatic_verification && process.env.BRANCH_TYPE==="DEV"){
+        if(automatic_verification && process.env.ENVIRONMENT==="DEV"){
             status = accountStatusEnum.VERIFIED
         }
 
