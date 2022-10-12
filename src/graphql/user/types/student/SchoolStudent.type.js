@@ -12,7 +12,7 @@ module.exports = new GraphQLObjectType({
     fields: () => ({
         studentId: { type: GraphQLNonNull(GraphQLID) },
         name: { type: GraphQLNonNull(GraphQLString) },
-        status: { type: GraphQLNonNull(SchoolStudentSeatStatusEnumType)},
+        email: { type: GraphQLNonNull(GraphQLString) },
         courseResults: {
             type: GraphQLList(GraphQLNonNull(StudentCourseResultsType)),
             resolve: async (parent, args, context) => {

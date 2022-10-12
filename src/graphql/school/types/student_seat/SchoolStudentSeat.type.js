@@ -10,6 +10,7 @@ module.exports = new GraphQLObjectType({
         seatId: { type: GraphQLNonNull(GraphQLID) },
         status: { type: GraphQLNonNull(SchoolStudentSeatStatusEnumType)},
         joinedAt: { type: GraphQLString },
+        inviteEmail: { type: GraphQLString },
         student: {
             type: SchoolStudentType,
             resolve: async (parent, args, context) => await seatController.getStudent(parent),

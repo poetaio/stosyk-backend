@@ -4,7 +4,7 @@ const {
     SchoolTeacher,
     SchoolStudentSeat,
     Student,
-    allStudentsBySchoolIdInclude, allSeatsByStudentEmailInclude
+    allStudentsBySchoolIdInclude, allSeatsByStudentEmailInclude, studentAccountInclude
 } = require("../../db/models");
 const {SchoolTeacherAccessEnum, SchoolStudentSeatStatusEnum, ValidationError, normalizeDate, emailTransport} = require("../../utils");
 const {Op, literal, fn} = require('sequelize');
@@ -70,11 +70,10 @@ class SchoolService {
         return await SchoolStudentSeat.findAll({
             raw: true,
             attributes: {
-                include: [['schoolStudentSeatId', 'seatId']]
+                include: [['schoolStudentSeatId', 'seatId']],
             },
             where: {schoolId},
-        })
-        ;
+        });
     }
 
     async getFreeSeat(schoolId) {
@@ -145,7 +144,9 @@ class SchoolService {
         const inviteToken = await tokenService.createSchoolStudentInviteToken(inviteEmail);
 
         // console.log it instead of sending
-        console.log(`INFO: Generated invite to school ${schoolId} jwt for student with email ${inviteEmail}: ${inviteToken}`);
+        if ("production" !== process.env.NODE_ENV) {
+            console.log(`INFO: Generated invite to school ${schoolId} jwt for student with email ${inviteEmail}: ${inviteToken}`);
+        }
 
         emailService.sendEmail(emailFactoryService.createInvitationEmail(schoolName, inviteEmail, inviteToken));
     }
@@ -186,7 +187,8 @@ class SchoolService {
         const upd = await SchoolStudentSeat.update({
             status: SchoolStudentSeatStatusEnum.OCCUPIED,
             joinedAt: normalizeDate(new Date()),
-            inviteEmail: "",
+            inviteEmail: null,
+            studentId,
         }, {
             where: {
                 inviteEmail,
@@ -211,9 +213,15 @@ class SchoolService {
 
     async getStudents(schoolId) {
         return await Student.findAll({
-            include: allStudentsBySchoolIdInclude(schoolId),
+            include: [
+                allStudentsBySchoolIdInclude(schoolId),
+                studentAccountInclude,
+            ],
             attributes: {
-                include: [[Sequelize.col('seats.status'), 'status']],
+                include: [
+                    [Sequelize.col('seats.status'), 'status'],
+                    [Sequelize.col('user.account.login'), 'email'],
+                ],
             },
             raw: true,
         }).then(studentModels => studentModels.map(

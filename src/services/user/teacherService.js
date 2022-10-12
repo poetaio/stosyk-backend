@@ -31,7 +31,8 @@ class TeacherService {
                     role: UserRoleEnum.TEACHER,
                     type: UserTypeEnum.REGISTERED,
                     account: {
-                        login: email, passwordHash,
+                        login: email,
+                        passwordHash,
                         avatar_source
                     }
                 }, name
