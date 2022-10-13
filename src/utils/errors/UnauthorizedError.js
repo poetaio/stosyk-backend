@@ -1,9 +1,13 @@
-const httpStatusCodes = require("../httpStatusCodes");
-const BaseError = require("./BaseError");
+const {GraphQLError} = require("graphql");
 
-class UnauthorizedError extends BaseError {
-    constructor(message) {
-        super('Unauthorized', httpStatusCodes.UNAUTHORIZED, message);
+class UnauthorizedError extends GraphQLError {
+    constructor(message, errorCode) {
+        super(message, {
+            extensions: {
+                errorCode: errorCode || 3000,
+                errorName: "Unauthorized Error"
+            }
+        });
     }
 }
 

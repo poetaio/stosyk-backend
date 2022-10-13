@@ -5,6 +5,6 @@ module.exports = new GraphQLInputObjectType({
     name: "PlainInputTaskInputType",
     description: "Plain Input Task Input Type",
     fields: {
-        sentences: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(SentenceInputType)))},
+        sentences: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(SentenceInputType)))},
     },
 });

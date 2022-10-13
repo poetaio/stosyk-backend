@@ -7,11 +7,11 @@ module.exports = new GraphQLObjectType({
     name: "TeacherSentenceType",
     description: "Teacher Sentence type",
     fields: {
-        sentenceId: { type: GraphQLNonNull(GraphQLID) },
-        text: { type: GraphQLNonNull(GraphQLString) },
-        index: { type: GraphQLNonNull(GraphQLInt) },
+        sentenceId: { type: new GraphQLNonNull(GraphQLID) },
+        text: { type: new GraphQLNonNull(GraphQLString) },
+        index: { type: new GraphQLNonNull(GraphQLInt) },
         gaps: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherGapType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TeacherGapType))),
             resolve: async (parent, args, context) =>
                 await gapController.getGaps(parent, args, context)
         },

@@ -5,11 +5,11 @@ module.exports = new GraphQLObjectType({
     name: "StudentWithLessonScoreType",
     description: "Student with completeness and correctness percentage for a lesson",
     fields: {
-        studentId: { type: GraphQLNonNull(GraphQLID) },
-        name: { type: GraphQLNonNull(GraphQLString) },
+        studentId: { type: new GraphQLNonNull(GraphQLID) },
+        name: { type: new GraphQLNonNull(GraphQLString) },
         progress: {
             // value in percents
-            type: GraphQLNonNull(GraphQLFloat),
+            type: new GraphQLNonNull(GraphQLFloat),
             resolve: async (parent, args, context) =>
                 await lessonController.getStudentProgress(parent),
         },

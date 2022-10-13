@@ -10,7 +10,7 @@ module.exports = new GraphQLObjectType({
     fields: () => ({
         ...taskStudentsAnswersFields,
         questions: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(QuestionStudentsAnswersType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(QuestionStudentsAnswersType))),
             // todo:
             resolve: async (parent, args, context) => sentenceController.getAllQA(parent)
         }

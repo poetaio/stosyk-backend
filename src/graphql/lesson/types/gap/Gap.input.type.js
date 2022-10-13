@@ -6,7 +6,7 @@ module.exports = new GraphQLInputObjectType({
     name: 'GapInputType',
     description: 'Gap Input Type',
     fields: {
-        position: { type: GraphQLNonNull(GraphQLInt) },
-        options: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OptionInputType)))}
+        position: { type: new GraphQLNonNull(GraphQLInt) },
+        options: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(OptionInputType)))}
     }
 });

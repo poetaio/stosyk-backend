@@ -32,14 +32,14 @@ class EmailFactoryService {
         return mailOptions
     }
 
-    createInvitationEmail(schoolName, studentEmail, invitationToken) {
+    createInvitationEmail(schoolName, studentEmail, inviteId) {
         if(process.env.ENVIRONMENT === "DEV"){
             studentEmail = process.env.EMAIL_USER
         }
         return this.createEmail(
             studentEmail,
             emailConstants.emailSubjects.createInviteStudentSubject(schoolName),
-            emailConstants.emailHTMLs.createInviteStudentHTML(schoolName, invitationToken)
+            emailConstants.emailHTMLs.createInviteStudentHTML(schoolName, inviteId)
         );
     }
 

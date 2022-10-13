@@ -6,22 +6,22 @@ const { subscribeAuthMiddleware } = require("../../middleware");
 const {UserRoleEnum, useUnsubscribeCb} = require("../../utils");
 
 const presentStudentsChanged = {
-    type: GraphQLList(GraphQLNonNull(StudentType)),
+    type: new GraphQLList(new GraphQLNonNull(StudentType)),
     name: 'presentStudentsChanged',
     description: 'Present Students Changed',
     args: {
         //teacher or student id in token
-        lessonId: {type: GraphQLNonNull(GraphQLID)},
+        lessonId: {type: new GraphQLNonNull(GraphQLID)},
     },
     subscribe: async (parent, args, context) => await lessonController.presentStudentsChanged(args, context)
 };
 
 const studentAnswersChanged = {
-    type: GraphQLList(GraphQLNonNull(TaskStudentsAnswersInterfaceType)),
+    type: new GraphQLList(new GraphQLNonNull(TaskStudentsAnswersInterfaceType)),
     name: "studentAnswerChanged",
     description: "Student Answer Changed",
     args: {
-        lessonId: {type: GraphQLNonNull(GraphQLID)},
+        lessonId: {type: new GraphQLNonNull(GraphQLID)},
     },
     subscribe: async (parent, args, context) => await lessonController.studentAnswersChanged(args, context)
 };
@@ -31,7 +31,7 @@ const lessonStatusChanged = {
     name: "lessonStatusChanged",
     description: "Lesson Status Changed",
     args: {
-        lessonId: {type: GraphQLNonNull(GraphQLID)},
+        lessonId: {type: new GraphQLNonNull(GraphQLID)},
     },
     subscribe: async (parent, args, context) => await lessonController.lessonStatusChanged(args, context)
 }
@@ -41,27 +41,27 @@ const correctAnswersShown = {
     name: 'correctAnswerShown',
     description: 'correct answer shown',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) }
+        lessonId: { type: new GraphQLNonNull(GraphQLID) }
     },
     subscribe: async (parent, args, context) => await lessonController.correctAnswerShown(args, context)
 }
 
 const getStudentCurrentPosition = {
-    type: GraphQLNonNull(GraphQLList(StudentCurrentTaskType)),
+    type: new GraphQLNonNull(new GraphQLList(StudentCurrentTaskType)),
     name: 'getStudentCurrentPosition',
     description: 'Get Student Current Position',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) }
+        lessonId: { type: new GraphQLNonNull(GraphQLID) }
     },
     subscribe: async (parent, args, context) => await lessonController.getStudentCurrentPosition(args, context)
 }
 
 const studentOnLesson = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'studentOnLesson',
     description: 'studentOnLesson',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
+        lessonId: { type: new GraphQLNonNull(GraphQLID) },
     },
     subscribe: async (parent, args, context) => useUnsubscribeCb(
         await lessonController.studentOnLesson(args, context),

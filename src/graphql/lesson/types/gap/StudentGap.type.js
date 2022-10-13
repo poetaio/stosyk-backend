@@ -6,10 +6,10 @@ module.exports = new GraphQLObjectType({
     name: 'StudentGapType',
     description: 'Student Gap Type',
     fields: {
-        gapId: { type: GraphQLNonNull(GraphQLID) },
-        position: { type: GraphQLNonNull(GraphQLInt) },
+        gapId: { type: new GraphQLNonNull(GraphQLID) },
+        position: { type: new GraphQLNonNull(GraphQLInt) },
         options: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentOptionType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentOptionType))),
             resolve: async (parent, args, context) =>
                 await optionController.getOptionsForStudent(parent, args, context)
         },

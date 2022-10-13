@@ -4,7 +4,7 @@ module.exports = new GraphQLObjectType({
     name: "StudentType",
     description: "Student type",
     fields: {
-        studentId: { type: GraphQLNonNull(GraphQLID) },
-        name: { type: GraphQLNonNull(GraphQLString) },
+        studentId: { type: new GraphQLNonNull(GraphQLID) },
+        name: { type: new GraphQLNonNull(GraphQLString) },
     }
 });

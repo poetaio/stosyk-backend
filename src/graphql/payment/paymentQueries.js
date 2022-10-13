@@ -8,7 +8,7 @@ const checkInvoiceStatus = {
     name: 'CheckInvoiceStatus',
     description: 'Check invoice status',
     args: {
-        invoiceId: {type: GraphQLNonNull(GraphQLID)}
+        invoiceId: {type: new GraphQLNonNull(GraphQLID)}
     },
     resolve: async (parent, args, context) => await paymentController.checkInvoiceStatus(args, context)
 };

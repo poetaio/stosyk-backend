@@ -3,6 +3,7 @@ const NotFoundError = require('./NotFoundError');
 const BaseError = require('./BaseError');
 const ValidationError = require('./ValidationError');
 const DBError = require('./DBError');
+const InternalError = require('./InternalError');
 
 
 module.exports = {
@@ -11,4 +12,5 @@ module.exports = {
     BaseError,
     ValidationError,
     DBError,
+    InternalError,
 };

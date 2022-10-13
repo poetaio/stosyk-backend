@@ -8,6 +8,6 @@ module.exports = new GraphQLInputObjectType({
     fields: {
         name: { type: GraphQLString },
         description: { type: GraphQLString },
-        tasks: { type: GraphQLList(GraphQLNonNull(TaskInputType)) },
+        tasks: { type: new GraphQLList(new GraphQLNonNull(TaskInputType)) },
     }
 });

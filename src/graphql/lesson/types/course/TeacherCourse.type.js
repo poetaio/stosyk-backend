@@ -8,15 +8,15 @@ module.exports = new GraphQLObjectType({
     name: "TeacherCourseType",
     description: "Course type",
     fields: () => ({
-        courseId: { type: GraphQLNonNull(GraphQLID) },
-        name: { type: GraphQLNonNull(GraphQLString) },
+        courseId: { type: new GraphQLNonNull(GraphQLID) },
+        name: { type: new GraphQLNonNull(GraphQLString) },
         lessons: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherLessonType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TeacherLessonType))),
             resolve: async (parent, args, context) =>
                 await lessonController.getLessonsByCourse(parent, args, context),
         },
         students: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentWithCourseResultsType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentWithCourseResultsType))),
             resolve: async (parent, args, context) =>
                 await courseController.getAllStudentsWhoTookLessons(parent),
         },

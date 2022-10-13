@@ -11,12 +11,12 @@ module.exports = new GraphQLObjectType({
     fields: () => ({
         ...teacherTaskInterfaceFields,
         leftColumn: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(MatchingTeacherSentenceLeftType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MatchingTeacherSentenceLeftType))),
             // parent: taskId, ...,
             resolve: async (parent, args, context) => await sentenceController.getAllMatchingLeft(parent)
         },
         rightColumn: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(MatchingTeacherSentenceRightType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MatchingTeacherSentenceRightType))),
             // parent: taskId, ...,
             resolve: async (parent, args, context) => await optionController.getAllMatchingRight(parent)
         },

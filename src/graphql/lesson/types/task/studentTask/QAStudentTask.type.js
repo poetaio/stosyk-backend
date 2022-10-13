@@ -11,7 +11,7 @@ module.exports = new GraphQLObjectType({
     fields: () => ({
         ...studentTaskInterfaceTypeFields,
         questions: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentQuestionType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentQuestionType))),
             // parent: taskId, ...,
             resolve: async (parent, args, context) => await sentenceController.getAllQA(parent)
         }

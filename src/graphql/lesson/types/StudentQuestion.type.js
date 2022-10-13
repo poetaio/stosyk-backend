@@ -7,11 +7,11 @@ module.exports = new GraphQLObjectType({
     name: "QuestionType",
     description: "Question Type",
     fields: {
-        questionId: { type: GraphQLNonNull(GraphQLID) },
-        index: { type: GraphQLNonNull(GraphQLInt) },
-        text: { type: GraphQLNonNull(GraphQLString) },
+        questionId: { type: new GraphQLNonNull(GraphQLID) },
+        index: { type: new GraphQLNonNull(GraphQLInt) },
+        text: { type: new GraphQLNonNull(GraphQLString) },
         options: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentOptionType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentOptionType))),
             // parent - questionId, index, text
             resolve: async (parent, args, context) => await optionController.getAllByQuestionId(parent),
         },

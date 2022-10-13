@@ -6,7 +6,7 @@ const {TokenType, UserAccInfoType, StudentType} = require("./types");
 
 // updates token if it's valid and not expired
 const checkTeacherAuth = {
-    type: GraphQLNonNull(TokenType),
+    type: new GraphQLNonNull(TokenType),
     name: 'checkTeacherAuth',
     description: 'Check teacher auth',
     resolve: async (parent, args, context) => await userController.checkTeacherAuth(context)
@@ -14,7 +14,7 @@ const checkTeacherAuth = {
 
 // updates token if it's valid and not expired
 const checkStudentAuth = {
-    type: GraphQLNonNull(TokenType),
+    type: new GraphQLNonNull(TokenType),
     name: 'checkStudentAuth',
     description: 'Check student auth',
     resolve: async (parent, args, context) => await userController.checkStudentAuth(context)
@@ -36,28 +36,28 @@ const getAccountInfo = {
 }
 
 const sendConfirmationEmail = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'sendConfirmationEmail',
     description: 'Send confirmation email',
     args:{
-        login: {type: GraphQLNonNull(GraphQLString)}
+        login: {type: new GraphQLNonNull(GraphQLString)}
     },
     resolve: async (parent, args, context) => await accountController.sendConfirmationEmail(args)
 }
 
 const sendResetPassEmail = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'sendResetPassEmail',
     description: 'Send reset password email',
     args:{
-        login: {type: GraphQLNonNull(GraphQLString),}
+        login: {type: new GraphQLNonNull(GraphQLString),}
     },
     resolve: async  (parent, args, context) => await accountController.sendResetPassEmail(args)
 }
 
 
 const studentInfo = {
-    type: GraphQLNonNull(StudentType),
+    type: new GraphQLNonNull(StudentType),
     name: 'getAccountInfo',
     description: 'Get account info',
     resolve: async (parent, args, context) => await studentController.getInfo(context)
