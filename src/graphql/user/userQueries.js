@@ -66,7 +66,7 @@ const studentInfo = {
 module.exports = {
     checkTeacherAuth: resolveAuthMiddleware(UserRoleEnum.TEACHER)(checkTeacherAuth),
     checkStudentAuth: resolveAuthMiddleware(UserRoleEnum.STUDENT)(checkStudentAuth),
-    isUserRegistered: resolveAuthMiddleware(UserRoleEnum.TEACHER)(isUserRegistered),
+    isUserRegistered: resolveAuthMiddleware(UserRoleEnum.STUDENT, UserRoleEnum.TEACHER)(isUserRegistered),
     getAccountInfo: resolveAuthMiddleware(UserRoleEnum.STUDENT, UserRoleEnum.TEACHER)(getAccountInfo),
     studentInfo: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentInfo),
     sendConfirmationEmail,
