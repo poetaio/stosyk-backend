@@ -1,7 +1,7 @@
 const {newInvoiceType} = require("./types");
 const {paymentController} = require("../../controllers");
-const {GraphQLNonNull, GraphQLBoolean, GraphQLInt, GraphQLFloat} = require("graphql");
-const {paymentDetailsInputType, subPackageInputType} = require("./types")
+const {GraphQLNonNull} = require("graphql");
+const {paymentDetailsInputType, subPackageInputType, userCardsType} = require("./types")
 
 const createInvoice = {
     type: newInvoiceType,
@@ -14,7 +14,7 @@ const createInvoice = {
 };
 
 const addSubPackage = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: userCardsType,
     name: 'AddSubscriptionPackage',
     description: 'Add Subscription Package',
     args: {

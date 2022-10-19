@@ -33,7 +33,7 @@ class PaymentController {
         if(!teacher.walletId){
             throw new ValidationError(`Teacher with id ${teacher.teacherId} has no wallet`);
         }
-        return paymentService.getUserCards(teacher.walletId)
+        return paymentService.getUserCards(teacher.walletId, teacher.defaultCardToken)
     }
 
     async checkInvoiceStatus({invoiceId}){

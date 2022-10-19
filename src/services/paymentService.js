@@ -21,7 +21,7 @@ class PaymentService {
         return true
     }
 
-    async getUserCards(walletId){
+    async getUserCards(walletId, defaultCardToken){
         const variables = {
             walletId: walletId
         }
@@ -39,7 +39,7 @@ class PaymentService {
             .catch((e) => {
                 logger.info(e)
             })
-        return result
+        return {result, defaultCardToken}
     }
 
     async addSubPackage(seats, months, priceUAH, priceUSD){
