@@ -5,7 +5,8 @@ const {
     SchoolStudentSeat,
     Student,
     allStudentsBySchoolIdInclude,
-    studentAccountInclude, allSeatsByStudentEmailInclude, seatStatus,
+    studentAccountInclude, allSeatsByStudentEmailInclude, seatStatus, allSchoolsByStudentIdInclude, schoolStudentStatus,
+    schoolStudentJoinedAt,
 } = require("../../db/models");
 const {
     SchoolTeacherAccessEnum,
@@ -191,6 +192,27 @@ class SchoolService {
         });
 
         return !!upd[0];
+    }
+
+    async getAllByStudentId(studentId) {
+        return await School.findAll({
+            include: allSchoolsByStudentIdInclude(studentId),
+            attributes: {
+                include: [schoolStudentStatus, schoolStudentJoinedAt]
+            },
+            raw: true,
+        });
+    }
+
+    async getOneByIdAndStudentId(schoolId, studentId) {
+        return await School.findAll({
+            where: {schoolId},
+            include: allSchoolsByStudentIdInclude(studentId),
+            attributes: {
+                include: [schoolStudentStatus, schoolStudentJoinedAt]
+            },
+            raw: true,
+        });
     }
 }
 

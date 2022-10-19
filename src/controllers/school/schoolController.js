@@ -4,6 +4,7 @@ const {schoolService, invitationService} = require("../../services/school");
 const jwt = require("jsonwebtoken");
 const {studentService, userService} = require("../../services");
 const {GraphQLError} = require("graphql");
+const {School} = require("../../db/models");
 
 class SchoolController {
     async addStudentsSeats({count}, {user: {userId}}) {
@@ -241,6 +242,24 @@ class SchoolController {
         }
 
         return true;
+    }
+
+    async getStudentSchools({schoolId}, {user: { userId } }) {
+        const student = await studentService.findOneByUserIdWithLogin(userId);
+
+        if (!student) {
+            throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
+        }
+
+        if (schoolId) {
+            return await schoolService.getOneByIdAndStudentId(schoolId, student.studentId);
+        }
+
+        return await schoolService.getAllByStudentId(student.studentId);
+    }
+
+    async getOneById({schoolId}) {
+        return await schoolService.getOneById(schoolId);
     }
 }
 

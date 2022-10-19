@@ -7,7 +7,7 @@ const {TeacherCountedLessonsType, LessonsWhereType, TeacherCourseType} = require
 const {lessonController, courseController} = require("../../../controllers");
 
 module.exports = new GraphQLObjectType({
-    name: "SchoolType",
+    name: "TeacherSchoolType",
     description: "School for teacher",
     fields: {
         name: { type: new GraphQLNonNull(GraphQLString) },
@@ -30,7 +30,7 @@ module.exports = new GraphQLObjectType({
                 where: { type: LessonsWhereType }
             },
             // todo: return school lessons only, but by schoolId, not by context, and in teacherLessons return private teacherLessons
-            resolve: async (parent, args, context) => await lessonController.getTeacherLessons(args, context)
+            resolve: async (parent, args, context) => await lessonController.getLessonsBySchoolIdAndWhere(args, context)
         },
         courses: {
             type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TeacherCourseType))),
