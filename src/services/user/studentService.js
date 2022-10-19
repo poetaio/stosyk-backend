@@ -8,7 +8,7 @@ const {
 const {
     UserRoleEnum,
     hashPassword,
-    UserTypeEnum
+    UserTypeEnum,
 } = require("../../utils");
 const Sequelize = require('sequelize');
 const accountStatusEnum = require("../../utils/enums/accountStatus.enum");
