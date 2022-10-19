@@ -613,6 +613,7 @@ module.exports = {
     User,
     Teacher,
     Student,
+    Subpackage,
 
     Lesson,
     TaskList,

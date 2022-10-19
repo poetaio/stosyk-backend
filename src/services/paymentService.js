@@ -1,12 +1,26 @@
-const {SubPackagesEnum} = require('../utils/enums')
 const fetch = require("node-fetch");
 const {logger} = require("../utils");
+const {Subpackage} = require('../db/models');
+
 class PaymentService {
-    async checkUserPackage(teacher){
-        const pack = SubPackagesEnum.findIndex(x => x == teacher.packageType)
-        if(pack){
-            SubPackagesEnum.values()
+
+    async checkUserPackage(packageId, lastPaymentDate){
+        const subpackage = Subpackage.findOne({
+            where: {packageId}
+        })
+        const dateNow = [new Date().getDay(), new Date().getMonth(), new Date().getFullYear()]
+        let months = (dateNow[2] - lastPaymentDate.getFullYear())*12
+        months -=  lastPaymentDate.getMonth()
+        months += dateNow[1]
+        if(months > subpackage.months){
+            return false
         }
+        if(months == subpackage.months){
+            if(dateNow[0]>lastPaymentDate.getDay()){
+                return false
+            }
+        }
+        return true
     }
 
     async getUserCards(walletId){

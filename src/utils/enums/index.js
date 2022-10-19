@@ -5,7 +5,6 @@ const EventNameEnum = require('./EventName.enum');
 const TaskTypeEnum = require('./taskType.enum');
 const SchoolTeacherAccessEnum = require('./schoolTeacherAccessRight.enum');
 const SchoolStudentSeatStatusEnum = require('./schoolStudentSeatStatus.enum');
-const SubPackagesEnum = require('./subPackages.enum')
 
 
 module.exports = {
@@ -16,5 +15,4 @@ module.exports = {
     TaskTypeEnum,
     SchoolTeacherAccessEnum,
     SchoolStudentSeatStatusEnum,
-    SubPackagesEnum
 };
