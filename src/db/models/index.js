@@ -7,7 +7,8 @@ const {
     Account,
     User,
     Teacher,
-    Student
+    Student,
+    Subpackage
 } = require('./user')(sequelize, DataTypes);
 
 const {
@@ -73,6 +74,20 @@ Teacher.belongsTo(User, {
         unique: true
     },
     as: 'user'
+});
+
+//
+Subpackage.hasOne(Teacher, {
+    foreignKey: {
+        name: 'packageId',
+    },
+    as: 'teacher'
+})
+Teacher.belongsTo(Subpackage, {
+    foreignKey: {
+        name: 'packageId',
+    },
+    as: 'subpackage'
 });
 
 //User-Student One-to-One relationship

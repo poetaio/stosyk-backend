@@ -3,5 +3,17 @@ module.exports = (sequelize, DataTypes) => sequelize.define('teacher', {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
-    }
+    },
+    walletId: {
+        type: DataTypes.STRING,
+        defaultValue: "",
+    },
+    defaultCardToken:{
+        type: DataTypes.STRING,
+        defaultValue: "",
+    },
+    lastPaymentDate: {
+        type: DataTypes.DATE,
+        defaultValue: "",
+    },
 });
