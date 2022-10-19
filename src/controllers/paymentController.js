@@ -6,25 +6,15 @@ const ValidationError = require("../utils/errors/ValidationError");
 class PaymentController {
 
     async createInvoice ({details: {seats, months}}, {user: {userId}}) {
-        // ///?????
-        // const variables = {
-        //     amount: 300
-        // }
-        // const result = await fetch('https://api.monobank.ua/api/merchant/invoice/create', {
-        //     method: 'post',
-        //     headers: {
-        //         'X-Token': process.env.MONOBANK_TOKEN,
-        //     },
-        //     body: JSON.stringify(variables)
-        // })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         return data
-        //     })
-        //     .catch((e) => {
-        //         logger.info(e)
-        //     })
-        // return result
+        const pack = await paymentService.findPackageBySeatsAndMonths(seats, months)
+        if(!pack){
+            throw new ValidationError(`No such package`);
+        }
+        const teacher = await teacherService.findOneByUserId(userId);
+        if (!teacher) {
+            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+        }
+        paymentService.createInvoice(pack.packageId, pack.priceUAH, teacher.teacherId)
     }
 
     async checkUserPackage({user: {userId}}){
@@ -63,8 +53,8 @@ class PaymentController {
         return result
     }
 
-    async addSubPackage(){
-
+    async addSubPackage({package:{seats, months, priceUAH, priceUSD}}){
+        return paymentService.addSubPackage(seats, months, priceUAH, priceUSD)
     }
 
 }
