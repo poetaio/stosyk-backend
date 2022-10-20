@@ -4,6 +4,6 @@ module.exports = new GraphQLObjectType({
     name: "TokenType",
     description: "Token Type",
     fields: {
-        token: { type: GraphQLNonNull(GraphQLString) }
+        token: { type: new GraphQLNonNull(GraphQLString) }
     }
 });

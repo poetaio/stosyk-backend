@@ -5,7 +5,7 @@ module.exports = new GraphQLInputObjectType({
     name: "QAAnswerInputType",
     description: "Contains questionId and optionId student chose",
     fields: {
-        questionId: { type: GraphQLNonNull(GraphQLID) },
-        optionId: { type: GraphQLNonNull(GraphQLID) },
+        questionId: { type: new GraphQLNonNull(GraphQLID) },
+        optionId: { type: new GraphQLNonNull(GraphQLID) },
     },
 });

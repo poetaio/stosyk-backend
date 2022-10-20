@@ -5,7 +5,7 @@ module.exports = new GraphQLInputObjectType({
     name: 'UserLoginInputType',
     description: 'User Login Input type',
     fields: {
-        email: { type: GraphQLNonNull(GraphQLString) },
-        password: { type: GraphQLNonNull(GraphQLString) }
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: new GraphQLNonNull(GraphQLString) }
     }
 });

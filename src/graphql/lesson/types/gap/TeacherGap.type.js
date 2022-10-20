@@ -7,15 +7,15 @@ module.exports = new GraphQLObjectType({
     name: 'TeacherGapType',
     description: 'Teacher Gap Type',
     fields: {
-        gapId: { type: GraphQLNonNull(GraphQLID) },
-        position: { type: GraphQLNonNull(GraphQLInt) },
+        gapId: { type: new GraphQLNonNull(GraphQLID) },
+        position: { type: new GraphQLNonNull(GraphQLInt) },
         options: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherOptionType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TeacherOptionType))),
             resolve: async (parent, args, context) =>
                 await optionController.getOptionsForTeacher(parent, args, context)
         },
         studentsAnswers: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentAnswerType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentAnswerType))),
             resolve: async (parent, args, context) =>
                 await gapService.getStudentsAnswers(parent.gapId)
         },

@@ -1,6 +1,11 @@
 module.exports = (schoolId) => ({
-    association: 'school',
+    association: 'lessonMarkup',
     attributes: [],
-    where: { schoolId },
-    required: true
+    required: true,
+    include: {
+        association: 'school',
+        attributes: [],
+        where: {schoolId},
+        required: true
+    }
 });

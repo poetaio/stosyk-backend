@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('./sequelize');
 const queries = require('./queries');
 const includes = require('./includes');
+const attributes = require('./attributes');
 
 const {
     Account,
@@ -23,7 +24,8 @@ const {
 } = require('./lesson')(sequelize, DataTypes);
 
 const {
-    School
+    School,
+    SchoolInvitation,
 } = require('./school')(sequelize, DataTypes);
 
 const {
@@ -40,6 +42,7 @@ const {
     SchoolTeacher,
     SchoolStudentSeat,
 } = require('./relations')(sequelize, DataTypes);
+
 
 //User-Account One-to-One relationship
 
@@ -591,6 +594,15 @@ SchoolStudentSeat.belongsTo(School, {
     as: 'school',
 });
 
+SchoolInvitation.belongsTo(School, {
+    foreignKey: 'schoolId',
+    as: 'school',
+});
+School.hasMany(SchoolInvitation, {
+    foreignKey: 'schoolId',
+    as: 'invitations',
+});
+
 module.exports = {
     sequelize,
 
@@ -622,7 +634,9 @@ module.exports = {
     LessonCourse,
     SchoolTeacher,
     SchoolStudentSeat,
+    SchoolInvitation,
 
     ...queries,
-    ...includes
+    ...includes,
+    ...attributes,
 };

@@ -5,6 +5,7 @@ module.exports = new GraphQLInputObjectType({
     description: 'Where for lessons type',
     fields: {
         lessonId: { type: GraphQLID },
+        courseId: { type: GraphQLID },
         name: { type: GraphQLString }
     }
 });

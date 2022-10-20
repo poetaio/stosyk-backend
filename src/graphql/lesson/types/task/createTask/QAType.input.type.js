@@ -5,6 +5,6 @@ module.exports = new GraphQLInputObjectType({
     name: "QAInputType",
     description: "QA Input Type",
     fields: {
-        questions: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(QuestionInputType))) }
+        questions: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(QuestionInputType))) }
     },
 });

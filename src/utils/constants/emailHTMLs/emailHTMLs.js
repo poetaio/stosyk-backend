@@ -6,12 +6,12 @@ class EmailHTMLs {
         return confirmationHTML(verificationCode)
     }
 
-    createInviteStudentHTML = (schoolName, inviteToken) => `
+    createInviteStudentHTML = (schoolName, inviteId) => `
             <div>
                 Hey! You've been invited to ${schoolName}
                 To accept invitation please follow the link:
             </div>
-            <a href=https://www.stosyk.app/acceptschoolinvitation/${inviteToken}> Click here</a>
+            <a href=https://www.stosyk.app/studentspace/schoolinvitations/${inviteId}> Click here</a>
     `
 
     createResetPassHTML(resetPassCode) {

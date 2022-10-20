@@ -11,12 +11,12 @@ module.exports = new GraphQLInputObjectType({
     name: 'TaskInputType',
     description: 'TaskInputType. Each type represented by nullish object',
     fields: () => ({
-        answerShown: { type: GraphQLNonNull(GraphQLBoolean) },
-        attachments: {type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AttachmentInputType)))},
-        description: { type: GraphQLNonNull(GraphQLString) },
+        answerShown: { type: new GraphQLNonNull(GraphQLBoolean) },
+        attachments: {type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(AttachmentInputType)))},
+        description: { type: new GraphQLNonNull(GraphQLString) },
         // different types, only one is not null
         // different types, only one is not null or none for MEDIA type
-        type: { type: GraphQLNonNull(TaskTypeEnumType) },
+        type: { type: new GraphQLNonNull(TaskTypeEnumType) },
 
         multipleChoice: { type: MultipleChoiceTaskInputType },
         plainInput: { type: PlainInputTaskInputType },

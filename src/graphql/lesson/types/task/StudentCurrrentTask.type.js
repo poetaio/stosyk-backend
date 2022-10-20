@@ -5,7 +5,7 @@ module.exports = new GraphQLObjectType({
     name: 'StudentCurrentTaskType',
     description: 'Student Current Task Type',
     fields: {
-        taskId: { type: GraphQLNonNull(GraphQLID) },
-        student: {type: GraphQLNonNull(StudentType)}
+        taskId: { type: new GraphQLNonNull(GraphQLID) },
+        student: {type: new GraphQLNonNull(StudentType)}
     }
 });

@@ -12,6 +12,7 @@ const taskService = require("./taskService");
 const homeworkService = require("./homeworkService");
 const lessonTeacherService = require("./lessonTeacherService");
 const scoreService = require("./scoreService");
+const {GraphQLError} = require("graphql");
 
 class MarkupService {
     // returns only markup without tasks (model with proxy)
@@ -87,7 +88,7 @@ class MarkupService {
             const errMessage =
                 `No lesson from library ${lessonId} found of teacher ${teacherId}. ` +
                 `This usually means that either the lesson doesn't exits or it's already started`
-            throw new ValidationError(errMessage);
+            throw new GraphQLError(errMessage, {errorCode: "Some shit"});
         }
     }
 

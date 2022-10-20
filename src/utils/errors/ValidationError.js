@@ -1,11 +1,15 @@
 const httpStatusCodes = require("../httpStatusCodes");
 const BaseError = require("./BaseError");
+const {GraphQLError} = require("graphql");
 
-class ValidationError extends BaseError {
-    constructor(message, field, value) {
-        super('Validation Error', httpStatusCodes.BAD_REQUEST, message);
-        this.field = field;
-        this.value = value;
+class ValidationError extends GraphQLError {
+    constructor(message, errorCode) {
+        super(message, {
+            extensions: {
+                errorCode: errorCode || 1000,
+                errorName: "Validation Error"
+            }
+        });
     }
 }
 

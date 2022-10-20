@@ -4,7 +4,7 @@ const {useServer} = require("graphql-ws/lib/use/ws");
 
 const schema = require('../graphql/index');
 const {ApolloServer} = require("apollo-server-express");
-const {ApolloServerPluginDrainHttpServer} = require("apollo-server-core");
+const {ApolloServerPluginDrainHttpServer, ApolloServerPluginUsageReporting} = require("apollo-server-core");
 const {errorHandlingMiddleware} = require("../middleware");
 const {logger} = require("../utils");
 
@@ -33,7 +33,12 @@ module.exports = async (httpServer, expressServer, pubsub) => {
         plugins: [
             // Proper shutdown for the HTTP server.
             ApolloServerPluginDrainHttpServer({ httpServer }),
-
+            // ApolloServerPluginUsageReporting({
+            //     sendErrors: {
+            //         transform: (err) => errorHandlingMiddleware(err)
+            //     },
+            //     // sendErrors: { unmodified: true },
+            // }),
             // Proper shutdown for the WebSocket server.
             {
                 async serverWillStart() {

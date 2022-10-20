@@ -6,9 +6,9 @@ module.exports = new GraphQLObjectType({
     name: "StudentHomeworkType",
     description: "Student Homework type",
     fields: {
-        homeworkId: { type: GraphQLNonNull(GraphQLID) },
+        homeworkId: { type: new GraphQLNonNull(GraphQLID) },
         tasks: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentTaskInterfaceType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentTaskInterfaceType))),
             resolve: async (parent, args, context) =>
                 await taskController.getTasks(parent, args, context)
         }

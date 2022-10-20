@@ -8,9 +8,9 @@ module.exports = new GraphQLObjectType({
     name: 'MatchingSentenceCorrectAnswersType',
     description: 'Contains sentence id and matching option from right column',
     fields: {
-        sentenceId: { type: GraphQLNonNull(GraphQLID) },
+        sentenceId: { type: new GraphQLNonNull(GraphQLID) },
         matchingOption: {
-            type: GraphQLNonNull(MatchingTeacherOptionType),
+            type: new GraphQLNonNull(MatchingTeacherOptionType),
             resolve: async (parent, args, context) => await optionController.getMatchingCorrectOption(parent)
         },
     }

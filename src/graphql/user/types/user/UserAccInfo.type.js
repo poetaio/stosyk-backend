@@ -6,9 +6,9 @@ module.exports = new GraphQLObjectType({
     name: 'UserAccInfoType',
     description: 'User Account Info type',
     fields: {
-        role: {type: GraphQLNonNull(UserRoleEnumType)},
-        name: {type: GraphQLNonNull(GraphQLString) },
-        email: { type: GraphQLNonNull(GraphQLString) },
-        avatar_source: {type: GraphQLNonNull(GraphQLString) }
+        role: {type: new GraphQLNonNull(UserRoleEnumType)},
+        name: {type: new GraphQLNonNull(GraphQLString) },
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        avatar_source: {type: new GraphQLNonNull(GraphQLString) }
     }
 });

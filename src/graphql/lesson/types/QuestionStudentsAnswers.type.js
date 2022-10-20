@@ -6,9 +6,9 @@ module.exports = new GraphQLObjectType({
     name: "QuestionStudentsAnswersType",
     description: "Contains all students' answers ",
     fields: {
-        questionId: { type: GraphQLNonNull(GraphQLID) },
+        questionId: { type: new GraphQLNonNull(GraphQLID) },
         studentAnswers: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentAnswerType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentAnswerType))),
             resolve: async (parent, args, context) => await optionController.getQAStudentsAnswersBySentenceId(parent)
         }
     },

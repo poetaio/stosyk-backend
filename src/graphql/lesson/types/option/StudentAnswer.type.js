@@ -6,7 +6,7 @@ module.exports = new GraphQLObjectType({
     name: 'StudentAnswerType',
     description: 'Student answer type',
     fields: {
-        studentId: { type: GraphQLNonNull(GraphQLID) },
-        option: { type: GraphQLNonNull(OptionAnswerType) }
+        studentId: { type: new GraphQLNonNull(GraphQLID) },
+        option: { type: new GraphQLNonNull(OptionAnswerType) }
     }
 });

@@ -5,7 +5,7 @@ module.exports = new GraphQLObjectType({
     name: 'TeacherCountedLessonsType',
     description: 'Lessons list with total number for teacher',
     fields: {
-        total: { type: GraphQLNonNull(GraphQLInt) },
-        lessons: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherLessonType)))}
+        total: { type: new GraphQLNonNull(GraphQLInt) },
+        lessons: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TeacherLessonType)))}
     }
 });
