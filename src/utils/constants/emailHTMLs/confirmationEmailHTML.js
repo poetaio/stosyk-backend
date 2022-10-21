@@ -122,7 +122,7 @@ module.exports = (verificationCode)  => {
                                                             <a href="https://www.stosyk.app/"
                                                                style="text-decoration: none;" target="_self"><img
                                                                     align="center" alt="Logo" class="icon" height="32"
-                                                                    src="https://i.ibb.co/34M3BX2/logoicon.png"
+                                                                    src="https://i.ibb.co/vsjXLb7/logoicon.png"
                                                                     style="display: block; height: auto; margin: 0 auto; border: 0;"
                                                                     width="39"/></a></td>
                                                     </tr>
@@ -138,7 +138,7 @@ module.exports = (verificationCode)  => {
                                         <tr>
                                             <td class="pad">
                                                 <div align="center" class="alignment" style="line-height:10px"><img
-                                                        class="big" src="https://i.ibb.co/fXWXjnf/text-desktop.png"
+                                                        class="big" src="https://i.ibb.co/qxFB7W4/text-desktop.png"
                                                         alt="Desktop Text"
                                                         style="display: block; height: auto; border: 0; width: 450px; max-width: 100%;"
                                                         width="450"/></div>
@@ -152,7 +152,7 @@ module.exports = (verificationCode)  => {
                                         <tr>
                                             <td class="pad" style="width:100%;padding-right:0px;padding-left:0px;">
                                                 <div align="center" class="alignment" style="line-height:10px"><img
-                                                        src="https://i.ibb.co/bF8jt2b/text-mobile.png"
+                                                        src="https://i.ibb.co/0GbhTfQ/text-mobile.png"
                                                         alt="Mobile text"
                                                         style="display: block; height: auto; border: 0; width: 192px; max-width: 100%;"
                                                         width="192"/></div>
@@ -166,7 +166,7 @@ module.exports = (verificationCode)  => {
                                             <td class="pad"
                                                 style="padding-bottom:15px;padding-left:15px;padding-right:15px;padding-top:30px;width:100%;">
                                                 <div align="center" class="alignment" style="line-height:10px"><img
-                                                        src="https://i.ibb.co/bKnHMCs/image.png"
+                                                        src="https://i.ibb.co/xHvy50S/image.png"
                                                         alt="Image"
                                                         style="display: block; height: auto; border: 0; width: 240px; max-width: 100%;"
                                                         width="240"/></div>
@@ -208,7 +208,7 @@ module.exports = (verificationCode)  => {
                                                 style="padding-bottom:15px;padding-left:15px;padding-right:15px;padding-top:30px;width:100%;">
                                                 <div align="center" class="alignment" style="line-height:10px"><a
                                                         href="https://www.stosyk.app/confirmemail/${verificationCode}" style="outline:none"
-                                                        tabindex="-1" target="_blank"><img src="https://i.ibb.co/SdxHp4s/Button.png" alt="Button"
+                                                        tabindex="-1" target="_blank"><img src="https://i.ibb.co/8xDPkgW/Button.png"  alt="Button"
                                                                                            style="display: block; height: auto; border: 0; width: 288px; max-width: 100%;"
                                                                                            width="288"/></a></div>
                                             </td>
@@ -262,21 +262,21 @@ module.exports = (verificationCode)  => {
                                                             <td style="padding:0 2px 0 2px;"><a
                                                                     href="https://instagram.com/stosyk.app?igshid=NTlmMWMyMzg="
                                                                     target="_blank"><img alt="Instagram" height="32"
-                                                                                         src="https://i.ibb.co/RNNqfnC/instagram2x.png"
+                                                                                         src="https://i.ibb.co/BB3ZYGs/instagram2x.png"
                                                                                          style="display: block; height: auto; border: 0;"
                                                                                          title="instagram" width="32"/></a>
                                                             </td>
                                                             <td style="padding:0 2px 0 2px;"><a
                                                                     href="https://www.facebook.com/stosyk"
                                                                     target="_blank"><img alt="Facebook" height="32"
-                                                                                         src="https://i.ibb.co/MGk00fv/facebook2x.png"
+                                                                                         src="https://i.ibb.co/L0mfmt3/facebook2x.png"
                                                                                          style="display: block; height: auto; border: 0;"
                                                                                          title="facebook"
                                                                                          width="32"/></a></td>
                                                             <td style="padding:0 2px 0 2px;"><a
                                                                     href="https://www.linkedin.com/company/stosyk/"
                                                                     target="_blank"><img alt="Linkedin" height="32"
-                                                                                         src="https://i.ibb.co/2Wd1pqY/linkedin2x.png"
+                                                                                         src="https://i.ibb.co/5BVhw9V/linkedin2x.png"
                                                                                          style="display: block; height: auto; border: 0;"
                                                                                          title="linkedin"
                                                                                          width="32"/></a></td>

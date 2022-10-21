@@ -122,7 +122,7 @@ module.exports = (resetPassCode)  => {
                                                     <tr>
                                                         <td style="vertical-align: middle; text-align: center; padding-top: 15px; padding-bottom: 15px; padding-left: 15px; padding-right: 15px;">
                                                             <img align="center" alt="Logo" class="icon" height="32"
-                                                                 src="https://i.ibb.co/34M3BX2/logoicon.png"
+                                                                 src="https://i.ibb.co/vsjXLb7/logoicon.png"
                                                                  style="display: block; height: auto; margin: 0 auto; border: 0;"
                                                                  width="38"/></td>
                                                     </tr>
@@ -136,7 +136,7 @@ module.exports = (resetPassCode)  => {
                                         <tr>
                                             <td class="pad">
                                                 <div align="center" class="alignment" style="line-height:10px"><img
-                                                        src="https://i.ibb.co/dJmyNtP/Text.png"
+                                                        src="https://i.ibb.co/jb8xtZW/Text.png"
                                                         style="display: block; height: auto; border: 0; width: 175px; max-width: 100%;"
                                                         width="175"/></div>
                                             </td>
@@ -148,7 +148,7 @@ module.exports = (resetPassCode)  => {
                                         <tr>
                                             <td class="pad">
                                                 <div align="center" class="alignment" style="line-height:10px"><img
-                                                        src="https://i.ibb.co/RY5hhhL/image.png"
+                                                        src="https://i.ibb.co/pw8cXJF/image.png"
                                                         alt = "Image"
                                                         style="display: block; height: auto; border: 0; width: 275px; max-width: 100%;"
                                                         width="275"/></div>
@@ -175,7 +175,7 @@ module.exports = (resetPassCode)  => {
                                             <td class="pad">
                                                 <div align="center" class="alignment" style="line-height:10px"><a
                                                         href="https://www.stosyk.app/resetpassword/${resetPassCode}" style="outline:none"
-                                                        tabindex="-1" target="_blank"><img src="https://i.ibb.co/BPv6gqT/Button.png"
+                                                        tabindex="-1" target="_blank"><img src="https://i.ibb.co/qrQ0D0Z/Button.png"
                                                                                            alt="Button"
                                                                                            style="display: block; height: auto; border: 0; width: 150px; max-width: 100%;"
                                                                                            width="150"/></a></div>
@@ -229,21 +229,21 @@ module.exports = (resetPassCode)  => {
                                                             <td style="padding:0 2px 0 2px;"><a
                                                                     href="https://www.instagram.com/stosyk.app"
                                                                     target="_blank"><img alt="Instagram" height="32"
-                                                                                         src="https://i.ibb.co/RNNqfnC/instagram2x.png"
+                                                                                         src="https://i.ibb.co/BB3ZYGs/instagram2x.png"
                                                                                          style="display: block; height: auto; border: 0;"
                                                                                          title="Instagram" width="32"/></a>
                                                             </td>
                                                             <td style="padding:0 2px 0 2px;"><a
                                                                     href="https://www.facebook.com/stosyk"
                                                                     target="_blank"><img alt="Facebook" height="32"
-                                                                                         src="https://i.ibb.co/MGk00fv/facebook2x.png"
+                                                                                         src="https://i.ibb.co/L0mfmt3/facebook2x.png"
                                                                                          style="display: block; height: auto; border: 0;"
                                                                                          title="facebook"
                                                                                          width="32"/></a></td>
                                                             <td style="padding:0 2px 0 2px;"><a
                                                                     href="https://www.linkedin.com/company/stosyk"
                                                                     target="_blank"><img alt="Linkedin" height="32"
-                                                                                         src="https://i.ibb.co/2Wd1pqY/linkedin2x.png"
+                                                                                         src="https://i.ibb.co/5BVhw9V/linkedin2x.png"
                                                                                          style="display: block; height: auto; border: 0;"
                                                                                          title="linkedin"
                                                                                          width="32"/></a></td>
