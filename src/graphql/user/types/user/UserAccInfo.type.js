@@ -1,4 +1,4 @@
-const { GraphQLNonNull, GraphQLString, GraphQLObjectType} = require("graphql");
+const { GraphQLNonNull, GraphQLString, GraphQLObjectType, GraphQLBoolean} = require("graphql");
 const UserRoleEnumType = require('./UserRoleEnum.type')
 
 
@@ -7,8 +7,9 @@ module.exports = new GraphQLObjectType({
     description: 'User Account Info type',
     fields: {
         role: {type: new GraphQLNonNull(UserRoleEnumType)},
-        name: {type: new GraphQLNonNull(GraphQLString) },
-        email: { type: new GraphQLNonNull(GraphQLString) },
-        avatar_source: {type: new GraphQLNonNull(GraphQLString) }
+        name: {type:  GraphQLString },
+        email: { type:  GraphQLString },
+        avatar_source: {type:  GraphQLString },
+        registered: { type: new GraphQLNonNull(GraphQLBoolean) }
     }
 });

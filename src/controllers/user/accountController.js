@@ -69,17 +69,18 @@ class AccountController {
         return { token };
     }
 
-    async getAccountInfo({user: {userId}}) {
+    async getUserInfo({user: {userId}}) {
         const user = await userService.findOneByUserId(userId);
-        if (user.type !== REGISTERED) {
-            throw new ValidationError(`User is not registered`);
+        let account
+        if (user.type === REGISTERED) {
+            account = await accountService.getOneById(userId)
         }
-        const account = await accountService.getOneById(userId)
         const res = {
             role: user.role,
-            email: account.account.login,
-            avatar_source: account.account.avatar_source,
-            name: user.name
+            email: account?.account?.login || null,
+            avatar_source: account?.account?.avatar_source || null,
+            name: user.name || null,
+            registered: user.type === REGISTERED
         }
         return res
     }
