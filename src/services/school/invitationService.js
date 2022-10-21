@@ -47,6 +47,18 @@ class InvitationService {
         });
     }
 
+    async acceptInvitation(invitationId) {
+        SchoolInvitation.update({
+            status: SchoolInvitationStatusEnum.ACCEPTED,
+        }, {
+            where: {
+                invitationId,
+            }
+        });
+
+        return true;
+    }
+
     async cancelInviteSchoolStudent(invitationId) {
         SchoolInvitation.update({
             status: SchoolInvitationStatusEnum.WITHDRAWN,

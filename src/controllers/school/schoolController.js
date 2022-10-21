@@ -112,6 +112,7 @@ class SchoolController {
             throw new InternalError(`Could not accept invite, as there are no free seats. That should not happen please contact support@stosyk.app`);
         }
 
+        await invitationService.acceptInvitation(invitationId);
         return await schoolService.occupySeat(seat.schoolStudentSeatId, student.studentId);
     }
 
