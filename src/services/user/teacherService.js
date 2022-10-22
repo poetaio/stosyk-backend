@@ -1,6 +1,7 @@
 const { Teacher, User, Account} = require('../../db/models');
 const {UserRoleEnum, UserTypeEnum, hashPassword} = require("../../utils");
 const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
+const {teacherBySchoolIdInclude} = require("../../db/models/includes/user/teacher");
 
 class TeacherService {
     async existsAnonymousById(teacherId) {
@@ -35,13 +36,14 @@ class TeacherService {
                 user: {
                     role: UserRoleEnum.TEACHER,
                     type: UserTypeEnum.REGISTERED,
+                    name,
                     account: {
                         login: email,
                         passwordHash,
                         avatar_source,
                         status,
                     }
-                }, name
+                },
             },
             {
                 include: {
@@ -83,6 +85,22 @@ class TeacherService {
 
     async findOneByUserId(userId) {
         return await Teacher.findOne({ where: { userId } });
+    }
+
+    async findOneByUserIdWithUser(userId) {
+        return await Teacher.findOne({
+            where: { userId },
+            include: 'user',
+        });
+    }
+
+    async findOneBySchoolIdWithUser(schoolId) {
+        return await Teacher.findOne({
+            include: [
+                teacherBySchoolIdInclude(schoolId),
+                'user',
+            ],
+        });
     }
 }
 

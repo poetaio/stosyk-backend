@@ -88,7 +88,7 @@ class ScoreService {
         const answeredCount = await this.getAnsweredCount(lessonId, studentId);
 
         if (!totalCount) {
-            return 100;
+            return null;
         }
 
         return answeredCount / totalCount * 100;
@@ -110,7 +110,7 @@ class ScoreService {
         const correctCount = await this.getCorrectAnsweredCount(lessonId, studentId);
 
         if (!totalCount) {
-            return 100;
+            return null;
         }
 
         return correctCount / totalCount * 100;

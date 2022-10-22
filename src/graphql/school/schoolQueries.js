@@ -26,7 +26,7 @@ const studentSchools = {
     args: {
         schoolId: { type: GraphQLID },
     },
-    resolve: async (parent, args, context) => await schoolController.getStudentSchools(context)
+    resolve: async (parent, args, context) => await schoolController.getStudentSchools(args, context)
 };
 
 module.exports = {

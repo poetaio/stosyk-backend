@@ -38,7 +38,7 @@ class SchoolController {
     }
 
     async inviteSchoolStudent({studentEmail}, {user: {userId}}) {
-        const teacher = await teacherService.findOneByUserId(userId);
+        const teacher = await teacherService.findOneByUserIdWithUser(userId);
         if (!teacher) {
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
         }
@@ -49,6 +49,12 @@ class SchoolController {
         }
 
         const {schoolId, name: schoolName} = school;
+        let schoolOrTeacherName;
+        if (schoolName) {
+            schoolOrTeacherName = schoolName;
+        } else {
+            schoolOrTeacherName = teacher.user.name;
+        }
 
         if (await schoolService.isStudentInSchool(schoolId, studentEmail)) {
             throw new ValidationError(`Student ${studentEmail} already in school`);
@@ -68,7 +74,7 @@ class SchoolController {
         }
 
         const {invitationId} = await invitationService.createInvitation(schoolId, studentEmail);
-        await schoolService.sendInvite(schoolName, studentEmail, invitationId);
+        await schoolService.sendInvite(studentEmail, schoolOrTeacherName, invitationId);
         return true;
     }
 
@@ -159,7 +165,10 @@ class SchoolController {
             throw new ValidationError(`No school found of teacher ${teacher}`);
         }
 
-        return await schoolService.countFreeSeats(school.schoolId);
+        const freeSeatsCount = await schoolService.countFreeSeats(school.schoolId);
+        const invitesCount = await invitationService.countInvitesBySchoolId(school.schoolId);
+
+        return freeSeatsCount - invitesCount;
     }
 
     async getStudents({user: {userId}}) {
@@ -252,15 +261,35 @@ class SchoolController {
             throw new ValidationError(`User with id ${userId} and role STUDENT not found`);
         }
 
+        let schools;
         if (schoolId) {
-            return await schoolService.getOneByIdAndStudentId(schoolId, student.studentId);
+            schools = [await schoolService.getOneByIdAndStudentId(schoolId, student.studentId)];
+        } else {
+            schools = await schoolService.getAllByStudentId(student.studentId);
         }
 
-        return await schoolService.getAllByStudentId(student.studentId);
+        return await this.setSchoolNamesIfItIsNull(schools);
     }
 
-    async getOneById({schoolId}) {
-        return await schoolService.getOneById(schoolId);
+    async setSchoolNameIfItIsNull(school) {
+        if (!school.name) {
+            const teacher = await teacherService.findOneBySchoolIdWithUser(school.schoolId);
+            school.name = teacher.user.name;
+        }
+        return school;
+    }
+
+    async setSchoolNamesIfItIsNull(schools) {
+        return await Promise.all(
+            schools.map(school =>
+                this.setSchoolNameIfItIsNull(school)
+            )
+        );
+    }
+
+    async getOneByIdNameNonNull({schoolId}) {
+        const school = await schoolService.getOneById(schoolId);
+        return await this.setSchoolNameIfItIsNull(school);
     }
 }
 

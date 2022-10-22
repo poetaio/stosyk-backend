@@ -15,7 +15,7 @@ module.exports = new GraphQLObjectType({
         name: { type: new GraphQLNonNull(GraphQLString) },
         progress: {
             // value in percents
-            type: new GraphQLNonNull(GraphQLFloat),
+            type: GraphQLFloat,
             resolve: async (parent, args, context) =>
                 await lessonController.getStudentProgress(parent),
         },
