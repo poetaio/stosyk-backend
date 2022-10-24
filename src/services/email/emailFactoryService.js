@@ -1,4 +1,9 @@
-const emailConstants = require('../../utils/constants')
+const {
+    schoolInvitationMailTemplate,
+    resetPasswordMailTemplate,
+    emailConfirmationMailTemplate,
+} = require("../../utils/mailTemplates");
+
 class EmailFactoryService {
     async createConfirmationEmail(email, verificationCode){
         if(process.env.ENVIRONMENT === "DEV"){
@@ -10,8 +15,7 @@ class EmailFactoryService {
                 address: process.env.EMAIL_USER
             },
             to: email,
-            subject: emailConstants.emailSubjects.CONFIRMATION ,
-            html: emailConstants.emailHTMLs.createConfirmationHTML(verificationCode)
+            ...emailConfirmationMailTemplate(verificationCode)
         }
         return mailOptions
     }
@@ -26,24 +30,22 @@ class EmailFactoryService {
                 address: process.env.EMAIL_USER
             },
             to: email,
-            subject: emailConstants.emailSubjects.RESET_PASSWORD ,
-            html: emailConstants.emailHTMLs.createResetPassHTML(resetPassCode)
+            ...resetPasswordMailTemplate(resetPassCode)
         }
         return mailOptions
     }
 
-    createInvitationEmail(schoolName, studentEmail, inviteId) {
-        if(process.env.ENVIRONMENT === "DEV"){
+    createInvitationEmail(studentEmail, schoolOrTeacherName, invitationId) {
+        if (process.env.ENVIRONMENT === "DEV"){
             studentEmail = process.env.EMAIL_DEV
         }
         return this.createEmail(
             studentEmail,
-            emailConstants.emailSubjects.createInviteStudentSubject(schoolName),
-            emailConstants.emailHTMLs.createInviteStudentHTML(schoolName, inviteId)
+            schoolInvitationMailTemplate(schoolOrTeacherName, invitationId)
         );
     }
 
-    createEmail(to, subject, html) {
+    createEmail(to, {subject, html}) {
         return {
             from: {
                 name: "Stosyk",

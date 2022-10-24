@@ -5,3 +5,4 @@ migration_name=$(basename "$migration_path")
 migration_name="${migration_name%.*}"
 migration_dirname=./src/db/schema/"$migration_name"
 mkdir "$migration_dirname"
+touch "$migration_dirname"/index.js

@@ -17,6 +17,7 @@ const {
 const {Op} = require('sequelize');
 const Sequelize = require("sequelize");
 const {emailService, emailFactoryService} = require("../email");
+const teacherService = require("../user/teacherService");
 
 class SchoolService {
     async getOneByTeacherId(teacherId) {
@@ -62,7 +63,7 @@ class SchoolService {
     }
 
     async create(teacherId) {
-        return await this.createWithName(teacherId, "default name");
+        return await this.createWithName(teacherId, null);
     }
 
     async addStudentSeat(schoolId) {
@@ -102,8 +103,8 @@ class SchoolService {
         });
     }
 
-    async sendInvite(schoolName, inviteEmail, inviteId) {
-        emailService.sendEmail(emailFactoryService.createInvitationEmail(schoolName, inviteEmail, inviteId));
+    async sendInvite(inviteEmail, schoolOrTeacherName, invitationId) {
+        emailService.sendEmail(emailFactoryService.createInvitationEmail(inviteEmail, schoolOrTeacherName, invitationId));
     }
 
     async occupySeat(schoolStudentSeatId, studentId) {
@@ -205,7 +206,7 @@ class SchoolService {
     }
 
     async getOneByIdAndStudentId(schoolId, studentId) {
-        return await School.findAll({
+        return await School.findOne({
             where: {schoolId},
             include: allSchoolsByStudentIdInclude(studentId),
             attributes: {

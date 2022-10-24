@@ -13,7 +13,7 @@ module.exports = new GraphQLObjectType({
         createdAt: { type: new GraphQLNonNull(GraphQLString) },
         school: {
             type: new GraphQLNonNull(SchoolShortType),
-            resolve: async (parent, args, context) => await schoolController.getOneById(parent)
+            resolve: async (parent, args, context) => await schoolController.getOneByIdNameNonNull(parent)
         },
     },
 });

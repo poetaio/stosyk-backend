@@ -6,8 +6,6 @@ module.exports = (sequelize, DataTypes) => sequelize.define('school', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
     },
     studentsSeatsCount: {
         type: DataTypes.INTEGER,

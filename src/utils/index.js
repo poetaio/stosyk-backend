@@ -8,6 +8,7 @@ const dateUtils = require('./date');
 const emailTransport = require('./nodemailerTransport')
 const useUnsubscribeCb = require('./useUnsubscribeCb');
 const logger = require('./logger');
+const mailTemplates = require('./mailTemplates');
 
 module.exports = {
     httpStatusCodes,
@@ -20,4 +21,5 @@ module.exports = {
     emailTransport,
     useUnsubscribeCb,
     logger,
+    mailTemplates,
 };

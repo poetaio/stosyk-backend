@@ -6,11 +6,12 @@ const {SchoolStudentSeatType} = require("./student_seat");
 const {TeacherCountedLessonsType, LessonsWhereType, TeacherCourseType} = require("../../lesson/types");
 const {lessonController, courseController} = require("../../../controllers");
 
+// NOTE: name for student school is NOT required
 module.exports = new GraphQLObjectType({
     name: "TeacherSchoolType",
     description: "School for teacher",
     fields: {
-        name: { type: new GraphQLNonNull(GraphQLString) },
+        name: { type: GraphQLString },
         freeSeatCount: {
             type: new GraphQLNonNull(GraphQLInt),
             description: 'Get number of free seats',
