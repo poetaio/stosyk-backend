@@ -57,17 +57,6 @@ class AccountService {
         return !!upd[0]
     }
 
-    async changeName(userId, newName){
-        const upd = await User.update({
-            name: newName
-        }, {
-            where: {
-                userId
-            }
-        })
-        return !!upd[0]
-    }
-
     async changeAvatar(userId, newAvatarSource){
         const upd = await Account.update({
             avatar_source: newAvatarSource

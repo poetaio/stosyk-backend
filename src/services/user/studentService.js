@@ -16,7 +16,7 @@ const accountStatusEnum = require("../../utils/enums/accountStatus.enum");
 class StudentService {
     async createAnonymous(name) {
         return await Student.create(
-            { user: { role: UserRoleEnum.STUDENT }, name },
+            { user: { role: UserRoleEnum.STUDENT, name}, },
             { include: 'user' },
         ).then(({ user }) => user.userId);
     }
@@ -42,44 +42,6 @@ class StudentService {
                 where: {lessonId},
                 required: true
             }
-        })
-    }
-
-    async updateProfile(studentId, name) {
-        const upd = await Student.update({
-            name,
-        }, {
-            where: { studentId },
-        });
-
-        return !!upd[0];
-    }
-
-    async updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source, automatic_verification) {
-        const passwordHash = await hashPassword(password);
-
-        await User.update({
-                type: UserTypeEnum.REGISTERED,
-                name: name
-            },
-            {
-                where: {
-                    userId
-                }
-            }
-        );
-
-        let status = accountStatusEnum.UNVERIFIED
-        if(automatic_verification && process.env.ENVIRONMENT==="DEV"){
-            status = accountStatusEnum.VERIFIED
-        }
-
-        await Account.create({
-            login: email,
-            passwordHash,
-            userId,
-            avatar_source,
-            status
         })
     }
 
