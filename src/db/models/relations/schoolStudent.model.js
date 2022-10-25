@@ -1,9 +1,8 @@
 const SchoolTable = require("../../schema/school/school.table");
 const StudentTable = require("../../schema/user/student.table");
-const {SchoolStudentSeatStatusEnum} = require("../../../utils");
 
-module.exports = (sequelize, DataTypes) => sequelize.define('schoolStudentSeat', {
-    schoolStudentSeatId: {
+module.exports = (sequelize, DataTypes) => sequelize.define('schoolStudent', {
+    schoolStudentId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
@@ -23,6 +22,9 @@ module.exports = (sequelize, DataTypes) => sequelize.define('schoolStudentSeat',
         }
     },
     joinedAt: {
+        type: DataTypes.DATE,
+    },
+    droppedOutAt: {
         type: DataTypes.DATE,
     },
 });

@@ -1,6 +1,6 @@
-module.exports = (schoolStudentSeatId) => ({
-    association: 'seats',
+module.exports = (schoolStudentId) => ({
+    association: 'schoolStudents',
     attributes: [],
     required: true,
-    where: { schoolStudentSeatId },
+    where: { schoolStudentId },
 });

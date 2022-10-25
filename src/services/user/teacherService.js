@@ -17,9 +17,9 @@ class TeacherService {
         });
     }
 
-    async createAnonymous() {
+    async createAnonymous(name) {
         return await Teacher.create(
-            { user: { role: UserRoleEnum.TEACHER } },
+            { user: { name, role: UserRoleEnum.TEACHER } },
             { include: 'user' }
         );
     }
