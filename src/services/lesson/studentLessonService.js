@@ -1,6 +1,7 @@
-const {LessonStudent, Student} = require("../../db/models");
+const {Student} = require("../../db/models");
 // todo: remove client function (change initialization order)
 const {client} = require("../../db/redis");
+const Sequelize = require("sequelize");
 
 class StudentLessonService {
     async studentLessonExists(lessonId, studentId){
@@ -11,7 +12,14 @@ class StudentLessonService {
         const studentIds = await client().sMembers(lessonId);
 
         return await Student.findAll({
-            where: {studentId: studentIds}
+            where: {studentId: studentIds},
+            include: 'user',
+            attributes: {
+                include: [
+                    [Sequelize.col('user.name'), 'name'],
+                ],
+            },
+            raw: true,
         })
     }
 

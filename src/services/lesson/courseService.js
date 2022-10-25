@@ -82,7 +82,6 @@ class CourseService {
     async getAllStudentsWhoTookLessons(courseId) {
         return await Student.findAll({
             include: allStudentsByCourseIdInclude(courseId),
-
         });
     }
 

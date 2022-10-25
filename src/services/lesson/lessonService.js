@@ -650,11 +650,20 @@ class LessonService {
     async getStudents(lessonId) {
         // all students who have at least one answer on any task of this homework
         return await Student.findAll({
-            include: allStudentsByLessonIdInclude(lessonId),
+            include: [
+                allStudentsByLessonIdInclude(lessonId),
+                'user',
+            ],
+            attributes: {
+                include: [
+                    [Sequelize.col('user.name'), 'name'],
+                ],
+            },
+            raw: true,
         }).then(students => students.map(
             // adding lesson id to returned object, cause it's needed for
             // StudentWithLessonScoreType's progress and score
-            student => ({...student.get({plain: true}), lessonId}))
+            student => ({...student, lessonId}))
         );
     }
 
