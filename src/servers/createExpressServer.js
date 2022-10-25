@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 5000;
 
 require('../graphql')
 require('../middleware');
+const {paymentController} = require("../controllers");
 
 // шобы не сохранять локально файлы, все в памяти обрабатывается
 const storage = multer.memoryStorage();
@@ -24,6 +25,12 @@ module.exports = (pubsub) => {
     // который потом сохраняется в attachments для таски
     app.post('/storage',  upload.single('file'), (req, res, next) =>
         storageController.uploadFileAndGetLink(req, res));
+
+    app.post('/add-card/:userId', (req, res) => {
+        const {userId} = req.params;
+        const {walletId, cardToken, tdsUrl, status} = req.body;
+        paymentController.addUserCard(userId, walletId, cardToken, tdsUrl, status);
+    })
 
     return [app, app.listen(PORT, () => logger.info(`Server is listening on port ${PORT}`))];
 };

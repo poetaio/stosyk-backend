@@ -57,6 +57,13 @@ class PaymentController {
         return paymentService.addSubPackage(seats, months, priceUAH, priceUSD)
     }
 
+    async addUserCard(userId, walletId, cardToken, tdsUrl, status){
+        if(status !== "active"){
+
+        }
+
+    }
+
 }
 
 
