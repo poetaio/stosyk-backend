@@ -20,10 +20,8 @@ class AccountController {
             const user = await userService.findOneByUserId(userId);
             if (user.type === REGISTERED)
                 throw new ValidationError(`User is already registered`);
-            else if (role === UserRoleEnum.STUDENT) {
-                await studentService.updateAnonymousStudentToRegistered(userId, email, password, name, avatar_source, automatic_verification);
-            } else {
-                await teacherService.updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source, automatic_verification);
+            else {
+                await userService.updateAnonumousToRegistered(userId, email, password, name, avatar_source, automatic_verification)
             }
             const account = await accountService.getOneByLogin(email)
             if(account.status === accountStatusEnum.UNVERIFIED){
@@ -106,10 +104,6 @@ class AccountController {
         await this.sendConfirmationEmail({login: newEmail});
 
         return true;
-    }
-
-    async changeName({newName}, {user: {userId}}){
-        return await accountService.changeName(userId,  newName)
     }
 
     async changeAvatar({newAvatarSource}, {user: {userId}}){
