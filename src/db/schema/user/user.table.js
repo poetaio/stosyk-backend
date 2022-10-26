@@ -1,5 +1,4 @@
-const userRoleEnum = require('../../../utils/enums/userRole.enum');
-const userTypeEnum = require('../../../utils/enums/userType.enum')
+const {UserRoleEnum, UserTypeEnum} = require('../../../utils');
 
 
 module.exports = (DataTypes) => ['users', {
@@ -9,12 +8,12 @@ module.exports = (DataTypes) => ['users', {
         primaryKey: true
     },
     role: {
-        type: DataTypes.ENUM(...Object.values(userRoleEnum)),
-        defaultValue: userRoleEnum.STUDENT
+        type: DataTypes.ENUM(...Object.values(UserRoleEnum)),
+        defaultValue: UserRoleEnum.STUDENT
     },
     type: {
-        type: DataTypes.ENUM(...Object.values(userTypeEnum)),
-        defaultValue: userTypeEnum.ANONYMOUS
+        type: DataTypes.ENUM(...Object.values(UserTypeEnum)),
+        defaultValue: UserTypeEnum.ANONYMOUS
     },
     createdAt: {
         type: DataTypes.DATE,

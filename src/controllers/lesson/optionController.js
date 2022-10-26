@@ -19,8 +19,6 @@ class OptionController {
 
     /**
      * used MatchingTeacherSentenceLeftType in resolve for correct option
-     * @param sentenceId
-     * @returns {Promise<Model|null>} correct option for this sentence
      */
     async getMatchingCorrectOption({ sentenceId }) {
         return await optionService.getMatchingCorrectOption(sentenceId);
@@ -28,8 +26,6 @@ class OptionController {
 
     /**
      * used MatchingTeacherTaskType in resolve for right column
-     * @param taskId
-     * @returns {Promise<Model|null>} all options available for task (to connect with left column)
      */
     async getAllMatchingRight({ taskId }) {
         return await optionService.getAllMatchingRight(taskId);
