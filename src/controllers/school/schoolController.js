@@ -55,6 +55,7 @@ class SchoolController {
 
         const {invitationId} = await invitationService.createInvitation(schoolId, studentEmail);
         await schoolService.sendInvite(studentEmail, schoolOrTeacherName, invitationId);
+
         return invitationId;
     }
 
