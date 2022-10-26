@@ -15,7 +15,7 @@ const addSchoolStudentSeats = {
 
 // student_seat id + student id
 const inviteSchoolStudent = {
-    type: new GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLID),
     name: 'inviteSchoolStudent',
     description: 'Invite school student',
     args: {

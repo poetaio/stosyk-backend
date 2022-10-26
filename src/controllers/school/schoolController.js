@@ -55,7 +55,7 @@ class SchoolController {
 
         const {invitationId} = await invitationService.createInvitation(schoolId, studentEmail);
         await schoolService.sendInvite(studentEmail, schoolOrTeacherName, invitationId);
-        return true;
+        return invitationId;
     }
 
     async cancelInviteSchoolStudent({invitationId}, {user: {userId}}) {
