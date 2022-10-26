@@ -1,5 +1,5 @@
 module.exports = (schoolId) => ({
-    association: 'seats',
+    association: 'schoolStudents',
     required: true,
     attributes: [],
     where: {schoolId},

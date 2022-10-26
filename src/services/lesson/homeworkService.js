@@ -19,6 +19,7 @@ const {
 const taskService = require("./taskService");
 const lessonTeacherService = require("./lessonTeacherService");
 const studentLessonService = require("./studentLessonService");
+const Sequelize = require("sequelize");
 
 class HomeworkService {
 
@@ -155,10 +156,19 @@ class HomeworkService {
     async getStudents(homeworkId) {
         // all students who have at least one answer on any task of this homework
         return await Student.findAll({
-            include: allStudentsByHomeworkIdInclude(homeworkId),
+            include: [
+                allStudentsByHomeworkIdInclude(homeworkId),
+                'user',
+            ],
+            attributes: {
+                include: [
+                    [Sequelize.col('user.name'), 'name'],
+                ],
+            },
+            raw: true,
         }).then(students => students.map(
-            student => ({...student.get({plain: true}), homeworkId}))
-        );
+            student => ({...student, homeworkId})
+        ));
     }
 
     async getMultipleChoicePlainInputTotalCount(homeworkId) {

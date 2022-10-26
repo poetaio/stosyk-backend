@@ -4,8 +4,10 @@
   "description": "Educational Platform",
   "main": "index.js",
   "scripts": {
-    "start": "npx sequelize-cli db:migrate && node src/index.js",
-    "dev": "npx sequelize-cli db:migrate && nodemon src/index.js",
+    "prestart": "npx sequelize-cli db:migrate",
+    "start": "node src/index.js",
+    "predev": "npx sequelize-cli db:migrate",
+    "dev": "nodemon src/index.js",
     "db": "docker run -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=test -p 5433:5432 -d postgres"
   },
   "repository": {

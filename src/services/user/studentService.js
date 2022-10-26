@@ -1,8 +1,5 @@
 const {
     Student,
-    User,
-    Account,
-    Teacher,
     studentEmailInclude,
 } = require('../../db/models');
 const {
@@ -22,7 +19,16 @@ class StudentService {
     }
 
     async findOneByUserId(userId) {
-        return await Student.findOne({ where: { userId } });
+        return await Student.findOne({
+            where: { userId },
+            include: 'user',
+            attributes: {
+                include: [
+                    [Sequelize.col('user.name'), 'name'],
+                ],
+            },
+            raw: true,
+        });
     }
 
     async findOneByUserIdWithLogin(userId) {
@@ -33,16 +39,6 @@ class StudentService {
                 include: [[Sequelize.col('user.account.login'), 'login']]
             }
         }).then(student => student?.get({plain: true}));
-    }
-
-    async studentsLesson(lessonId){
-        return await Student.findAll({
-            include: {
-                association: 'studentLessons',
-                where: {lessonId},
-                required: true
-            }
-        })
     }
 
     async create(email, password, name, avatar_source, automatic_verification) {

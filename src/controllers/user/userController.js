@@ -34,7 +34,7 @@ class UserController {
 
     async createAnonymous({name, type}) {
         if(type === UserRoleEnum.TEACHER){
-            const {teacherId, user: {userId}} = await teacherService.createAnonymous();
+            const {teacherId, user: {userId}} = await teacherService.createAnonymous(name);
             await schoolService.create(teacherId);
             const token = tokenService.createTeacherToken(userId);
 

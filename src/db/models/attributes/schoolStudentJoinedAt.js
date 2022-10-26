@@ -1,6 +1,6 @@
 const Sequelize = require("sequelize");
 
 module.exports = [
-    Sequelize.col('seats.joinedAt'),
+    Sequelize.col('schoolStudents.joinedAt'),
     'joinedAt',
 ];
