@@ -22,7 +22,7 @@ class PaymentController {
         if (!teacher) {
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
         }
-        return paymentService.checkUserPackage(teacher.packageId, teacher.lastPaymentDate)
+        return paymentService.checkUserPackage(teacher.packageId, teacher.lastPaymentDate, teacher.teacherId)
     }
 
     async getUserCards({user: {userId}}){

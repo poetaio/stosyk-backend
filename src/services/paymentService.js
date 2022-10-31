@@ -1,10 +1,11 @@
 const fetch = require("node-fetch");
 const {logger} = require("../utils");
 const {Subpackage, Teacher} = require('../db/models');
+const {schoolService} = require("../../services/school");
 
 class PaymentService {
 
-    async checkUserPackage(packageId, lastPaymentDate){
+    async checkUserPackage(packageId, lastPaymentDate, teacherId){
         const subpackage = this.findPackageById()
         const dateNow = [new Date().getDay(), new Date().getMonth(), new Date().getFullYear()]
         let months = (dateNow[2] - lastPaymentDate.getFullYear())*12
@@ -18,6 +19,12 @@ class PaymentService {
                 return false
             }
         }
+        const school =  await schoolService.getOneByTeacherId(teacherId)
+
+        if(!school || subpackage.seats < school.studentsSeatsCount){
+            return false
+        }
+
         return true
     }
 
