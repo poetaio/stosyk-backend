@@ -1,4 +1,4 @@
-const {GraphQLNonNull, GraphQLID, GraphQLBoolean, GraphQLList, GraphQLString} = require("graphql");
+const {GraphQLNonNull, GraphQLID, GraphQLBoolean, GraphQLString} = require("graphql");
 const {invoiceStatusType} = require("./types");
 const {paymentController} = require("../../controllers");
 const {resolveAuthMiddleware} = require("../../middleware");

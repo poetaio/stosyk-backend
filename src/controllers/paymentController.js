@@ -27,7 +27,11 @@ class PaymentController {
         if (!teacher) {
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
         }
-        return paymentService.checkUserPackage(teacher.packageId, teacher.lastPaymentDate, teacher.teacherId)
+        const school = await schoolService.getOneByTeacherId(teacher.teacherId)
+        if(!school ){
+            throw new ValidationError(`User with id ${userId} has no school`);
+        }
+        return paymentService.checkUserPackage(teacher.packageId, teacher.lastPaymentDate, school.studentsSeatsCount)
     }
 
     async getUserCards({user: {userId}}){

@@ -1,27 +1,25 @@
 const fetch = require("node-fetch");
 const {logger} = require("../utils");
 const {Subpackage, Teacher} = require('../db/models');
-const {schoolService} = require("../services");
 
 class PaymentService {
 
-    async checkUserPackage(packageId, lastPaymentDate, teacherId){
-        const subpackage = this.findPackageById()
+    async checkUserPackage(packageId, lastPaymentDate, seatsInSchool){
+        const pack = this.findPackageById()
         const dateNow = [new Date().getDay(), new Date().getMonth(), new Date().getFullYear()]
         let months = (dateNow[2] - lastPaymentDate.getFullYear())*12
         months -=  lastPaymentDate.getMonth()
         months += dateNow[1]
-        if(months > subpackage.months){
+        if(months > pack.months){
             return false
         }
-        if(months == subpackage.months){
+        if(months == pack.months){
             if(dateNow[0]>lastPaymentDate.getDay()){
                 return false
             }
         }
-        const school =  await schoolService.getOneByTeacherId(teacherId)
 
-        if(!school || subpackage.seats < school.studentsSeatsCount){
+        if(pack.seats < seatsInSchool){
             return false
         }
 
@@ -82,16 +80,17 @@ class PaymentService {
     }
 
     async addSubPackage(seats, months, priceUAH, priceUSD){
-        const packageId = await this.findPackageBySeatsAndMonths(seats, months)
-        if(packageId){
-            await Subpackage.update({
+        const pack = await this.findPackageBySeatsAndMonths(seats, months)
+        if(pack){
+            const upd = await Subpackage.update({
                 priceUAH,
                 priceUSD
             },{
                 where: {
-                    packageId
+                    packageId: pack.packageId
                 }
             })
+            return !!upd[0]
         }
         const subpackage = await Subpackage.create({
             seats, months, priceUAH, priceUSD
@@ -116,13 +115,6 @@ class PaymentService {
         const variables = {
             amount: packagePrice*100
         }
-        await Teacher.update({
-                packageId
-        }, {
-            where: {
-                teacherId
-            }
-        })
         const result = await fetch('https://api.monobank.ua/api/merchant/invoice/create', {
             method: 'post',
             headers: {
@@ -138,7 +130,7 @@ class PaymentService {
                 logger.info(e)
             })
 
-        Teacher.update({
+        await Teacher.update({
             packageId: packageId
         },
             {
@@ -153,9 +145,11 @@ class PaymentService {
         cardTokens.map(async (el) => {
             if(cardMask === await this.getCardMaskByToken(el)){
                 paymentCardToken = el
-                return
             }
         })
+        if(!paymentCardToken){
+            return false
+        }
         const variables = {
             cardToken: paymentCardToken,
             amount: packagePrice*100
