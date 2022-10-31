@@ -8,6 +8,7 @@ const {sequelize} = require('./db/models');
 // servers
 const createExpressServer = require('./servers/createExpressServer');
 const createWSServer = require('./servers/createWSServer');
+const {logger} = require("./utils");
 
 
 // object to manage events' publishing and subscriptions

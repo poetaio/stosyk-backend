@@ -7,9 +7,11 @@ const {
     scoreService,
     studentLessonService,
 } = require('../../services');
-const {LessonMarkup, allLessonsBySchoolIdInclude} = require("../../db/models");
+const {LessonMarkup, allLessonMarkupsBySchoolIdInclude, allLessonsBySchoolIdInclude, Lesson, Course} = require("../../db/models");
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError, NotFoundError} = require("../../utils");
+const Sequelize = require("sequelize");
+const {Op} = Sequelize;
 
 class LessonController {
     async createLesson({ lesson }, { user: { userId } }) {
@@ -225,13 +227,53 @@ class LessonController {
 
     async getLessonsBySchoolId({schoolId}) {
         const markups = await LessonMarkup.findAll({
-            include: allLessonsBySchoolIdInclude(schoolId),
+            include: allLessonMarkupsBySchoolIdInclude(schoolId),
         });
 
         const lessons = await Promise.all(
             markups.map(({lessonMarkupId}) =>
                 lessonService.getLessonsByMarkup(lessonMarkupId)
         ));
+        return lessons.flat();
+    }
+
+    async getLessonsBySchoolIdAndWhere({schoolId}, {where}) {
+        const {lessonId, courseId, name} = where || {};
+        // todo: refactor, move to services
+        if (lessonId) {
+            const lesson = await Lesson.findOne({
+                where: {lessonId},
+                include: allLessonsBySchoolIdInclude(schoolId)
+            });
+            return lesson ? [lesson] : [];
+        }
+
+        if (courseId) {
+            const course = await Course.findOne({
+                where: { courseId, schoolId }
+            });
+            if (!course) {
+                throw new NotFoundError(`No course ${courseId} found in school`);
+            }
+            return await lessonService.getLessonsByCourse(courseId, name);
+        }
+
+        const markups = await LessonMarkup.findAll({
+            include: allLessonMarkupsBySchoolIdInclude(schoolId),
+            where: {
+                name: Sequelize.where(
+                    Sequelize.fn('lower', Sequelize.col('name')),
+                    {
+                        [Op.like]: `%${name.toLowerCase()}%`
+                    }
+                ),
+            }
+        });
+
+        const lessons = await Promise.all(
+            markups.map(({lessonMarkupId}) =>
+                lessonService.getLessonsByMarkup(lessonMarkupId)
+            ));
         return lessons.flat();
     }
 }

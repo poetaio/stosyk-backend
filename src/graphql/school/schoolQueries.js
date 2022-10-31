@@ -1,34 +1,37 @@
-const {GraphQLNonNull, GraphQLList, GraphQLInt} = require("graphql");
-const {SchoolStudentSeatType} = require("./types");
-const {schoolController} = require("../../controllers/school");
+const {GraphQLNonNull, GraphQLList, GraphQLID} = require("graphql");
+const {TeacherSchoolType, StudentSchoolType} = require("./types");
+const {schoolController, invitationController} = require("../../controllers/school");
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
-const {StudentType, SchoolStudentType} = require("../user/types");
+const {SchoolInvitationType} = require("./types/invitation");
 
-// resolve for students
-const schoolSeats = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(SchoolStudentSeatType))),
-    name: 'schoolSeats',
-    description: 'Get all seats for teacher\'s school',
-    resolve: async (parent, args, context) => await schoolController.getSeats(context)
+const myInvitations = {
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(SchoolInvitationType))),
+    name: 'myInvitations',
+    description: 'Invite school student',
+    resolve: async (parent, args, context) => await invitationController.getStudentInvitations(context)
 };
 
-const schoolStudents = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(SchoolStudentType))),
-    name: 'schoolStudents',
-    description: 'Get all students for teacher\'s school',
-    resolve: async (parent, args, context) => await schoolController.getStudents(context)
+const teacherSchool = {
+    type: new GraphQLNonNull(TeacherSchoolType),
+    name: 'teacherSchool',
+    description: 'School. (teacher)',
+    resolve: async (parent, args, context) => await schoolController.getSchool(context)
 };
 
-const freeSeatCount = {
-    type: GraphQLNonNull(GraphQLInt),
-    name: 'freeSeatCount',
-    description: 'Get number of free seats',
-    resolve: async (parent, args, context) => await schoolController.getFreeSeatsCount(context)
+const studentSchools = {
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentSchoolType))),
+    name: 'studentSchools',
+    description: 'School (student).',
+    args: {
+        schoolId: { type: GraphQLID },
+    },
+    resolve: async (parent, args, context) => await schoolController.getStudentSchools(args, context)
 };
 
 module.exports = {
-    schoolSeats: resolveAuthMiddleware(UserRoleEnum.TEACHER)(schoolSeats),
-    schoolStudents: resolveAuthMiddleware(UserRoleEnum.TEACHER)(schoolStudents),
-    freeSeatCount: resolveAuthMiddleware(UserRoleEnum.TEACHER)(freeSeatCount),
+    teacherSchool: resolveAuthMiddleware(UserRoleEnum.TEACHER)(teacherSchool),
+    studentSchools: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentSchools),
+
+    myInvitations: resolveAuthMiddleware(UserRoleEnum.STUDENT)(myInvitations),
 };

@@ -4,6 +4,6 @@ module.exports = new GraphQLInputObjectType({
     name: 'HomeworkInputType',
     description: 'Homework Input Type',
     fields: {
-        tasks: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskInputType)))},
+        tasks: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TaskInputType)))},
     }
 });

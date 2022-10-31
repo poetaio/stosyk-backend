@@ -12,10 +12,10 @@ let client;
         logger.info(`Created connection to Redis`);
         logger.info(`Creating Redis client..`);
 
-        client.on('error', (err) => logger.error('Redis client error: ', err));
-        client.on('connect', () => logger.info('Redis client is connected'));
-        client.on('reconnecting', () => logger.info('Redi client is reconnecting'));
-        client.on('ready', () => logger.info('Redis client is ready'));
+        client.on('error', (err) => logger.debug('Redis client error: ', err));
+        client.on('connect', () => logger.debug('Redis client is connected'));
+        client.on('reconnecting', () => logger.debug('Redi client is reconnecting'));
+        client.on('ready', () => logger.debug('Redis client is ready'));
 
         logger.info(`Connected to Redis client`);
     } catch (e) {

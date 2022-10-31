@@ -4,13 +4,20 @@ const {
     SchoolTeacher,
     SchoolStudentSeat,
     Student,
-    allStudentsBySchoolIdInclude, allSeatsByStudentEmailInclude, studentAccountInclude
+    allStudentsBySchoolIdInclude,
+    studentAccountInclude, allSeatsByStudentEmailInclude, seatStatus, allSchoolsByStudentIdInclude, schoolStudentStatus,
+    schoolStudentJoinedAt,
 } = require("../../db/models");
-const {SchoolTeacherAccessEnum, SchoolStudentSeatStatusEnum, ValidationError, normalizeDate, emailTransport, logger} = require("../../utils");
-const {Op, literal, fn} = require('sequelize');
-const {tokenService} = require("../user");
+const {
+    SchoolTeacherAccessEnum,
+    normalizeDate,
+    SchoolInvitationStatusEnum,
+    logger,
+} = require("../../utils");
+const {Op} = require('sequelize');
 const Sequelize = require("sequelize");
 const {emailService, emailFactoryService} = require("../email");
+const teacherService = require("../user/teacherService");
 
 class SchoolService {
     async getOneByTeacherId(teacherId) {
@@ -31,7 +38,15 @@ class SchoolService {
         return await SchoolStudentSeat.count({
             where: {
                 schoolId,
-                status: SchoolStudentSeatStatusEnum.FREE
+                studentId: null,
+            },
+        });
+    }
+
+    async countSeats(schoolId) {
+        return await SchoolStudentSeat.count({
+            where: {
+                schoolId,
             },
         });
     }
@@ -48,7 +63,7 @@ class SchoolService {
     }
 
     async create(teacherId) {
-        return await this.createWithName(teacherId, "default name");
+        return await this.createWithName(teacherId, null);
     }
 
     async addStudentSeat(schoolId) {
@@ -70,7 +85,10 @@ class SchoolService {
         return await SchoolStudentSeat.findAll({
             raw: true,
             attributes: {
-                include: [['schoolStudentSeatId', 'seatId']],
+                include: [
+                    ['schoolStudentSeatId', 'seatId'],
+                    seatStatus,
+                ],
             },
             where: {schoolId},
         });
@@ -80,119 +98,23 @@ class SchoolService {
         return await SchoolStudentSeat.findOne({
             where: {
                 schoolId,
-                status: SchoolStudentSeatStatusEnum.FREE,
+                studentId: null,
             },
         });
     }
 
-    /**
-     * Remove all invites which are expired (joinedAt < now() - 24h)
-     */
-    async updateOutdatedInvitedSeats(schoolId) {
-        await SchoolStudentSeat.update({
-            inviteEmail: "",
-            joinedAt: null,
-            status: SchoolStudentSeatStatusEnum.FREE,
-        }, {
-            where: {
-                schoolId,
-                status: SchoolStudentSeatStatusEnum.INVITED,
-                joinedAt: {[Op.lt]: (normalizeDate(new Date(new Date().getTime() - 60 * 60 * 24 * 1000)))}
-            }
-        });
+    async sendInvite(inviteEmail, schoolOrTeacherName, invitationId) {
+        emailService.sendEmail(emailFactoryService.createInvitationEmail(inviteEmail, schoolOrTeacherName, invitationId));
     }
 
-    async isStudentSeated(schoolId, studentEmail) {
-        return !!await SchoolStudentSeat.count({
-            include: allSeatsByStudentEmailInclude(studentEmail),
-            where: {
-                schoolId,
-                status: [SchoolStudentSeatStatusEnum.OCCUPIED],
-            }
-        });
-    }
-
-    async isStudentInvited(schoolId, studentEmail) {
-        return !!await SchoolStudentSeat.count({
-            where: {
-                schoolId,
-                inviteEmail: studentEmail,
-                status: [SchoolStudentSeatStatusEnum.INVITED],
-            }
-        });
-    }
-
-    async sendInvite(schoolId, schoolName, inviteEmail) {
-        if (
-            await this.isStudentSeated(schoolId, inviteEmail) ||
-            await this.isStudentInvited(schoolId, inviteEmail)
-        ) {
-            return;
-        }
-
-        const seat = await this.getFreeSeat(schoolId);
-        await SchoolStudentSeat.update({
-            status: SchoolStudentSeatStatusEnum.INVITED,
-            inviteEmail,
-            joinedAt: normalizeDate(new Date()),
-        }, {
-            where: {
-                schoolStudentSeatId: seat.schoolStudentSeatId,
-            },
-        })
-        // generate jwt with 24h invite and seat id in it
-        const inviteToken = await tokenService.createSchoolStudentInviteToken(inviteEmail);
-
-        // console.log it instead of sending
-        if ("production" !== process.env.NODE_ENV) {
-            console.log(`INFO: Generated invite to school ${schoolId} jwt for student with email ${inviteEmail}: ${inviteToken}`);
-        }
-
-        emailService.sendEmail(emailFactoryService.createInvitationEmail(schoolName, inviteEmail, inviteToken));
-    }
-
-    async inviteStudentWithSchoolName(schoolId, schoolName, inviteEmail) {
-        await this.updateOutdatedInvitedSeats(schoolId);
-
-        if (!await this.countFreeSeats(schoolId)) {
-            throw new ValidationError(`No free seats for school ${schoolId}`);
-        }
-
-        this.sendInvite(schoolId, schoolName, inviteEmail);
-
-        return true;
-    }
-
-    async inviteStudent(schoolId, studentId) {
-        const { name: schoolName } = this.getOneById(schoolId);
-        return await this.inviteStudentWithSchoolName(schoolId, schoolName, studentId);
-    }
-
-    async cancelInviteSchoolStudent(schoolId, inviteEmail) {
-        SchoolStudentSeat.update({
-            joinedAt: null,
-            inviteEmail: "",
-            status: SchoolStudentSeatStatusEnum.FREE,
-        }, {
-            where: {
-                schoolId,
-                inviteEmail,
-            }
-        });
-
-        return true;
-    }
-
-    async occupySeat(inviteEmail, studentId) {
+    async occupySeat(schoolStudentSeatId, studentId) {
         const upd = await SchoolStudentSeat.update({
-            status: SchoolStudentSeatStatusEnum.OCCUPIED,
             joinedAt: normalizeDate(new Date()),
-            inviteEmail: null,
             studentId,
+            status: SchoolInvitationStatusEnum.ACCEPTED
         }, {
             where: {
-                inviteEmail,
-                status: SchoolStudentSeatStatusEnum.INVITED,
+                schoolStudentSeatId,
             },
         });
 
@@ -200,15 +122,14 @@ class SchoolService {
     }
 
     async removeStudent(schoolId, studentId) {
-        SchoolStudentSeat.update({
+        const upd = await SchoolStudentSeat.update({
             studentId: null,
             joinedAt: null,
-            status: SchoolStudentSeatStatusEnum.FREE
         }, {
             where: {schoolId, studentId}
         });
 
-        return true;
+        return !!upd[0];
     }
 
     async getStudents(schoolId) {
@@ -219,7 +140,6 @@ class SchoolService {
             ],
             attributes: {
                 include: [
-                    [Sequelize.col('seats.status'), 'status'],
                     [Sequelize.col('user.account.login'), 'email'],
                 ],
             },
@@ -231,6 +151,69 @@ class SchoolService {
                 return student;
             }
         ));
+    }
+
+    async existsSchoolSeat(schoolId, schoolStudentSeatId) {
+        return !!await SchoolStudentSeat.count({
+            where: { schoolId, schoolStudentSeatId },
+        })
+    }
+
+    async isSeatOccupiedBySeatId(schoolStudentSeatId) {
+        return !!await SchoolStudentSeat.count({
+            where: {
+                schoolStudentSeatId,
+                studentId: {
+                    [Op.ne]: null
+                }
+            },
+        });
+    }
+
+    async removeSeat(schoolStudentSeatId) {
+        return !!await SchoolStudentSeat.destroy({
+            where: {
+                schoolStudentSeatId,
+            },
+        });
+    }
+
+    async isStudentInSchool(schoolId, studentEmail) {
+        return !!await SchoolStudentSeat.count({
+            where: {schoolId},
+            include: allSeatsByStudentEmailInclude(studentEmail),
+        })
+    }
+
+    async renameSchool(schoolId, newName) {
+        const upd = await School.update({
+            name: newName
+        }, {
+            where: {schoolId}
+        });
+
+        return !!upd[0];
+    }
+
+    async getAllByStudentId(studentId) {
+        return await School.findAll({
+            include: allSchoolsByStudentIdInclude(studentId),
+            attributes: {
+                include: [schoolStudentStatus, schoolStudentJoinedAt]
+            },
+            raw: true,
+        });
+    }
+
+    async getOneByIdAndStudentId(schoolId, studentId) {
+        return await School.findOne({
+            where: {schoolId},
+            include: allSchoolsByStudentIdInclude(studentId),
+            attributes: {
+                include: [schoolStudentStatus, schoolStudentJoinedAt]
+            },
+            raw: true,
+        });
     }
 }
 

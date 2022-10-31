@@ -11,11 +11,11 @@ module.exports = new GraphQLObjectType({
     name: "StudentLessonResultType",
     description: "Student with results",
     fields: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
-        name: { type: GraphQLNonNull(GraphQLString) },
+        lessonId: { type: new GraphQLNonNull(GraphQLID) },
+        name: { type: new GraphQLNonNull(GraphQLString) },
         progress: {
             // value in percents
-            type: GraphQLNonNull(GraphQLFloat),
+            type: GraphQLFloat,
             resolve: async (parent, args, context) =>
                 await lessonController.getStudentProgress(parent),
         },
@@ -26,7 +26,7 @@ module.exports = new GraphQLObjectType({
                 await lessonController.getTotalScore(parent),
         },
         homeworkResults: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentHomeworkResultType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentHomeworkResultType))),
             resolve: async (parent, args, context) => {
                 const homeworkModels = await homeworkController.getAllByLessonId(parent);
                 return homeworkModels.map(homeworkModel => {

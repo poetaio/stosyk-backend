@@ -1,4 +1,4 @@
-const {hashPassword, emailTransport} = require("../../utils");
+const {hashPassword, emailTransport, logger} = require("../../utils");
 const {Account, User} = require("../../db/models");
 const emailFactoryService = require('../email/emailFactoryService')
 const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
@@ -91,7 +91,7 @@ class AccountService {
             }
         });
         if ("production" !== process.env.NODE_ENV) {
-            console.log(`Sent verification code to email ${email}: ${verificationCode}`)
+            logger.debug(`Sent verification code to email ${email}: ${verificationCode}`)
         }
         return true
     }

@@ -7,9 +7,9 @@ module.exports = new GraphQLObjectType({
     name: "QuestionCorrectAnswersType",
     description: "Contains all correct options",
     fields: {
-        questionId: { type: GraphQLNonNull(GraphQLID) },
+        questionId: { type: new GraphQLNonNull(GraphQLID) },
         correctOption: {
-            type: GraphQLNonNull(OptionAnswerType),
+            type: new GraphQLNonNull(OptionAnswerType),
             resolve: async (parent, args, context) => await optionController.getQuestionCorrectOption(parent),
         }
     },

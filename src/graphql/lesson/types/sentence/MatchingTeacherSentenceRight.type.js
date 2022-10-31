@@ -7,7 +7,7 @@ module.exports = new GraphQLObjectType({
     name: 'MatchingTeacherSentenceRightType',
     description: 'MatchingTeacherSentenceRightType. Contains id and value',
     fields: {
-        optionId: { type: GraphQLNonNull(GraphQLID) },
-        value: { type: GraphQLNonNull(GraphQLString) },
+        optionId: { type: new GraphQLNonNull(GraphQLID) },
+        value: { type: new GraphQLNonNull(GraphQLString) },
     }
 });

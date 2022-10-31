@@ -22,15 +22,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define('schoolStudentSeat',
             key: 'studentId',
         }
     },
-    status: {
-        type: DataTypes.ENUM(...Object.values(SchoolStudentSeatStatusEnum)),
-        allowNull: false,
-        defaultValue: SchoolStudentSeatStatusEnum.FREE
-    },
     joinedAt: {
         type: DataTypes.DATE,
-    },
-    inviteEmail: {
-        type: DataTypes.STRING,
     },
 });

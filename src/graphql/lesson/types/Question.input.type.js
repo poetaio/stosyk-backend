@@ -5,8 +5,8 @@ module.exports = new GraphQLInputObjectType({
     name: "QuestionInputType",
     description: "Question Input Type",
     fields: {
-        index: { type: GraphQLNonNull(GraphQLInt) },
-        text: { type: GraphQLNonNull(GraphQLString) },
-        options: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OptionInputType))) }
+        index: { type: new GraphQLNonNull(GraphQLInt) },
+        text: { type: new GraphQLNonNull(GraphQLString) },
+        options: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(OptionInputType))) }
     },
 });

@@ -5,8 +5,8 @@ module.exports = new GraphQLObjectType({
     name: "TeacherOptionType",
     description: "Teacher option  type",
     fields: {
-        optionId: { type: GraphQLNonNull(GraphQLID) },
-        value: { type: GraphQLNonNull(GraphQLString) },
-        isCorrect: { type: GraphQLNonNull(GraphQLBoolean) }
+        optionId: { type: new GraphQLNonNull(GraphQLID) },
+        value: { type: new GraphQLNonNull(GraphQLString) },
+        isCorrect: { type: new GraphQLNonNull(GraphQLBoolean) }
     }
 });

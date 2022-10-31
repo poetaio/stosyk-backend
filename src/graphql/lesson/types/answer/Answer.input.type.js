@@ -10,11 +10,11 @@ module.exports = new GraphQLInputObjectType({
     name: "AnswerInputType",
     description: "Contains lessonId, taskId and type, and one of corresponding to type objects",
     fields: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
-        taskId: { type: GraphQLNonNull(GraphQLID) },
+        lessonId: { type: new GraphQLNonNull(GraphQLID) },
+        taskId: { type: new GraphQLNonNull(GraphQLID) },
 
         // corresponding object is not null
-        type: { type: GraphQLNonNull(TaskTypeEnumType) },
+        type: { type: new GraphQLNonNull(TaskTypeEnumType) },
 
         multipleChoice: { type: MultipleChoiceAnswerInputType },
         plainInput: { type: PlainInputAnswerInputType },

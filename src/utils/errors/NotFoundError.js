@@ -1,9 +1,15 @@
 const httpStatusCodes = require("../httpStatusCodes");
 const BaseError = require("./BaseError");
+const {GraphQLError} = require("graphql");
 
-class NotFoundError extends BaseError {
-    constructor(message) {
-        super('Unauthorized', httpStatusCodes.NOT_FOUND, message);
+class NotFoundError extends GraphQLError {
+    constructor(message, errorCode) {
+        super(message, {
+            extensions: {
+                errorCode: errorCode || 4000,
+                errorName: "Not Found Error"
+            }
+        });
     }
 }
 

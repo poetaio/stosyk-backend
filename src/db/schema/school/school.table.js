@@ -9,6 +9,7 @@ module.exports = (DataTypes) => ['schools', {
         allowNull: false,
         unique: true,
     },
+    // todo: I doubt the need on this, if we can count seats, and there is no case when there is this value, but no seats
     studentsSeatsCount: {
         type: DataTypes.INTEGER,
         allowNull: false,

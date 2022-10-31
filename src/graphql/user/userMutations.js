@@ -22,17 +22,17 @@ const createAnonymousStudent = {
     name: 'createAnonymousStudent',
     description: "Create Anonymous Student",
     args: {
-        name: {type: GraphQLNonNull(GraphQLString)},
+        name: {type: new GraphQLNonNull(GraphQLString)},
     },
     resolve: async (parent, args, context) => await studentController.createAnonymous(args)
 };
 
 const studentProfile = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: "StudentProfile",
     description: "Update student profile",
     args: {
-        studentProfile: { type: GraphQLNonNull(StudentProfileInputType)},
+        studentProfile: { type: new GraphQLNonNull(StudentProfileInputType)},
     },
     resolve: async (parent, args, context) => await studentController.updateProfile(args, context)
 }
@@ -51,7 +51,7 @@ const registerUser = {
     name: 'registerUser',
     description: 'Register User',
     args: {
-        user: { type: GraphQLNonNull(UserAccInputType) }
+        user: { type: new GraphQLNonNull(UserAccInputType) }
     },
     resolve: async (parent, args, context) => await accountController.registerUser(args, context)
 }
@@ -61,71 +61,71 @@ const loginUser = {
     name: 'loginUser',
     description: 'Login User',
     args: {
-        user: { type: GraphQLNonNull(UserLoginInputType) }
+        user: { type: new GraphQLNonNull(UserLoginInputType) }
     },
     resolve: async (parent, args, context) => await accountController.loginUser(args)
 };
 
 
 const confirmEmail = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'confirmEmail',
     description: 'Confirm Email',
     args: {
-        confirmationCode: {type: GraphQLNonNull(GraphQLString)}
+        confirmationCode: {type: new GraphQLNonNull(GraphQLString)}
     },
     resolve: async (parent, args, context) => await accountController.confirmEmail(args)
 }
 
 const resetPassword = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'resetPassword',
     description: 'Reset password',
     args: {
-        resetPassCode: {type: GraphQLNonNull(GraphQLString)},
-        password: {type: GraphQLNonNull(GraphQLString)}
+        resetPassCode: {type: new GraphQLNonNull(GraphQLString)},
+        password: {type: new GraphQLNonNull(GraphQLString)}
     },
     resolve: async (parent, args, context) => await accountController.resetPassword(args)
 }
 
 const changeEmail = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'changeEmail',
     description: 'Change Email',
     args:{
-        newEmail: {type: GraphQLNonNull(GraphQLString)},
-        password: {type: GraphQLNonNull(GraphQLString)}
+        newEmail: {type: new GraphQLNonNull(GraphQLString)},
+        password: {type: new GraphQLNonNull(GraphQLString)}
     },
     resolve: async (parent, args, context) => await accountController.changeEmail(args, context)
 }
 
 const changeName = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'changeName',
     description: 'Change name',
     args:{
-        newName: {type: GraphQLNonNull(GraphQLString)}
+        newName: {type: new GraphQLNonNull(GraphQLString)}
     },
     resolve: async (parent, args, context) => await accountController.changeName(args, context)
 }
 
 const changePassword = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'changePassword',
     description: 'Change Password',
     args:{
-        oldPassword: {type: GraphQLNonNull(GraphQLString)},
-        newPassword: {type: GraphQLNonNull(GraphQLString)}
+        oldPassword: {type: new GraphQLNonNull(GraphQLString)},
+        newPassword: {type: new GraphQLNonNull(GraphQLString)}
     },
     resolve: async (parent, args, context) => await accountController.changePassword(args, context)
 }
 
 const changeAvatar = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'changeAvatar',
     description: 'Change Avatar',
     args: {
-        name: { type: GraphQLNonNull(GraphQLString)},
+        name: { type: new GraphQLNonNull(GraphQLString)},
     },
     resolve: async  (parent, args, context) => await accountController.changeAvatar(args, context)
 }

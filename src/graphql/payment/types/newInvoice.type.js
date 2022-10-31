@@ -4,7 +4,7 @@ module.exports = new GraphQLObjectType({
     name: "NewInvoiceType",
     description: "New Invoice Type",
     fields: {
-        invoiceId: { type: GraphQLNonNull(GraphQLID) },
-        pageUrl: { type: GraphQLNonNull(GraphQLString) }
+        invoiceId: { type: new GraphQLNonNull(GraphQLID) },
+        pageUrl: { type: new GraphQLNonNull(GraphQLString) }
     },
 });

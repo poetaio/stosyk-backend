@@ -6,7 +6,7 @@ module.exports = new GraphQLObjectType({
     name: 'GapStudentAnswersType',
     description: 'Gap student answers type',
     fields: {
-        gapId: { type: GraphQLNonNull(GraphQLID) },
-        studentsAnswers: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentAnswerType))) }
+        gapId: { type: new GraphQLNonNull(GraphQLID) },
+        studentsAnswers: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentAnswerType))) }
     }
 });

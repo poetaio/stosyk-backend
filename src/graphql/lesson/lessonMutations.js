@@ -35,11 +35,11 @@ const createLesson = {
 };
 
 const startLesson = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'startLesson',
     description: 'Start Lesson',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) }
+        lessonId: { type: new GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args, context) => await lessonController.startLesson(args, context)
 };
@@ -49,7 +49,7 @@ const finishLesson = {
     name: 'finishLesson',
     description: 'Finish Lesson',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) }
+        lessonId: { type: new GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args, context) => await lessonController.finishLesson(args, context)
 };
@@ -59,7 +59,7 @@ const showAnswers = {
     name: 'showAnswers',
     description: 'Show Answers Of a task',
     args: {
-        taskId: { type: GraphQLNonNull(GraphQLID) }
+        taskId: { type: new GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args, context) => await taskController.showAnswers(args, context)
 }
@@ -69,20 +69,9 @@ const deleteLesson = {
     name: 'deleteLesson',
     description: 'Delete Lesson',
     args:{
-        lessonId: { type: GraphQLNonNull(GraphQLID) }
+        lessonId: { type: new GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args, context) => await lessonController.deleteLesson(args, context)
-}
-
-const joinLesson = {
-    type: GraphQLBoolean,
-    name: 'joinLesson',
-    description: 'Join Lesson',
-    args:{
-        lessonId: { type: GraphQLNonNull(GraphQLID) }
-    },
-    resolve: async (parent, args, context) => await lessonController.joinLesson(args, context)
-
 }
 
 const setAnswer = {
@@ -90,7 +79,7 @@ const setAnswer = {
     name: 'setAnswer',
     description: 'Set Answer',
     args: {
-        answer: { type: GraphQLNonNull(AnswerInputType)}
+        answer: { type: new GraphQLNonNull(AnswerInputType)}
     },
     resolve: async (parent, args, context) => await lessonController.setAnswer(args, context)
 }
@@ -100,28 +89,18 @@ const setStudentCurrentPosition = {
     name: 'setStudentCurrentPosition',
     description: 'Set Student Current Position',
     args:{
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
-        taskId: { type: GraphQLNonNull(GraphQLID) }
+        lessonId: { type: new GraphQLNonNull(GraphQLID) },
+        taskId: { type: new GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args, context) => await lessonController.setStudentCurrentPosition(args, context)
 }
 
-const studentLeaveLesson = {
-    type: GraphQLBoolean,
-    name: 'studentLeaveLesson',
-    description: 'Student Leave Lesson',
-    args: {
-        lessonId: {type: GraphQLNonNull(GraphQLID)}
-    },
-    resolve: async  (parent, args, context) => await lessonController.studentLeaveLesson(args, context)
-}
-
 const createCourse = {
-    type: GraphQLNonNull(GraphQLID),
+    type: new GraphQLNonNull(GraphQLID),
     name: 'createCourse',
     description: 'Create Course',
     args: {
-        name: {type: GraphQLNonNull(GraphQLString)}
+        name: {type: new GraphQLNonNull(GraphQLString)}
         // todo: Add initial list of lessons or lesson ids
         // or even full lessons from scratch
     },
@@ -129,97 +108,97 @@ const createCourse = {
 }
 
 const addLessonToCourse = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'addLessonToCourse',
     description: 'Add Lesson to Course',
     args: {
-        courseId: {type: GraphQLNonNull(GraphQLID)},
-        lessonId: {type: GraphQLNonNull(GraphQLID)}
+        courseId: {type: new GraphQLNonNull(GraphQLID)},
+        lessonId: {type: new GraphQLNonNull(GraphQLID)}
     },
     resolve: async  (parent, args, context) => await courseController.addLessonToCourse(args, context)
 }
 
 const removeLessonFromCourse = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'removeLessonFromCourse',
     description: 'Remove Lesson from Course',
     args:{
-        courseId: {type: GraphQLNonNull(GraphQLID)},
-        lessonId: {type: GraphQLNonNull(GraphQLID)}
+        courseId: {type: new GraphQLNonNull(GraphQLID)},
+        lessonId: {type: new GraphQLNonNull(GraphQLID)}
     },
     resolve: async  (parent, args, context) => await courseController.removeLessonFromCourse(args, context)
 }
 
 const deleteCourse = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'deleteCourse',
     description: 'Delete Course',
     args: {
-        courseId: {type: GraphQLNonNull(GraphQLID)},
+        courseId: {type: new GraphQLNonNull(GraphQLID)},
     },
     resolve: async (parent, args, context) => await courseController.deleteCourse(args, context)
 }
 
 const renameCourse = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'renameCourse',
     description: 'Rename Course',
     args: {
-        courseId: {type: GraphQLNonNull(GraphQLID)},
-        newName: {type: GraphQLNonNull(GraphQLString)}
+        courseId: {type: new GraphQLNonNull(GraphQLID)},
+        newName: {type: new GraphQLNonNull(GraphQLString)}
     },
     resolve: async (parent, args, context) => await courseController.renameCourse(args, context)
 }
 
 
 const addHomework = {
-    type: GraphQLNonNull(GraphQLID),
+    type: new GraphQLNonNull(GraphQLID),
     name: 'addHomework',
     description: 'Add homework to lesson',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
-        homework: {type: GraphQLNonNull(HomeworkInputType)},
+        lessonId: { type: new GraphQLNonNull(GraphQLID) },
+        homework: {type: new GraphQLNonNull(HomeworkInputType)},
     },
     resolve: async (parent, args, context) => await homeworkController.addHomeworkToLesson(args, context)
 };
 
 const setHomeworkAnswer = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'setHomeworkAnswer',
     description: 'Set homework answer',
     args: {
-        answer: { type: GraphQLNonNull(HomeworkAnswerInputType)}
+        answer: { type: new GraphQLNonNull(HomeworkAnswerInputType)}
     },
     resolve: async (parent, args, context) => await lessonController.setHomeworkAnswer(args, context)
 }
 
 const removeHomework = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'removeHomework',
     description: 'Remove homework from lesson',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
-        homeworkId: {type: GraphQLNonNull(GraphQLID)},
+        lessonId: { type: new GraphQLNonNull(GraphQLID) },
+        homeworkId: {type: new GraphQLNonNull(GraphQLID)},
     },
     resolve: async (parent, args, context) => await homeworkController.removeFromLesson(args, context)
 }
 
 const deleteHomework = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'deleteHomework',
     description: 'Delete homework',
     args: {
-        homeworkId: {type: GraphQLNonNull(GraphQLID)},
+        homeworkId: {type: new GraphQLNonNull(GraphQLID)},
     },
     resolve: async (parent, args, context) => await homeworkController.delete(args, context)
 }
 
 const showHomeworkAnswers = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'ShowHomeworkAnswers',
     description: 'Show homework answers',
     args: {
-        homeworkId: {type: GraphQLNonNull(GraphQLID)},
+        homeworkId: {type: new GraphQLNonNull(GraphQLID)},
     },
     resolve: async (parent, args, context) => await homeworkController.showAnswers(args, context)
 }
@@ -229,7 +208,7 @@ const editLesson = {
     name: 'editLessonTasks',
     description: 'Edit lesson tasks',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) },
+        lessonId: { type: new GraphQLNonNull(GraphQLID) },
         lesson: { type: LessonEditInputType }
     },
     resolve: async (parent, args, context) => await lessonController.editLesson(args, context)
@@ -240,8 +219,8 @@ const editHomework = {
     name: 'addHomework',
     description: 'Edit homework. Note that homeworkId will no longer be valid',
     args: {
-        homeworkId: { type: GraphQLNonNull(GraphQLID) },
-        homework: {type: GraphQLNonNull(HomeworkInputType)},
+        homeworkId: { type: new GraphQLNonNull(GraphQLID) },
+        homework: {type: new GraphQLNonNull(HomeworkInputType)},
     },
     resolve: async (parent, args, context) => await homeworkController.editHomework(args, context)
 }

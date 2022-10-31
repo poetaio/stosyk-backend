@@ -11,7 +11,7 @@ const {
     allLessonsRunByTeacherInclude,
     lessonByHomeworkIdInclude,
     fullLessonMarkupInclude,
-    allLessonsBySchoolIdInclude,
+    allLessonMarkupsBySchoolIdInclude,
     allSchoolLessonsByTeacherIdInclude,
     Gap,
     Sentence,
@@ -21,7 +21,7 @@ const {
     allSchoolMarkupsByTeacherIdInclude,
     TaskList,
     TaskListTask,
-    Option,
+    Option, Course,
 } = require('../../db/models');
 const {
     LessonStatusEnum,
@@ -150,7 +150,7 @@ class LessonService {
     async deleteBySchoolId(schoolId) {
         const markups = await LessonMarkup.findAll({
             include: [
-                allLessonsBySchoolIdInclude(schoolId),
+                allLessonMarkupsBySchoolIdInclude(schoolId),
                 lessonInclude,
             ]
         })
@@ -186,7 +186,7 @@ class LessonService {
     }
 
     async getTeacherLessons(teacherId, whereParam, page, limit) {
-        const {lessonId, name} = whereParam || {};
+        const {courseId, lessonId, name} = whereParam || {};
 
         // if id is specified we return both run and library(protege) lessons
         // otherwise only library
@@ -201,7 +201,7 @@ class LessonService {
 
             return {
                 lessons,
-                total: lessons.length,
+                total: 1,
             };
         }
 
@@ -505,21 +505,33 @@ class LessonService {
         return true;
     }
 
-    async getMarkupsByCourse(courseId) {
+    async getMarkupsByCourse(courseId, name) {
+        let where;
+        if (name) {
+            where = {
+                name: Sequelize.where(
+                    Sequelize.fn('lower', Sequelize.col('name')),
+                    {
+                        [Op.like]: `%${name.toLowerCase()}%`
+                    }
+                ),
+                courseId
+            };
+        } else {
+            where = {courseId};
+        }
         return await LessonMarkup.findAll({
             include: {
                 association: 'courses',
-                where: {
-                    courseId,
-                },
+                where,
                 required: true,
                 attributes: []
             }
         });
     }
 
-    async getLessonsByCourse(courseId) {
-        const markups = await this.getMarkupsByCourse(courseId);
+    async getLessonsByCourse(courseId, name) {
+        const markups = await this.getMarkupsByCourse(courseId, name);
 
         return await this.convertLessonMarkupsToProteges(markups);
     }

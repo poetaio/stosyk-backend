@@ -6,7 +6,7 @@ module.exports = new GraphQLObjectType({
     name: 'GapCorrectAnswersType',
     description: 'Gap Correct Answers Type',
     fields: {
-        gapId: { type: GraphQLNonNull(GraphQLID) },
-        correctAnswers: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OptionAnswerType))) }
+        gapId: { type: new GraphQLNonNull(GraphQLID) },
+        correctAnswers: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(OptionAnswerType))) }
     }
 });

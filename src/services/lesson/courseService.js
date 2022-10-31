@@ -85,6 +85,7 @@ class CourseService {
         });
     }
 
+    // passing func argument to get result to calculate value we need to return for each lesson
     async getStudentResult(courseId, studentId, funcToGetResult) {
         const lessons = await lessonService.getMarkupsByCourse(courseId);
 
@@ -94,7 +95,9 @@ class CourseService {
 
         // todo: fix if... forgot... but something requires to be fixed definitely
         const lessonScores = await Promise.all(
-            lessons.map(({lessonMarkupId}) => funcToGetResult(lessonMarkupId, studentId))
+            lessons
+                .map(({lessonMarkupId}) => funcToGetResult(lessonMarkupId, studentId))
+                .filter(result => result !== null)
         );
 
         const lessonsScoresSum = lessonScores.reduce((sum, next) => sum + next, 0);

@@ -6,8 +6,8 @@ module.exports = new GraphQLInputObjectType({
     name: 'MatchingSentenceInputType',
     description: 'MatchingSentenceInputType. Contains only one right "connect" option, represented by string',
     fields: {
-        index: { type: GraphQLNonNull(GraphQLInt) },
-        text: { type: GraphQLNonNull(GraphQLString) },
-        correctOption: { type: GraphQLNonNull(MatchingOptionInputType) },
+        index: { type: new GraphQLNonNull(GraphQLInt) },
+        text: { type: new GraphQLNonNull(GraphQLString) },
+        correctOption: { type: new GraphQLNonNull(MatchingOptionInputType) },
     }
 });

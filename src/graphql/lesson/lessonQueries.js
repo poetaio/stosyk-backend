@@ -22,13 +22,13 @@ const studentLesson = {
     name: 'studentLesson',
     description: 'Get lesson for student',
     args: {
-        lessonId: { type: GraphQLNonNull(GraphQLID) }
+        lessonId: { type: new GraphQLNonNull(GraphQLID) }
     },
     resolve: async (parent, args, context) => await lessonController.getStudentLesson(args, context)
 };
 
 const getAllCourses = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherCourseType))),
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TeacherCourseType))),
     name: 'getAllCourses',
     description: 'Get All Courses',
     resolve: async (parent, args, context) => await courseController.getAllCourses(context)
@@ -36,27 +36,27 @@ const getAllCourses = {
 
 
 const teacherHomework = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TeacherHomeworkType))),
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TeacherHomeworkType))),
     name: 'teacherHomework',
     description: 'Get teacher homework by lesson id',
     args: {
-        where: { type: GraphQLNonNull(HomeworkWhereInputType)},
+        where: { type: new GraphQLNonNull(HomeworkWhereInputType)},
     },
     resolve: async (parent, args, context) => await homeworkController.getAllForTeacher(args, context),
 }
 
 const studentHomework = {
-    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(StudentHomeworkType))),
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(StudentHomeworkType))),
     name: 'studentHomework',
     description: 'Get student homework by lesson id or by homework id or both',
     args: {
-        where: { type: GraphQLNonNull(HomeworkWhereInputType)},
+        where: { type: new GraphQLNonNull(HomeworkWhereInputType)},
     },
     resolve: async (parent, args, context) => await homeworkController.getAllForStudent(args, context),
 }
 
 const teacherLessonHistory = {
-    type: GraphQLNonNull(TeacherCountedLessonsType),
+    type: new GraphQLNonNull(TeacherCountedLessonsType),
     name: 'teacherLessonHistory',
     description: 'Get all lessons that were run by teacher',
     resolve: async (parent, args, context) => await lessonController.getTeacherLessonHistory(context),

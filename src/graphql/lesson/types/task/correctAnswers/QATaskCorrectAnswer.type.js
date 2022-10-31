@@ -13,7 +13,7 @@ module.exports = new GraphQLObjectType({
     fields: () => ({
         ...taskCorrectAnswersFields,
         questionsAnswers: {
-            type: GraphQLNonNull(GraphQLList(GraphQLNonNull(QuestionCorrectAnswersType))),
+            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(QuestionCorrectAnswersType))),
             resolve: async (parent, args, context) => await sentenceController.getAllQA(parent)
         }
     }),

@@ -6,6 +6,6 @@ module.exports = new GraphQLObjectType({
     name: 'LessonCorrectAnswersType',
     description: 'Lesson Correct Answers Type',
     fields: {
-        tasksAnswers: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(TaskCorrectAnswerInterfaceType))) }
+        tasksAnswers: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TaskCorrectAnswerInterfaceType))) }
     }
 });

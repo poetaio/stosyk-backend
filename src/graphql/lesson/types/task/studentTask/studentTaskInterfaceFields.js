@@ -4,13 +4,13 @@ const {attachmentController} = require("../../../../../controllers");
 const TaskTypeEnumType = require("../TaskTypeEnum.type");
 
 module.exports = {
-    taskId: { type: GraphQLNonNull(GraphQLID) },
-    answersShown: { type: GraphQLNonNull(GraphQLBoolean) },
+    taskId: { type: new GraphQLNonNull(GraphQLID) },
+    answersShown: { type: new GraphQLNonNull(GraphQLBoolean) },
     attachments: {
-        type: GraphQLNonNull(GraphQLList(GraphQLNonNull(AttachmentType))),
+        type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(AttachmentType))),
         resolve: async (parent, args, context) =>
             await attachmentController.getAttachments(parent, args, context)
     },
-    description: { type: GraphQLNonNull(GraphQLString) },
-    type: { type: GraphQLNonNull(TaskTypeEnumType) },
+    description: { type: new GraphQLNonNull(GraphQLString) },
+    type: { type: new GraphQLNonNull(TaskTypeEnumType) },
 };
