@@ -2,6 +2,7 @@ const fetch = require('node-fetch')
 const {logger} = require("../utils");
 const {teacherService, paymentService} = require("../services");
 const ValidationError = require("../utils/errors/ValidationError");
+const {schoolService} = require("../services/school");
 
 class PaymentController {
 
@@ -13,6 +14,10 @@ class PaymentController {
         const teacher = await teacherService.findOneByUserId(userId);
         if (!teacher) {
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+        }
+        const school = await schoolService.getOneByTeacherId(teacher.teacherId)
+        if(!school || school.studentsSeatsCount > seats){
+            throw new ValidationError(`User with id ${userId} has more students than seats in package`);
         }
         return await paymentService.createInvoice(pack.packageId, pack.priceUAH, teacher.teacherId)
     }
@@ -79,6 +84,10 @@ class PaymentController {
         }
         if(!teacher.walletId){
             throw new ValidationError(`Teacher with id ${teacher.teacherId} has no wallet`);
+        }
+        const school = await schoolService.getOneByTeacherId(teacher.teacherId)
+        if(!school || school.studentsSeatsCount > seats){
+            throw new ValidationError(`User with id ${userId} has more students than seats in package`);
         }
         return await paymentService.payByCard(pack.packageId, pack.priceUAH, teacher.teacherId, cardMask, teacher.walletId)
     }

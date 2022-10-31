@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const {logger} = require("../utils");
 const {Subpackage, Teacher} = require('../db/models');
-const {schoolService} = require("../../services/school");
+const {schoolService} = require("../services");
 
 class PaymentService {
 
