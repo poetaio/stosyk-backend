@@ -22,6 +22,17 @@ class PaymentService {
     }
 
     async getUserCards(walletId, defaultCardToken){
+        const cardTokens = await this.getCardTokensFromWallet(walletId)
+        let cardMasks
+        cardTokens.map(async (el) => {
+            let add = await this.getCardMaskByToken(el)
+            cardMasks.push(add)
+        })
+        const defaultCardMask  = await this.getCardMaskByToken(defaultCardToken)
+        return {cardMasks, defaultCardMask}
+    }
+
+    async getCardTokensFromWallet(walletId){
         const variables = {
             walletId: walletId
         }
@@ -39,10 +50,42 @@ class PaymentService {
             .catch((e) => {
                 logger.info(e)
             })
-        return {result, defaultCardToken}
+        return result
+    }
+
+    async getCardMaskByToken(cardToken){
+        const variables = {
+            extRef: cardToken
+        }
+        const res = await fetch('https://api.monobank.ua/api/merchant/wallet/card', {
+            method: 'get',
+            headers: {
+                'X-Token': process.env.MONOBANK_TOKEN,
+            },
+            body: JSON.stringify(variables)
+        })
+            .then(response => response.json())
+            .then(data => {
+                return data
+            })
+            .catch((e) => {
+                logger.info(e)
+            })
+        return res.maskedPan
     }
 
     async addSubPackage(seats, months, priceUAH, priceUSD){
+        const packageId = await this.findPackageBySeatsAndMonths(seats, months)
+        if(packageId){
+            await Subpackage.update({
+                priceUAH,
+                priceUSD
+            },{
+                where: {
+                    packageId
+                }
+            })
+        }
         const subpackage = await Subpackage.create({
             seats, months, priceUAH, priceUSD
         })
@@ -66,6 +109,13 @@ class PaymentService {
         const variables = {
             amount: packagePrice*100
         }
+        await Teacher.update({
+                packageId
+        }, {
+            where: {
+                teacherId
+            }
+        })
         const result = await fetch('https://api.monobank.ua/api/merchant/invoice/create', {
             method: 'post',
             headers: {
@@ -88,6 +138,72 @@ class PaymentService {
                 where: {teacherId}
             })
         return result
+    }
+
+    async payByCard(packageId, packagePrice, teacherId, cardMask, walletId){
+        const cardTokens = this.getCardTokensFromWallet(walletId)
+        let paymentCardToken
+        cardTokens.map(async (el) => {
+            if(cardMask === await this.getCardMaskByToken(el)){
+                paymentCardToken = el
+                return
+            }
+        })
+        const variables = {
+            cardToken: paymentCardToken,
+            amount: packagePrice*100
+        }
+        const result = await fetch('https://api.monobank.ua/api/merchant/wallet/payment', {
+            method: 'post',
+            headers: {
+                'X-Token': process.env.MONOBANK_TOKEN,
+            },
+            body: JSON.stringify(variables)
+        })
+            .then(response => response.json())
+            .then(data => {
+                return data
+            })
+            .catch((e) => {
+                logger.info(e)
+            })
+        if (result.status === 'success') {
+            await Teacher.update({
+                packageId,
+                lastPaymentDate: Date.now(),
+                defaultCardToken: paymentCardToken
+            }, {
+                where: {
+                    teacherId
+                }
+            })
+            return true
+        }
+        return false
+    }
+
+    async addUserCard(teacherId, walletId, cardToken){
+        const res = await Teacher.update({
+            walletId,
+            defaultCard: cardToken
+        },{
+            where:
+                {
+                    teacherId
+                }
+        })
+        return !!res[0]
+    }
+
+    async quickPayment(teacherId){
+        const res = await Teacher.update({
+            lastPaymentDate: Date.now()
+        }, {
+            where:{
+                teacherId
+            }
+        })
+        return !!res[0]
     }
 }
 

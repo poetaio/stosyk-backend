@@ -1,7 +1,9 @@
 const {newInvoiceType} = require("./types");
 const {paymentController} = require("../../controllers");
-const {GraphQLNonNull} = require("graphql");
+const {GraphQLNonNull, GraphQLBoolean, GraphQLString} = require("graphql");
 const {paymentDetailsInputType, subPackageInputType, userCardsType} = require("./types")
+const {resolveAuthMiddleware} = require("../../middleware");
+const {UserRoleEnum} = require("../../utils");
 
 const createInvoice = {
     type: newInvoiceType,
@@ -13,10 +15,21 @@ const createInvoice = {
     resolve: async (parent, args, context) => await paymentController.createInvoice(args, context)
 };
 
-const addSubPackage = {
+const payByCard = {
+    type: GraphQLNonNull(GraphQLBoolean),
+    name: 'PayByCard',
+    description: 'Pay By Card',
+    args: {
+        package: {type: (GraphQLNonNull(paymentDetailsInputType))},
+        cardMask: {type: (GraphQLNonNull(GraphQLString))}
+    },
+    resolve: async (parent, args, context) => await paymentController.payByCard(args, context)
+}
+
+const subPackage = {
     type: userCardsType,
-    name: 'AddSubscriptionPackage',
-    description: 'Add Subscription Package',
+    name: 'subscriptionPackage',
+    description: 'Subscription Package',
     args: {
         package: {type: (GraphQLNonNull(subPackageInputType))}
     },
@@ -24,6 +37,7 @@ const addSubPackage = {
 }
 
 module.exports = {
-    createInvoice,
-    addSubPackage
+    createInvoice: resolveAuthMiddleware(UserRoleEnum.TEACHER)(createInvoice),
+    payByCard: resolveAuthMiddleware(UserRoleEnum.TEACHER)(payByCard),
+    subPackage,
 };

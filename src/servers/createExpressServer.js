@@ -28,8 +28,14 @@ module.exports = (pubsub) => {
 
     app.post('/add-card/:userId', (req, res) => {
         const {userId} = req.params;
-        const {walletId, cardToken, tdsUrl, status} = req.body;
-        paymentController.addUserCard(userId, walletId, cardToken, tdsUrl, status);
+        const {walletId, cardToken, status} = req.body;
+        paymentController.addUserCard(userId, walletId, cardToken, status);
+    })
+
+    app.post('/pay-invoice/:userId', (req, res) => {
+        const {userId} = req.params;
+        const {status} = req.body;
+        paymentController.quickPayment(userId, status);
     })
 
     return [app, app.listen(PORT, () => logger.info(`Server is listening on port ${PORT}`))];
