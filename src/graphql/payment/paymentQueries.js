@@ -17,21 +17,21 @@ const checkInvoiceStatus = {
 };
 
 const checkUserPackage = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'CheckUserPackage',
     description: 'Check User Package',
     resolve: async (parent, args, context) => await paymentController.checkUserPackage(context)
 }
 
 const userCards = {
-    type: GraphQLNonNull(userCardsType),
+    type: new GraphQLNonNull(userCardsType),
     name: 'userCards',
     description: 'user Cards',
     resolve: async (parent, args, context) => await paymentController.getUserCards(context)
 }
 
 const userWalletId = {
-    type: GraphQLNonNull(GraphQLString),
+    type: new GraphQLNonNull(GraphQLString),
     name: 'userWalletId',
     description: 'User Wallet Id',
     resolve: async (parent, args, context) => await paymentController.userWalletId(context)

@@ -4,7 +4,7 @@ module.exports = new GraphQLObjectType({
     name: "UserCardsType",
     description: "UserCardsType",
     fields: {
-        cardTokens: {type: GraphQLNonNull(GraphQLList((GraphQLString)))},
-        defaultCard: {type: GraphQLNonNull(GraphQLString)}
+        cardTokens: {type: new GraphQLNonNull(new GraphQLList((GraphQLString)))},
+        defaultCard: {type: new GraphQLNonNull(GraphQLString)}
     },
 });

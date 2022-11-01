@@ -10,18 +10,18 @@ const createInvoice = {
     name: 'CreateInvoice',
     description: 'Create invoice',
     args:{
-        package: {type: (GraphQLNonNull(paymentDetailsInputType))}
+        package: {type: new GraphQLNonNull(paymentDetailsInputType)}
     },
     resolve: async (parent, args, context) => await paymentController.createInvoice(args, context)
 };
 
 const payByCard = {
-    type: GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLBoolean),
     name: 'PayByCard',
     description: 'Pay By Card',
     args: {
-        package: {type: (GraphQLNonNull(paymentDetailsInputType))},
-        cardMask: {type: (GraphQLNonNull(GraphQLString))}
+        package: {type: new GraphQLNonNull(paymentDetailsInputType)},
+        cardMask: {type: new GraphQLNonNull(GraphQLString)}
     },
     resolve: async (parent, args, context) => await paymentController.payByCard(args, context)
 }
@@ -31,7 +31,7 @@ const subPackage = {
     name: 'subscriptionPackage',
     description: 'Subscription Package',
     args: {
-        package: {type: (GraphQLNonNull(subPackageInputType))}
+        package: {type: new GraphQLNonNull(subPackageInputType)}
     },
     resolve: async (parent, args, context) => await paymentController.addSubPackage(args, context)
 }

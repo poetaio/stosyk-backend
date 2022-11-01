@@ -4,7 +4,7 @@ module.exports = new GraphQLInputObjectType({
     name: "PaymentDetailsInputType",
     description: "Payment Details Input Type",
     fields: {
-        seats: {type :GraphQLNonNull(GraphQLInt)},
-        months: {type: GraphQLNonNull(GraphQLInt)},
+        seats: {type : new GraphQLNonNull(GraphQLInt)},
+        months: {type: new GraphQLNonNull(GraphQLInt)},
     },
 });
