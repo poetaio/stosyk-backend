@@ -210,6 +210,21 @@ class PaymentService {
     async getAllPackages(){
         return await Subpackage.findAll()
     }
+
+    async deleteSubPackage(packageId) {
+        await Teacher.update({
+            packageId: null
+        },{
+            where: {
+                packageId
+            }
+        })
+        return  !!await Subpackage.destroy({
+            where: {
+                packageId
+            }
+        })
+    }
 }
 
 module.exports = new PaymentService();

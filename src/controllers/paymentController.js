@@ -122,6 +122,14 @@ class PaymentController {
         return await paymentService.getAllPackages()
     }
 
+    async deleteSubPackage({packageId}){
+        const pack = await paymentService.findPackageById(packageId)
+        if(!pack){
+            throw new ValidationError(`Package with id ${packageId} not found`);
+        }
+        return await paymentService.deleteSubPackage(packageId)
+    }
+
 }
 
 

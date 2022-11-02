@@ -26,18 +26,29 @@ const payByCard = {
     resolve: async (parent, args, context) => await paymentController.payByCard(args, context)
 }
 
-const subPackage = {
+const addPricingPackage = {
     type: new GraphQLNonNull(GraphQLBoolean),
-    name: 'subscriptionPackage',
-    description: 'Subscription Package',
+    name: 'addPricingPackage',
+    description: 'Add Pricing Package',
     args: {
         package: {type: new GraphQLNonNull(subPackageInputType)}
     },
     resolve: async (parent, args, context) => await paymentController.addSubPackage(args)
 }
 
+const deletePricingPackage = {
+    type: new GraphQLNonNull(GraphQLBoolean),
+    name: 'deletePricingPackage',
+    description: 'delete Pricing Package',
+    args: {
+        packageId: {type: new GraphQLNonNull(GraphQLID)}
+    },
+    resolve: async (parent, args, context) => await paymentController.deleteSubPackage(args)
+}
+
 module.exports = {
     createInvoice: resolveAuthMiddleware(UserRoleEnum.TEACHER)(createInvoice),
     payByCard: resolveAuthMiddleware(UserRoleEnum.TEACHER)(payByCard),
-    subPackage,
+    addPricingPackage,
+    deletePricingPackage
 };
