@@ -15,9 +15,6 @@ class GapService {
 
     /**
      * Returns true if student has chosen any option of this gap
-     * @param gapId
-     * @param studentId
-     * @return {Promise<boolean>} true if student-option exist
      */
     async existsStudentAnswer(gapId, studentId) {
         return !!await Gap.count({

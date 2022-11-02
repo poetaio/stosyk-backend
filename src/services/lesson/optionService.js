@@ -256,8 +256,6 @@ class OptionService {
 
     /**
      * Returns correct option for matching sentence
-     * @param sentenceId
-     * @returns {Promise<Model|null>} correct option
      */
     async getMatchingCorrectOption(sentenceId) {
         return await Option.findOne({
@@ -271,8 +269,6 @@ class OptionService {
 
     /**
      * Returns "right column" for matching task
-     * @param taskId
-     * @returns {Promise<Model|null>} list of options available in task
      */
     async getAllMatchingRight(taskId) {
         const taskGaps = await Gap.findAll({
@@ -289,8 +285,6 @@ class OptionService {
 
     /**
      * Returns all students' answers for sentence in matching task type
-     * @param sentenceId
-     * @return {Promise<Model[]>} students' answers
      */
     async getMatchingStudentsAnswersBySentenceId(sentenceId) {
         return await StudentOption.findAll({
@@ -301,8 +295,6 @@ class OptionService {
 
     /**
      * Returns all correct options by sentence id, used in matching task type
-     * @param sentenceId
-     * @return {Promise<Model[]>} correct options of sentence
      */
     async getCorrectOptionBySentenceId(sentenceId) {
         return await Option.findOne({
@@ -313,8 +305,6 @@ class OptionService {
 
     /**
      * Returns all student options by sentence id
-     * @param sentenceId
-     * @return {Promise<Model[]>}
      */
     async getAllWithAnswersBySentenceId(sentenceId) {
         return await StudentOption.findAll({
@@ -324,9 +314,6 @@ class OptionService {
 
     /**
      * Returns specific student chosen option for matching type sentence
-     * @param sentenceId
-     * @param studentId
-     * @return {Promise<Model|null>} chosen option
      */
     async getMatchingChosenOptionBySentenceId(sentenceId, studentId) {
         return await StudentOption.findOne({
@@ -336,9 +323,6 @@ class OptionService {
 
     /**
      * Returns specific student chosen option for question type sentence
-     * @param sentenceId
-     * @param studentId
-     * @return {Promise<void>} chosen option
      */
     async getQuestionChosenOptionBySentenceId(sentenceId, studentId) {
         return await Option.findOne({
@@ -355,8 +339,6 @@ class OptionService {
 
     /**
      * Remove all students' answers from lesson
-     * @param lessonId
-     * @return {Promise<void>}
      */
     async removeAllStudentsAnswersByLessonId(lessonId) {
         const options = await this.getAllByLessonId(lessonId);

@@ -54,8 +54,6 @@ class SentenceService {
 
     /**
      * Returns all questions(sentences) by taskId, converting sentenceId to questionId
-     * @param taskId
-     * @return {Promise<{questionId: *, index: *, text: *}[]>}
      */
     async getAllQA(taskId) {
         return await Sentence.findAll({
@@ -84,8 +82,6 @@ class SentenceService {
 
     /**
      * Get all sentences with gaps and students answers for each gap
-     * @param taskId
-     * @returns sentenceId, gaps and students answers for each
      */
     async getAllWithStudentsAnswersByTaskId(taskId) {
         const sentences = await Sentence.findAll({
@@ -146,9 +142,6 @@ class SentenceService {
 
     /**
      * Returns true if student has answers on any options of gaps of sentence with sentenceId
-     * @param sentenceId
-     * @param studentId
-     * @return {Promise<boolean>} true if student answers exists
      */
     async existsStudentAnswer(sentenceId, studentId) {
         return !!await StudentOption.count({
@@ -159,8 +152,6 @@ class SentenceService {
 
     /**
      * Returns all sentences of specific task including gaps for each
-     * @param taskId
-     * @return {Promise<Model[]>} all sentences with gaps by task id
      */
     async getAllWithGapsByTaskId(taskId) {
         return await Sentence.findAll({
@@ -173,9 +164,6 @@ class SentenceService {
 
     /**
      * Returns all sentences with one student answers by task id and student id
-     * @param taskId
-     * @param studentId
-     * @return {Promise<Model[]>} sentences with one student answers
      */
     async getAllWithAnswerSheetByTaskId(taskId, studentId) {
         const sentences = await this.getAllWithGapsByTaskId(taskId);

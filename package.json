@@ -7,9 +7,10 @@
     "build-assets": "ts-node src/tools/copyAssets",
     "build": "tsc && build-assets",
     "start": "node build/index.js",
+    "start-dev": "ts-node src/index.ts",
     "lint": "tslint -c tslint.json -p tsconfig.json --fix",
     "clean": "rimraf dist/*",
-    "dev": "tsc-watch --onCompilationComplete \"npm run build-assets\" --onCompilationSuccess \"npm start\"",
+    "dev": "tsc-watch --onCompilationStarted \"npm run build-assets\" --onSuccess \"npm run start-dev\"",
     "migrate": "npx sequelize-cli db:migrate",
     "db": "docker run -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=test -p 5433:5432 -d postgres"
   },

@@ -33,8 +33,6 @@ class OptionController {
 
     /**
      * used in resolve for student options for sentence from left column
-     * @param sentenceId
-     * @return {Promise<*>} return list of student answers
      */
     async getMatchingStudentsAnswersBySentenceId({ sentenceId }) {
         return await optionService.getMatchingStudentsAnswersBySentenceId(sentenceId);
@@ -42,8 +40,6 @@ class OptionController {
 
     /**
      * used in QuestionSentenceCorrectAnswers, returns correct option for test sentence
-     * @param questionId
-     * @return {Promise<Model[]>} correct option for test sentence
      */
     async getQuestionCorrectOption({ questionId }) {
         return await optionService.getCorrectOptionBySentenceId(questionId);
@@ -51,8 +47,6 @@ class OptionController {
 
     /**
      * Returns all students answers for specific question (sentence in qa type)
-     * @param questionId
-     * @return {Promise<*>} list of students' answers
      */
     async getQAStudentsAnswersBySentenceId({ questionId }) {
         return await optionService.getAllWithAnswersBySentenceId(questionId);
@@ -60,9 +54,6 @@ class OptionController {
 
     /**
      * Returns specific student chosen option for a *matching* sentence
-     * @param sentenceId
-     * @param userId got from context
-     * @return {Promise<void>} chosen option of specific student
      */
     async getMatchingChosenOptionBySentenceId({ sentenceId }, { user: { userId } }) {
         const student = await studentService.findOneByUserId(userId);
@@ -75,9 +66,6 @@ class OptionController {
 
     /**
      * Returns specific student chosen option for *question* sentence
-     * @param questionId
-     * @param userId
-     * @return {Promise<void>} chosen option of specific student
      */
     async getQuestionChosenOptionByStudentId({ questionId }, { user: { userId } }) {
         const student = await studentService.findOneByUserId(userId);

@@ -148,9 +148,6 @@ class LessonController {
 
     /**
      * Checks if user is student and returns all tasks by lessonId, student's answers are resolved in every task type
-     * @param lessonId
-     * @param userId
-     * @return {Promise<*[]>} all tasks by lesson id
      */
     async studentGetAnswers({lessonId}, {user: {userId}}){
         const student = await studentService.findOneByUserId(userId);
