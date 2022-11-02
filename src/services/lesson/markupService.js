@@ -49,9 +49,9 @@ class MarkupService {
     async getMarkupProtege(lessonMarkupId) {
         return await Lesson.findOne({
             include: allLessonsByLessonMarkupInclude(lessonMarkupId),
-            where: {
-                status: LessonStatusEnum.PENDING,
-            },
+            // where: {
+            //     status: LessonStatusEnum.PENDING,
+            // },
             order: [
                 ['createdAt', 'DESC']
             ],

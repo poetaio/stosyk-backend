@@ -11,6 +11,7 @@ const {LessonMarkup, allLessonMarkupsBySchoolIdInclude, allLessonsBySchoolIdIncl
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError, NotFoundError} = require("../../utils");
 const Sequelize = require("sequelize");
+const lessonTeacherService = require("../../services/lesson/lessonTeacherService");
 const {Op} = Sequelize;
 
 class LessonController {
@@ -58,8 +59,18 @@ class LessonController {
 
         if (!teacher)
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+        const {teacherId} = teacher;
 
-        return await lessonService.finishLesson(pubsub, lessonId, teacher.teacherId)
+        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
+            throw new NotFoundError(`No lesson active ${lessonId} of such teacher ${teacherId}`);
+        }
+
+        await lessonService.finishLesson(pubsub, lessonId, teacherId)
+        // creating new protege check markupService#getMarkupProtege for more details
+        // await this.recreateLessonProtegeByProtegeId(lessonId);
+        await markupService.createMarkupProtegeByLessonId(lessonId);
+
+        return true;
     }
 
     async deleteLesson({ lessonId }, { user: { userId } }) {
