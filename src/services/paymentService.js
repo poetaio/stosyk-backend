@@ -206,6 +206,10 @@ class PaymentService {
         })
         return !!res[0]
     }
+
+    async getAllPackages(){
+        return await Subpackage.findAll()
+    }
 }
 
 module.exports = new PaymentService();

@@ -1,5 +1,5 @@
-const {GraphQLNonNull, GraphQLID, GraphQLBoolean, GraphQLString} = require("graphql");
-const {invoiceStatusType} = require("./types");
+const {GraphQLNonNull, GraphQLID, GraphQLBoolean, GraphQLString, GraphQLList} = require("graphql");
+const {invoiceStatusType, packageInfoType} = require("./types");
 const {paymentController} = require("../../controllers");
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
@@ -37,9 +37,17 @@ const userWalletId = {
     resolve: async (parent, args, context) => await paymentController.userWalletId(context)
 }
 
+const packagesList = {
+    type: new GraphQLNonNull(new GraphQLList(packageInfoType)),
+    name: 'packagesList',
+    description: 'Packages List',
+    resolve: async ( parent, args, context ) => await paymentController.packagesList()
+}
+
 module.exports = {
     checkInvoiceStatus,
     checkUserPackage: resolveAuthMiddleware(UserRoleEnum.TEACHER)(checkUserPackage),
     getUserCards: resolveAuthMiddleware(UserRoleEnum.TEACHER)(userCards),
-    userWalletId: resolveAuthMiddleware(UserRoleEnum.TEACHER)(userWalletId)
+    userWalletId: resolveAuthMiddleware(UserRoleEnum.TEACHER)(userWalletId),
+    packagesList
 };
