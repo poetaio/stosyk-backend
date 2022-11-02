@@ -218,6 +218,9 @@ class LessonController {
         }
 
         await lessonService.joinLesson(pubsub, lessonId, student.studentId);
+
+        setTimeout(async () => await pubsubService.publishOnStudentOnLesson(pubsub, lessonId, student.studentId,
+            true), 0);
         return await lessonService.subscribeOnStudentOnLesson(pubsub, lessonId, student.studentId);
     }
 

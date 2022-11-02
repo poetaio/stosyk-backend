@@ -645,8 +645,6 @@ class LessonService {
         return await pubsubService.subscribeOnStudentOnLesson(pubsub, lessonId, studentId);
     }
 
-
-
     async getStudents(lessonId) {
         // all students who have at least one answer on any task of this homework
         return await Student.findAll({
