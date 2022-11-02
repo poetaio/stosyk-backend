@@ -2,7 +2,6 @@ const {GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLInt, GraphQLList
 const {schoolController, invitationController} = require("../../../controllers/school");
 const {SchoolInvitationType} = require("./invitation");
 const {SchoolStudentType} = require("../../user/types");
-const {SchoolStudentSeatType} = require("./student_seat");
 const {TeacherCountedLessonsType, LessonsWhereType, TeacherCourseType} = require("../../lesson/types");
 const {lessonController, courseController} = require("../../../controllers");
 
@@ -12,17 +11,14 @@ module.exports = new GraphQLObjectType({
     description: "School for teacher",
     fields: {
         name: { type: GraphQLString },
-        freeSeatCount: {
+        freeSeatsCount: {
             type: new GraphQLNonNull(GraphQLInt),
             description: 'Get number of free seats',
-            // todo: fix resolving seats from context:user:userId, but from schoolId, which is in the type above
-            resolve: async (parent, args, context) => await schoolController.getFreeSeatsCount(context)
+            resolve: async (parent, args, context) => await schoolController.countFreeSeats(parent)
         },
-        seatCount: {
+        totalSeatsCount: {
             type: new GraphQLNonNull(GraphQLInt),
-            description: 'Get number of seats',
-            // todo: fix resolving seats from context:user:userId, but from schoolId, which is in the type above
-            resolve: async (parent, args, context) => await schoolController.getSeatCount(context)
+            description: 'Get total number of seats',
         },
         lessons: {
             type: TeacherCountedLessonsType,
@@ -37,12 +33,6 @@ module.exports = new GraphQLObjectType({
             type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(TeacherCourseType))),
             description: 'Get All Courses',
             resolve: async (parent, args, context) => await courseController.getAllCourses(context)
-        },
-        seats: {
-            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(SchoolStudentSeatType))),
-            description: 'Get all seats for teacher\'s school',
-            // todo: fix resolving seats from context:user:userId, but from schoolId, which is in the type above
-            resolve: async (parent, args, context) => await schoolController.getSeats(context)
         },
         students: {
             type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(SchoolStudentType))),

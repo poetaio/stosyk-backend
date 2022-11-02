@@ -1,40 +1,34 @@
 const {  GraphQLString, GraphQLNonNull, GraphQLBoolean} = require("graphql");
-const { teacherController, studentController, accountController } =require('../../controllers');
+const { accountController, userController} =require('../../controllers');
 const {
     TokenType,
-    StudentProfileInputType,
     UserAccInputType,
-    UserLoginInputType
+    UserLoginInputType, UserProfileInputType
 } = require("./types");
 const { resolveUserIdParsingMiddleware, resolveAuthMiddleware, resolveAuthMiddlewareUnverified} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
+const UserRoleEnumType = require("./types/user/UserRoleEnum.type");
 
 
-const createAnonymousTeacher = {
+const createAnonymousUser = {
     type: TokenType,
-    name: 'createAnonymousTeacher',
-    description: 'Create anonymous teacher',
-    resolve: async (parent, args, context) => await teacherController.createAnonymous(args, context)
-};
-
-const createAnonymousStudent = {
-    type: TokenType,
-    name: 'createAnonymousStudent',
-    description: "Create Anonymous Student",
+    name: 'createAnonymousUser',
+    description: 'Create Anonymous User',
     args: {
         name: {type: new GraphQLNonNull(GraphQLString)},
+        type: {type: new GraphQLNonNull(UserRoleEnumType)}
     },
-    resolve: async (parent, args, context) => await studentController.createAnonymous(args)
-};
+    resolve: async (parent, args, context) => await userController.createAnonymous(args, context)
+}
 
-const studentProfile = {
+const changeUserProfile = {
     type: new GraphQLNonNull(GraphQLBoolean),
-    name: "StudentProfile",
+    name: "changeUserProfile",
     description: "Update student profile",
     args: {
-        studentProfile: { type: new GraphQLNonNull(StudentProfileInputType)},
+        userProfile: { type: new GraphQLNonNull(UserProfileInputType)},
     },
-    resolve: async (parent, args, context) => await studentController.updateProfile(args, context)
+    resolve: async (parent, args, context) => await userController.updateProfile(args, context)
 }
 
 const anonymousLogin = {
@@ -99,16 +93,6 @@ const changeEmail = {
     resolve: async (parent, args, context) => await accountController.changeEmail(args, context)
 }
 
-const changeName = {
-    type: new GraphQLNonNull(GraphQLBoolean),
-    name: 'changeName',
-    description: 'Change name',
-    args:{
-        newName: {type: new GraphQLNonNull(GraphQLString)}
-    },
-    resolve: async (parent, args, context) => await accountController.changeName(args, context)
-}
-
 const changePassword = {
     type: new GraphQLNonNull(GraphQLBoolean),
     name: 'changePassword',
@@ -131,15 +115,13 @@ const changeAvatar = {
 }
 
 module.exports = {
-    createAnonymousTeacher,
-    studentProfile: resolveAuthMiddleware(UserRoleEnum.STUDENT)(studentProfile),
+    createAnonymousUser,
+    changeUserProfile: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changeUserProfile),
     anonymousLogin: resolveAuthMiddlewareUnverified(anonymousLogin),
-    createAnonymousStudent,
     registerUser: resolveUserIdParsingMiddleware(registerUser),
     loginUser,
     changePassword: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changePassword),
     changeEmail: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changeEmail),
-    changeName: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changeName),
     changeAvatar: resolveAuthMiddleware(UserRoleEnum.TEACHER, UserRoleEnum.STUDENT)(changeAvatar),
     confirmEmail,
     resetPassword,

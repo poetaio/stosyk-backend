@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define('school', {
     name: {
         type: DataTypes.STRING,
     },
-    studentsSeatsCount: {
+    totalSeatsCount: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,

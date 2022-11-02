@@ -41,7 +41,7 @@ const {
     LessonCourse,
     TeacherCourse,
     SchoolTeacher,
-    SchoolStudentSeat,
+    SchoolStudent,
 } = require('./relations')(sequelize, DataTypes);
 
 
@@ -581,30 +581,30 @@ SchoolTeacher.belongsTo(School, {
 });
 
 School.belongsToMany(Student, {
-    through: SchoolStudentSeat,
+    through: SchoolStudent,
     foreignKey: 'schoolId',
     as: 'students',
 });
 Student.belongsToMany(School, {
-    through: SchoolStudentSeat,
+    through: SchoolStudent,
     foreignKey: 'studentId',
     as: 'schools',
 });
 
-Student.hasMany(SchoolStudentSeat, {
+Student.hasMany(SchoolStudent, {
     foreignKey: 'studentId',
-    as: 'seats',
+    as: 'schoolStudents',
 });
-SchoolStudentSeat.belongsTo(Student, {
+SchoolStudent.belongsTo(Student, {
     foreignKey: 'studentId',
     as: 'student',
 });
 
-School.hasMany(SchoolStudentSeat, {
+School.hasMany(SchoolStudent, {
     foreignKey: 'schoolId',
-    as: 'seats',
+    as: 'schoolStudents',
 });
-SchoolStudentSeat.belongsTo(School, {
+SchoolStudent.belongsTo(School, {
     foreignKey: 'schoolId',
     as: 'school',
 });
@@ -649,7 +649,7 @@ module.exports = {
     TeacherCourse,
     LessonCourse,
     SchoolTeacher,
-    SchoolStudentSeat,
+    SchoolStudent,
     SchoolInvitation,
 
     ...queries,

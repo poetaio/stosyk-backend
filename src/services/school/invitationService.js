@@ -1,7 +1,6 @@
 const {SchoolInvitation, invitationStatusIndex} = require("../../db/models");
-const {SchoolInvitationStatusEnum, SchoolStudentSeatStatusEnum, normalizeDate} = require("../../utils");
-const {SchoolStudentSeat} = require("../../db/models");
-const {Op, literal} = require("sequelize");
+const {SchoolInvitationStatusEnum, normalizeDate} = require("../../utils");
+const {Op} = require("sequelize");
 
 const INVITATION_EXPIRE_TIME_MILLIS = 60 * 60 * 24 * 1000;
 

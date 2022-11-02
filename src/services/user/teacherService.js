@@ -17,9 +17,9 @@ class TeacherService {
         });
     }
 
-    async createAnonymous() {
+    async createAnonymous(name) {
         return await Teacher.create(
-            { user: { role: UserRoleEnum.TEACHER } },
+            { user: { name, role: UserRoleEnum.TEACHER } },
             { include: 'user' }
         );
     }
@@ -52,35 +52,6 @@ class TeacherService {
                 }
             }
         );
-    }
-
-    async updateAnonymousTeacherToRegistered(userId, email, password, name, avatar_source, automatic_verification) {
-        const passwordHash = await hashPassword(password);
-
-
-        await User.update({
-                type: UserTypeEnum.REGISTERED,
-                name: name
-            },
-            {
-                where: {
-                    userId
-                }
-            }
-        );
-
-        let status = accountStatusEnum.UNVERIFIED
-        if(automatic_verification && process.env.ENVIRONMENT==="DEV"){
-            status = accountStatusEnum.VERIFIED
-        }
-
-        await Account.create({
-            login: email,
-            passwordHash,
-            userId,
-            avatar_source,
-            status
-        })
     }
 
     async findOneByUserId(userId) {

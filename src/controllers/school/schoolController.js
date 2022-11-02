@@ -1,10 +1,7 @@
 const teacherService = require("../../services/user/teacherService");
-const {ValidationError, logger, NotFoundError, InternalError} = require("../../utils");
+const {ValidationError, NotFoundError} = require("../../utils");
 const {schoolService, invitationService} = require("../../services/school");
-const jwt = require("jsonwebtoken");
-const {studentService, userService} = require("../../services");
-const {GraphQLError} = require("graphql");
-const {School} = require("../../db/models");
+const {studentService} = require("../../services");
 
 class SchoolController {
     async addStudentsSeats({count}, {user: {userId}}) {
@@ -19,22 +16,7 @@ class SchoolController {
             throw new ValidationError(`No school found of teacher ${teacher}`);
         }
 
-        return await schoolService.addStudentsSeats(school.schoolId, count);
-    }
-
-    async getSeats({user: {userId}}) {
-        const teacher = await teacherService.findOneByUserId(userId);
-
-        if (!teacher) {
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
-        }
-
-        const school = await schoolService.getOneByTeacherId(teacher.teacherId);
-        if (!school) {
-            throw new ValidationError(`No school found of teacher ${teacher}`);
-        }
-
-        return await schoolService.getSeats(school.schoolId);
+        return await schoolService.addStudentsSeats(school, count);
     }
 
     async inviteSchoolStudent({studentEmail}, {user: {userId}}) {
@@ -66,16 +48,15 @@ class SchoolController {
 
         await invitationService.removeOutdatedInvitesBySchoolId(schoolId);
 
-        const freeSeatsCount = await schoolService.countFreeSeats(schoolId);
-        const invitesCount = await invitationService.countInvitesBySchoolId(schoolId);
-
-        if (invitesCount >= freeSeatsCount) {
+        const freeSeatsCount = await this.countFreeSeats(school);
+        if (!freeSeatsCount) {
             throw new ValidationError(`No free seats for school ${schoolId}`, 10102);
         }
 
         const {invitationId} = await invitationService.createInvitation(schoolId, studentEmail);
         await schoolService.sendInvite(studentEmail, schoolOrTeacherName, invitationId);
-        return true;
+
+        return invitationId;
     }
 
     async cancelInviteSchoolStudent({invitationId}, {user: {userId}}) {
@@ -112,14 +93,11 @@ class SchoolController {
         }
 
         const {schoolId} = invitation;
-
-        const seat = await schoolService.getFreeSeat(schoolId);
-        if (!seat) {
-            throw new InternalError(`Could not accept invite, as there are no free seats. That should not happen please contact support@stosyk.app`);
-        }
+        const {studentId} = student;
 
         await invitationService.acceptInvitation(invitationId);
-        return await schoolService.occupySeat(seat.schoolStudentSeatId, student.studentId);
+        await schoolService.addStudent(schoolId, studentId);
+        return true;
     }
 
     async declineSchoolStudentInvitation({ invitationId }, { user: { userId } }) {
@@ -165,10 +143,16 @@ class SchoolController {
             throw new ValidationError(`No school found of teacher ${teacher}`);
         }
 
-        const freeSeatsCount = await schoolService.countFreeSeats(school.schoolId);
+        return await this.countFreeSeats(school);
+    }
+
+    // todo: use Redis as cache instead of querying each time
+    async countFreeSeats(school) {
+        const {totalSeatsCount} = school;
+        const studentsCount = await schoolService.countStudents(school.schoolId);
         const invitesCount = await invitationService.countInvitesBySchoolId(school.schoolId);
 
-        return freeSeatsCount - invitesCount;
+        return totalSeatsCount - studentsCount - invitesCount;
     }
 
     async getStudents({user: {userId}}) {
@@ -184,42 +168,6 @@ class SchoolController {
         }
 
         return await schoolService.getStudents(school.schoolId);
-    }
-
-    async removeSchoolSeat({seatId}, {user: { userId }}) {
-        const teacher = await teacherService.findOneByUserId(userId);
-        if (!teacher) {
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
-        }
-
-        const school = await schoolService.getOneByTeacherId(teacher.teacherId);
-        if (!school) {
-            throw new ValidationError(`No school found of teacher ${teacher}`);
-        }
-
-        if (!await schoolService.existsSchoolSeat(school.schoolId, seatId)) {
-            throw new ValidationError(`No seat ${seatId} found of school`)
-        }
-
-        if (await schoolService.isSeatOccupiedBySeatId(seatId)) {
-            throw new ValidationError(`Seat ${seatId} is occupied`);
-        }
-
-        return await schoolService.removeSeat(seatId);
-    }
-
-    async getSeatCount({user: {userId}}) {
-        const teacher = await teacherService.findOneByUserId(userId);
-        if (!teacher) {
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
-        }
-
-        const school = await schoolService.getOneByTeacherId(teacher.teacherId);
-        if (!school) {
-            throw new ValidationError(`No school found of teacher ${teacher}`);
-        }
-
-        return await schoolService.countSeats(school.schoolId);
     }
 
     async getSchool({user: {userId}}) {

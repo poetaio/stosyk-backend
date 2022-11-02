@@ -15,7 +15,7 @@ const addSchoolStudentSeats = {
 
 // student_seat id + student id
 const inviteSchoolStudent = {
-    type: new GraphQLNonNull(GraphQLBoolean),
+    type: new GraphQLNonNull(GraphQLID),
     name: 'inviteSchoolStudent',
     description: 'Invite school student',
     args: {
@@ -66,16 +66,6 @@ const removeSchoolStudent = {
     resolve: async (parent, args, context) => await schoolController.removeSchoolStudent(args, context)
 }
 
-const removeSchoolSeat = {
-    type: new GraphQLNonNull(GraphQLBoolean),
-    name: 'removeSchoolSeat',
-    description: 'Remove seat from school',
-    args: {
-        seatId: { type: new GraphQLNonNull(GraphQLID) },
-    },
-    resolve: async (parent, args, context) => await schoolController.removeSchoolSeat(args, context)
-}
-
 const editSchool = {
     type: new GraphQLNonNull(GraphQLBoolean),
     name: 'editSchool',
@@ -96,6 +86,5 @@ module.exports = {
     acceptSchoolStudentInvitation: resolveAuthMiddleware(UserRoleEnum.STUDENT)(acceptSchoolStudentInvitation),
     declineSchoolStudentInvitation: resolveAuthMiddleware(UserRoleEnum.STUDENT)(declineSchoolStudentInvitation),
     removeSchoolStudent: resolveAuthMiddleware(UserRoleEnum.TEACHER)(removeSchoolStudent),
-    removeSchoolSeat: resolveAuthMiddleware(UserRoleEnum.TEACHER)(removeSchoolSeat),
     editSchool: resolveAuthMiddleware(UserRoleEnum.TEACHER)(editSchool),
 };

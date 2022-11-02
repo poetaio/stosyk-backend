@@ -30,6 +30,10 @@ module.exports = new GraphQLObjectType({
         joinedAt: {
             type: new GraphQLNonNull(GraphQLString),
             description: 'Join timestamp',
+        },
+        droppedOutAt: {
+            type: new GraphQLNonNull(GraphQLString),
+            description: 'Dropout timestamp',
         }
     },
 });
