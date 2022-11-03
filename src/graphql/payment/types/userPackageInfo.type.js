@@ -9,6 +9,6 @@ module.exports = new GraphQLObjectType({
         seats: {type : new GraphQLNonNull(GraphQLInt)},
         months: {type: new GraphQLNonNull(GraphQLInt)},
         status: {type: new GraphQLNonNull(paymentStatusEnumType)},
-        startDate: {type: new GraphQLNonNull(GraphQLString)}
+        startDate: {type: GraphQLString}
     },
 });

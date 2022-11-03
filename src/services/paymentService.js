@@ -22,6 +22,8 @@ class PaymentService {
                     status = PaymentStatusEnum.EXPIRED
                 }
             }
+        }else{
+            lastPaymentDate = null
         }
 
         return {packageId: packageId, seats: pack.seats, months: pack.months, status: status,  startDate: lastPaymentDate}
