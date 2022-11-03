@@ -1,11 +1,11 @@
-const {GraphQLNonNull, GraphQLID, GraphQLBoolean, GraphQLString, GraphQLList} = require("graphql");
+const {GraphQLNonNull, GraphQLID, GraphQLString, GraphQLList} = require("graphql");
 const {invoiceStatusType, packageInfoType, userPackageInfoType} = require("./types");
 const {paymentController} = require("../../controllers");
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 const {userCardsType} = require("./types");
 
-
+//tested
 const checkInvoiceStatus = {
     type: invoiceStatusType,
     name: 'CheckInvoiceStatus',
@@ -16,6 +16,7 @@ const checkInvoiceStatus = {
     resolve: async (parent, args, context) => await paymentController.checkInvoiceStatus(args, context)
 };
 
+//tested
 const checkUserPackage = {
     type: userPackageInfoType,
     name: 'CheckUserPackage',
@@ -37,6 +38,7 @@ const userWalletId = {
     resolve: async (parent, args, context) => await paymentController.userWalletId(context)
 }
 
+//tested
 const packagesList = {
     type: new GraphQLNonNull(new GraphQLList(packageInfoType)),
     name: 'packagesList',

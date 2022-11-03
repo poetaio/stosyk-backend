@@ -7,21 +7,24 @@ class PaymentService {
     async checkUserPackage(packageId, lastPaymentDate){
         const pack = await this.findPackageById(packageId)
         const dateNow = [new Date().getDay(), new Date().getMonth(), new Date().getFullYear()]
-        const lastPaymentD = new Date(lastPaymentDate)
-        let months = (dateNow[2] - lastPaymentD.getFullYear())*12
-        months -=  lastPaymentD.getMonth()
-        months += dateNow[1]
-        let exp = false
-        if(months > pack.months){
-            exp = true
-        }
-        if(months == pack.months){
-            if(dateNow[0]>lastPaymentD.getDay()){
-                exp = true
+        let status = 'PENDING'
+        if(!lastPaymentDate.includes('Invalid')) {
+            status = 'ACTIVE'
+            const lastPaymentD = new Date(lastPaymentDate)
+            let months = (dateNow[2] - lastPaymentD.getFullYear()) * 12
+            months -= lastPaymentD.getMonth()
+            months += dateNow[1]
+            if (months > pack.months) {
+                status = 'EXPIRED'
+            }
+            if (months == pack.months) {
+                if (dateNow[0] > lastPaymentD.getDay()) {
+                    status = 'EXPIRED'
+                }
             }
         }
 
-        return {packageId: packageId, seats: pack.seats, months: pack.months, expired: exp,  startDate: lastPaymentDate}
+        return {packageId: packageId, seats: pack.seats, months: pack.months, status: status,  startDate: lastPaymentDate}
     }
 
     async getUserCards(walletId, defaultCardToken){

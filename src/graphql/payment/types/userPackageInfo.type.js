@@ -1,4 +1,4 @@
-const {GraphQLNonNull, GraphQLObjectType, GraphQLInt, GraphQLID, GraphQLBoolean, GraphQLString} = require("graphql");
+const {GraphQLNonNull, GraphQLObjectType, GraphQLInt, GraphQLID, GraphQLString} = require("graphql");
 
 module.exports = new GraphQLObjectType({
     name: "userPackageInfoType",
@@ -7,7 +7,7 @@ module.exports = new GraphQLObjectType({
         packageId: {type: new GraphQLNonNull(GraphQLID)},
         seats: {type : new GraphQLNonNull(GraphQLInt)},
         months: {type: new GraphQLNonNull(GraphQLInt)},
-        expired: {type: new GraphQLNonNull(GraphQLBoolean)},
+        status: {type: new GraphQLNonNull(GraphQLString)},
         startDate: {type: new GraphQLNonNull(GraphQLString)}
     },
 });

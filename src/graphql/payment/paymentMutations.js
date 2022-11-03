@@ -5,6 +5,7 @@ const {subPackageInputType} = require("./types")
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 
+//tested
 const createInvoice = {
     type: newInvoiceType,
     name: 'CreateInvoice',
@@ -26,6 +27,7 @@ const payByCard = {
     resolve: async (parent, args, context) => await paymentController.payByCard(args, context)
 }
 
+//tested
 const addPricingPackage = {
     type: new GraphQLNonNull(GraphQLBoolean),
     name: 'addPricingPackage',
@@ -36,6 +38,7 @@ const addPricingPackage = {
     resolve: async (parent, args, context) => await paymentController.addSubPackage(args)
 }
 
+//tested
 const deletePricingPackage = {
     type: new GraphQLNonNull(GraphQLBoolean),
     name: 'deletePricingPackage',
