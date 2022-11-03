@@ -1,7 +1,7 @@
 const {newInvoiceType} = require("./types");
 const {paymentController} = require("../../controllers");
 const {GraphQLNonNull, GraphQLBoolean, GraphQLString, GraphQLID} = require("graphql");
-const {subPackageInputType, userCardsType} = require("./types")
+const {subPackageInputType} = require("./types")
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
 

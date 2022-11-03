@@ -32,7 +32,7 @@ module.exports = (pubsub) => {
         paymentController.addUserCard(userId, walletId, cardToken, status);
     })
 
-    app.post('/pay-invoice/:userId', (req, res) => {
+    app.get('/pay-invoice/:userId', (req, res) => {
         const {userId} = req.params;
         const {status} = req.body;
         paymentController.quickPayment(userId, status);
