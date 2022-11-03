@@ -1,5 +1,5 @@
 const {GraphQLNonNull, GraphQLID, GraphQLBoolean, GraphQLString, GraphQLList} = require("graphql");
-const {invoiceStatusType, packageInfoType} = require("./types");
+const {invoiceStatusType, packageInfoType, userPackageInfoType} = require("./types");
 const {paymentController} = require("../../controllers");
 const {resolveAuthMiddleware} = require("../../middleware");
 const {UserRoleEnum} = require("../../utils");
@@ -17,7 +17,7 @@ const checkInvoiceStatus = {
 };
 
 const checkUserPackage = {
-    type: new GraphQLNonNull(GraphQLBoolean),
+    type: userPackageInfoType,
     name: 'CheckUserPackage',
     description: 'Check User Package',
     resolve: async (parent, args, context) => await paymentController.checkUserPackage(context)

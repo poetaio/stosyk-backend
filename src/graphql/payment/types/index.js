@@ -3,6 +3,7 @@ const invoiceStatusType = require('./InvoiceStatus.type')
 const subPackageInputType = require('./subPackage.input.type')
 const userCardsType = require('./userCards.type')
 const packageInfoType = require('./packageInfo.type')
+const userPackageInfoType = require('./userPackageInfo.type')
 
 
 module.exports = {
@@ -10,5 +11,6 @@ module.exports = {
     invoiceStatusType,
     subPackageInputType,
     userCardsType,
-    packageInfoType
+    packageInfoType,
+    userPackageInfoType
 };

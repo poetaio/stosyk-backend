@@ -4,26 +4,24 @@ const {Subpackage, Teacher} = require('../db/models');
 
 class PaymentService {
 
-    async checkUserPackage(packageId, lastPaymentDate, seatsInSchool){
-        const pack = this.findPackageById()
+    async checkUserPackage(packageId, lastPaymentDate){
+        const pack = await this.findPackageById(packageId)
         const dateNow = [new Date().getDay(), new Date().getMonth(), new Date().getFullYear()]
-        let months = (dateNow[2] - lastPaymentDate.getFullYear())*12
-        months -=  lastPaymentDate.getMonth()
+        const lastPaymentD = new Date(lastPaymentDate)
+        let months = (dateNow[2] - lastPaymentD.getFullYear())*12
+        months -=  lastPaymentD.getMonth()
         months += dateNow[1]
+        let exp = false
         if(months > pack.months){
-            return false
+            exp = true
         }
         if(months == pack.months){
-            if(dateNow[0]>lastPaymentDate.getDay()){
-                return false
+            if(dateNow[0]>lastPaymentD.getDay()){
+                exp = true
             }
         }
 
-        if(pack.seats < seatsInSchool){
-            return false
-        }
-
-        return true
+        return {packageId: packageId, seats: pack.seats, months: pack.months, expired: exp,  startDate: lastPaymentDate}
     }
 
     async getUserCards(walletId, defaultCardToken){
@@ -133,7 +131,9 @@ class PaymentService {
             })
 
         await Teacher.update({
-            packageId: packageId
+            packageId: packageId,
+            //for testing
+            // lastPaymentDate: new Date()
         },
             {
                 where: {teacherId}
