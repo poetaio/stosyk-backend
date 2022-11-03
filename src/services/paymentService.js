@@ -173,7 +173,7 @@ class PaymentService {
         if (result.status === 'success') {
             await Teacher.update({
                 packageId,
-                lastPaymentDate: Date.now(),
+                lastPaymentDate: new Date(),
                 defaultCardToken: paymentCardToken
             }, {
                 where: {
@@ -200,7 +200,7 @@ class PaymentService {
 
     async quickPayment(teacherId){
         const res = await Teacher.update({
-            lastPaymentDate: Date.now()
+            lastPaymentDate: new Date()
         }, {
             where:{
                 teacherId
