@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-const {logger} = require("../utils");
+const {logger, PaymentStatusEnum} = require("../utils");
 const {Subpackage, Teacher} = require('../db/models');
 
 class PaymentService {
@@ -7,19 +7,19 @@ class PaymentService {
     async checkUserPackage(packageId, lastPaymentDate){
         const pack = await this.findPackageById(packageId)
         const dateNow = [new Date().getDay(), new Date().getMonth(), new Date().getFullYear()]
-        let status = 'PENDING'
+        let status = PaymentStatusEnum.PENDING
         if(!lastPaymentDate.includes('Invalid')) {
-            status = 'ACTIVE'
+            status = PaymentStatusEnum.ACTIVE
             const lastPaymentD = new Date(lastPaymentDate)
             let months = (dateNow[2] - lastPaymentD.getFullYear()) * 12
             months -= lastPaymentD.getMonth()
             months += dateNow[1]
             if (months > pack.months) {
-                status = 'EXPIRED'
+                status = PaymentStatusEnum.EXPIRED
             }
             if (months == pack.months) {
                 if (dateNow[0] > lastPaymentD.getDay()) {
-                    status = 'EXPIRED'
+                    status = PaymentStatusEnum.EXPIRED
                 }
             }
         }

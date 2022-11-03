@@ -7,6 +7,7 @@ const SchoolTeacherAccessEnum = require('./schoolTeacherAccessRight.enum');
 const SchoolStudentSeatStatusEnum = require('./schoolStudentSeatStatus.enum');
 const SchoolInvitationStatusEnum = require('./SchoolInvitationStatus.enum');
 const StudentSchoolStatusEnum = require('./StudentSchoolStatus.enum');
+const PaymentStatusEnum = require('./paymentStatus.enum')
 
 
 module.exports = {
@@ -19,4 +20,5 @@ module.exports = {
     SchoolStudentSeatStatusEnum,
     SchoolInvitationStatusEnum,
     StudentSchoolStatusEnum,
+    PaymentStatusEnum
 };
