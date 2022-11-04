@@ -3,5 +3,4 @@ module.exports = {
     instagram2xImg: 'https://i.ibb.co/BB3ZYGs/instagram2x.png',
     linkedin2xImg: 'https://i.ibb.co/5BVhw9V/linkedin2x.png',
     logoImg: 'https://i.ibb.co/8z7YPJW/logoicon.png',
-    helloImg: 'https://i.ibb.co/0tNkJSj/image.png',
 };

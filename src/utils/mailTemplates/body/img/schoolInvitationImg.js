@@ -1,6 +1,5 @@
 const {
     facebook2xImg,
-    helloImg,
     instagram2xImg,
     linkedin2xImg,
     logoImg,
@@ -10,9 +9,9 @@ module.exports = {
     facebook2xImg,
     instagram2xImg,
     linkedin2xImg,
-    helloImg,
     logoImg,
+    helloImg: 'https://i.ibb.co/60Sy6jC/image-hello-1.png',
     schoolInvitationButtonImg: 'https://i.ibb.co/S513rzs/school-Invitation-Button.png',
-    schoolInvitationText1Img: 'https://i.ibb.co/KXBn14p/school-Invitation-Text2.png',
-    schoolInvitationText2Img: 'https://i.ibb.co/8778YRv/school-Invitation-Text1.png',
+    schoolInvitationText1Img: 'https://i.ibb.co/MZP59J2/text-welcome.png',
+    schoolInvitationText2Img: 'https://i.ibb.co/s9D3N9z/text-welcome-mobile.png',
 };

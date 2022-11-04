@@ -3,7 +3,6 @@ const {
     facebook2xImg,
     linkedin2xImg,
     logoImg,
-    helloImg,
 } = require('./commonImg');
 
 module.exports = {
@@ -11,8 +10,8 @@ module.exports = {
     facebook2xImg,
     linkedin2xImg,
     logoImg,
-    helloImg,
+    helloImg: 'https://i.ibb.co/37yDc4w/image-hello-2.png',
     emailConfirmationButtonImg: 'https://i.ibb.co/SdxHp4s/Button.png',
-    emailConfirmationTextDesktopImg: 'https://i.ibb.co/fXWXjnf/text-desktop.png',
-    emailConfirmationTextMobileImg: 'https://i.ibb.co/bF8jt2b/text-mobile.png',
+    emailConfirmationTextDesktopImg: 'https://i.ibb.co/BzpPWr5/text-confirmation.png',
+    emailConfirmationTextMobileImg: 'https://i.ibb.co/99xG3np/text-confirmation-mobile.png',
 }
