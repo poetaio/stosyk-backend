@@ -147,6 +147,8 @@ class LessonService {
         return true;
     }
 
+    // used only while deleting all teacher's lessons when creating new lesson, if teacher is ANONYMOUS!!!
+    // NOTE: that's why we delete the lesson even if it's running
     async deleteBySchoolId(schoolId) {
         const markups = await LessonMarkup.findAll({
             include: [
@@ -155,6 +157,7 @@ class LessonService {
             ]
         })
 
+        // deleting lesson even if it's running
         for (let markup of markups) {
             const protege = await markupService.getMarkupProtege(markup.lessonMarkupId);
             await this.deleteProtegeById(protege.lessonId);
@@ -290,10 +293,6 @@ class LessonService {
             });
         }
 
-        // creating new protege check markupService#getMarkupProtege for more details
-        // await this.recreateLessonProtegeByProtegeId(lessonId);
-        await markupService.createMarkupProtegeByLessonId(lessonId);
-
         return true;
     }
 
@@ -306,11 +305,7 @@ class LessonService {
         });
     }
 
-    async finishLesson(pubsub, lessonId, teacherId) {
-        if (!await lessonTeacherService.teacherLessonExists(lessonId, teacherId)) {
-            throw new NotFoundError(`No lesson active ${lessonId} of such teacher ${teacherId}`);
-        }
-
+    async finishLesson(pubsub, lessonId) {
         const upd = await Lesson.update({
             status: LessonStatusEnum.PENDING
         }, {
@@ -628,6 +623,11 @@ class LessonService {
 
         const protege = await markupService.getMarkupProtege(markup.lessonMarkupId);
 
+        // if lesson is running then we don't change it even if it's still in the library
+        if (LessonStatusEnum.ACTIVE === protege.status) {
+            return true;
+        }
+
         await this.deleteProtegeById(protege.lessonId);
 
         markupService.createProtegeWithId(protege.lessonId, newName, newDescription, tasks || [], homework || [], lessonMarkupId);
@@ -644,8 +644,6 @@ class LessonService {
     async subscribeOnStudentOnLesson(pubsub, lessonId, studentId) {
         return await pubsubService.subscribeOnStudentOnLesson(pubsub, lessonId, studentId);
     }
-
-
 
     async getStudents(lessonId) {
         // all students who have at least one answer on any task of this homework
