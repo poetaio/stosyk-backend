@@ -4,13 +4,13 @@ const {Task, Lesson, TaskSentence,
     DELETE_SENTENCES_BY_TASK_ID,
     DELETE_GAPS_BY_SENTENCE_ID,
     DELETE_OPTIONS_BY_GAP_ID, taskWithLessonInclude, TaskAttachments, TaskListTask, allTasksByLessonIdInclude
-} = require("../../db/models");
+} = require("../../db/entities");
 const sentenceService = require('./sentenceService');
 const {NotFoundError, ValidationError, LessonStatusEnum, TaskTypeEnum, TaskListTypeEnum} = require('../../utils');
 const studentService = require("../user/studentService");
 const pubsubService = require("../pubsubService");
 const lessonAnswersService = require("./lessonAnswersService");
-const lessonByTeacherAndTaskInclude = require("../../db/models/includes/lesson/lessonByTeacherAndTask.include");
+const lessonByTeacherAndTaskInclude = require("../../db/entities/includes/lesson/lessonByTeacherAndTask.include");
 const studentLessonService = require("./studentLessonService");
 
 class TaskService {

@@ -1,7 +1,7 @@
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError} = require("../../utils");
 const {courseService, markupService, lessonService} = require("../../services");
-const {Course} = require("../../db/models");
+const {Course} = require("../../db/entities");
 const {schoolService} = require("../../services/school");
 
 class CourseController {

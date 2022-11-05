@@ -1,5 +1,5 @@
 const {generateUuid} = require("../../utils/uuidGenerator");
-const {AUDIO_MP3, IMAGE_JPEG} = require("../../utils/enums/contentType.enum");
+const {AUDIO_MP3, IMAGE_JPEG} = require("../../utils/enums/ContentType.enum");
 
 module.exports = class AbstractStorageService {
 

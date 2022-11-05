@@ -5,12 +5,12 @@ const {
     plainInputSentencesCorrectAnswersByTaskIdInclude,
     StudentOption,
     allStudentOptionsBySentenceIdInclude, allSentencesWithAnswersShownInclude,
-} = require("../../db/models");
+} = require("../../db/entities");
 const gapService = require('./gapService');
 const {
     allSentencesByTaskIdInclude,
     sentenceGapsNewInclude,
-} = require("../../db/models/includes/lesson");
+} = require("../../db/entities/includes/lesson");
 const {
     TaskTypeEnum,
 } = require("../../utils");

@@ -1,4 +1,4 @@
-const {TaskAttachments} = require("../../db/models");
+const {TaskAttachments} = require("../../db/entities");
 
 class AttachmentService {
     async getAll({taskId}) {

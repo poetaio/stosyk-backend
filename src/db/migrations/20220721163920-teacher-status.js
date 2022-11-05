@@ -1,6 +1,6 @@
 'use strict';
 
-const accountStatusEnum = require("../../utils/enums/accountStatus.enum");
+const accountStatusEnum = require("../../utils/enums/AccountStatus.enum");
 module.exports = {
   async up(queryInterface, Sequelize) {
     return queryInterface.sequelize.transaction((t) =>

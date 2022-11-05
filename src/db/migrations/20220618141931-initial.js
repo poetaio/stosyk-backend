@@ -19,7 +19,7 @@ module.exports = {
             GapOptionTable,
             StudentOptionTable,
             TaskAttachmentsTable,
-        } = require('../schema')(DataTypes);
+        } = require('../migrations-schemas')(DataTypes);
 
         return queryInterface.sequelize.transaction((t) =>
             queryInterface.createTable(...LessonTable, { transaction: t })
@@ -63,7 +63,7 @@ module.exports = {
             GapOptionTable,
             StudentOptionTable,
             TaskAttachmentsTable,
-        } = require('../schema')(DataTypes);
+        } = require('../migrations-schemas')(DataTypes);
 
         return queryInterface.sequelize.transaction((t) =>
             queryInterface.dropTable(LessonStudentTable[0], { transaction: t })

@@ -1,7 +1,7 @@
-const {User, Account} = require("../../db/models");
+const {User, Account} = require("../../db/entities");
 const accountService = require("./accountService");
 const {hashPassword, UserTypeEnum} = require("../../utils");
-const accountStatusEnum = require("../../utils/enums/accountStatus.enum");
+const accountStatusEnum = require("../../utils/enums/AccountStatus.enum");
 
 class UserService {
     async findOneByUserId(userId) {

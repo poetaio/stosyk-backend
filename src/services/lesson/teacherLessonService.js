@@ -1,4 +1,4 @@
-const {Teacher} = require("../../db/models");
+const {Teacher} = require("../../db/entities");
 
 class TeacherLessonService {
     async getLessonTeacher(lessonId) {

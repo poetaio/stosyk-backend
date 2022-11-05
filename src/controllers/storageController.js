@@ -1,5 +1,5 @@
 const storageService = require("../services/storage/AWSStorageService")
-const {IMAGE, AUDIO} = require("../utils/enums/attachmentType.enum");
+const {IMAGE, AUDIO} = require("../utils/enums/AttachmentType.enum");
 
 class StorageController {
 

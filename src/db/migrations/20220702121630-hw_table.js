@@ -2,7 +2,7 @@
 
 module.exports = {
     async up(queryInterface, Sequelize) {
-        const {HomeworkTable, TaskListTable} = require("../schema/lesson")(Sequelize);
+        const {HomeworkTable, TaskListTable} = require("../migrations-schemas/lesson")(Sequelize);
 
         return queryInterface.sequelize.transaction((t) =>
             queryInterface.createTable(...HomeworkTable, { transaction: t })
@@ -24,7 +24,7 @@ module.exports = {
     },
 
     async down(queryInterface, Sequelize) {
-        const {HomeworkTable, TaskListTable} = require("../schema/lesson")(Sequelize);
+        const {HomeworkTable, TaskListTable} = require("../migrations-schemas/lesson")(Sequelize);
 
         return queryInterface.sequelize.transaction((t) =>
             queryInterface.removeColumn(TaskListTable[0], 'homeworkId', { transaction: t })

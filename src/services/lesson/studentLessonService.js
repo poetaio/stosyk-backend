@@ -1,4 +1,4 @@
-const {Student} = require("../../db/models");
+const {Student} = require("../../db/entities");
 // todo: remove client function (change initialization order)
 const {client} = require("../../db/redis");
 const Sequelize = require("sequelize");

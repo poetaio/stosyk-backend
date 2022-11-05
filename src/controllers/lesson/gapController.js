@@ -1,4 +1,4 @@
-const { Gap, gapExistsByGapIdAndStudentIdInclude} = require("../../db/models");
+const { Gap, gapExistsByGapIdAndStudentIdInclude} = require("../../db/entities");
 const {gapService, optionService, studentService} = require("../../services");
 const {ValidationError, NotFoundError} = require("../../utils");
 

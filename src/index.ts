@@ -2,8 +2,8 @@ require('dotenv').config();
 const {PubSub} = require("graphql-subscriptions");
 
 // db init
-require('./db/models');
-const {sequelize} = require('./db/models');
+require('./db/entities');
+const {sequelize} = require('./db/entities');
 
 // servers
 const createExpressServer = require('./servers/createExpressServer');

@@ -3,7 +3,7 @@ const {
     Lesson,
     allLessonsByTeacherIdInclude,
     allSchoolLessonsByTeacherIdInclude,
-} = require("../../db/models");
+} = require("../../db/entities");
 
 class LessonTeacherService {
     // todo: seems like these two are the same and

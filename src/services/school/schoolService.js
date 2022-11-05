@@ -12,7 +12,7 @@ const {
     schoolStudentStatus,
     schoolStudentJoinedAt,
     schoolStudentDroppedOutAt,
-} = require("../../db/models");
+} = require("../../db/entities");
 const {
     SchoolTeacherAccessEnum,
     normalizeDate,

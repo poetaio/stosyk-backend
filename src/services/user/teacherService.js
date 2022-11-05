@@ -1,7 +1,7 @@
-const { Teacher, User, Account} = require('../../db/models');
+const { Teacher, User, Account} = require('../../db/entities');
 const {UserRoleEnum, UserTypeEnum, hashPassword} = require("../../utils");
-const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
-const {teacherBySchoolIdInclude} = require("../../db/models/includes/user/teacher");
+const accountStatusEnum = require('../../utils/enums/AccountStatus.enum')
+const {teacherBySchoolIdInclude} = require("../../db/entities/includes/user/teacher");
 
 class TeacherService {
     async existsAnonymousById(teacherId) {

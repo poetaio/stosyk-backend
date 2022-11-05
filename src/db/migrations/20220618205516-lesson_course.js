@@ -3,7 +3,7 @@
 module.exports = {
   async up (queryInterface, DataTypes) {
 
-    const {CourseTable, TeacherCourseTable, LessonCourseTable} = require('../schema')(DataTypes);
+    const {CourseTable, TeacherCourseTable, LessonCourseTable} = require('../migrations-schemas')(DataTypes);
 
     return queryInterface.sequelize.transaction((t) =>
         queryInterface.createTable(...CourseTable, { transaction: t })
@@ -13,7 +13,7 @@ module.exports = {
 
   async down (queryInterface, DataTypes) {
 
-    const {CourseTable, TeacherCourseTable, LessonCourseTable} = require('../schema')(DataTypes);
+    const {CourseTable, TeacherCourseTable, LessonCourseTable} = require('../migrations-schemas')(DataTypes);
 
     return queryInterface.sequelize.transaction((t) =>
         queryInterface.dropTable(TeacherCourseTable[0], {

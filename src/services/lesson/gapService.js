@@ -1,6 +1,6 @@
 const {Gap, GapOption, gapExistsByGapIdAndStudentIdInclude, gapStudentAnswersByStudentIdInclude,
     allGapsWithAnswersShownInclude
-} = require("../../db/models");
+} = require("../../db/entities");
 const optionService = require('./optionService');
 
 class GapService {

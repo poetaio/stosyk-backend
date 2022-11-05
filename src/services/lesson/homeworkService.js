@@ -15,7 +15,7 @@ const {
     Gap,
     fullHomeworkInclude,
     TaskListTask,
-} = require("../../db/models");
+} = require("../../db/entities");
 const taskService = require("./taskService");
 const lessonTeacherService = require("./lessonTeacherService");
 const studentLessonService = require("./studentLessonService");

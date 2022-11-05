@@ -1,7 +1,7 @@
 const {hashPassword, emailTransport, logger} = require("../../utils");
-const {Account, User} = require("../../db/models");
+const {Account, User} = require("../../db/entities");
 const emailFactoryService = require('../email/emailFactoryService')
-const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
+const accountStatusEnum = require('../../utils/enums/AccountStatus.enum')
 const jwt = require("jsonwebtoken");
 
 class AccountService {

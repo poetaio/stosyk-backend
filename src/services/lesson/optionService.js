@@ -10,7 +10,7 @@ const {
     allOptionsBySentenceIdInclude,
     allStudentOptionsBySentenceIdInclude,
     allOptionsByLessonIdInclude,
-} = require("../../db/models");
+} = require("../../db/entities");
 const {
     TaskTypeEnum,
     ValidationError,
@@ -18,11 +18,11 @@ const {
 const Sequelize = require("sequelize");
 const {
     taskGapsInclude,
-} = require("../../db/models/includes/lesson/gap");
+} = require("../../db/entities/includes/lesson/gap");
 const {
     allOptionsByTaskIdInclude,
     allOptionsBySentenceIdAndTaskIdInclude,
-} = require("../../db/models/includes/lesson/option");
+} = require("../../db/entities/includes/lesson/option");
 const {
     Op,
 } = Sequelize;

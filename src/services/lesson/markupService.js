@@ -6,7 +6,7 @@ const {
     TaskList,
     fullLessonMarkupInclude,
     allLessonsByStudentIdInclude,
-} = require("../../db/models");
+} = require("../../db/entities");
 const {LessonStatusEnum, ValidationError} = require("../../utils");
 const taskService = require("./taskService");
 const homeworkService = require("./homeworkService");

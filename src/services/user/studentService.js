@@ -1,14 +1,14 @@
 const {
     Student,
     studentEmailInclude,
-} = require('../../db/models');
+} = require('../../db/entities');
 const {
     UserRoleEnum,
     hashPassword,
     UserTypeEnum
 } = require("../../utils");
 const Sequelize = require('sequelize');
-const accountStatusEnum = require("../../utils/enums/accountStatus.enum");
+const accountStatusEnum = require("../../utils/enums/AccountStatus.enum");
 
 class StudentService {
     async createAnonymous(name) {

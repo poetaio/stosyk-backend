@@ -10,7 +10,7 @@
 const {SchoolStudentSeatStatusEnum} = require("../../utils");
 module.exports = {
     async up(queryInterface, Sequelize) {
-        const {SchoolInvitation} = require('../schema/20221013101226-school-invitation')(Sequelize);
+        const {SchoolInvitation} = require('../migrations-schemas/20221013101226-school-invitation')(Sequelize);
 
         return queryInterface.sequelize.transaction((transaction) =>
             queryInterface.createTable(...SchoolInvitation, { transaction })
@@ -21,7 +21,7 @@ module.exports = {
     },
 
     async down(queryInterface, Sequelize) {
-        const {SchoolInvitation} = require('../schema/20221013101226-school-invitation')(Sequelize);
+        const {SchoolInvitation} = require('../migrations-schemas/20221013101226-school-invitation')(Sequelize);
 
         return queryInterface.sequelize.transaction((transaction) =>
             queryInterface.dropTable(SchoolInvitation[0], { transaction })

@@ -1,7 +1,7 @@
 const {Course, TeacherCourse, LessonCourse, allCoursesByTeacherIdInclude, allLessonCoursesByMarkupIdInclude,
     Student,
     allStudentsByCourseIdInclude
-} = require("../../db/models");
+} = require("../../db/entities");
 const {NotFoundError} = require("../../utils");
 const lessonService = require("./lessonService");
 const markupService = require('./markupService');

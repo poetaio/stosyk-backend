@@ -8,7 +8,7 @@ const {
     allAnsweredSentencesByLessonIdAndStudentIdInclude,
     allCorrectAnsweredGapsByLessonIdAndStudentIdInclude,
     allCorrectAnsweredSentencesByLessonIdAndStudentIdInclude
-} = require("../../db/models");
+} = require("../../db/entities");
 
 class ScoreService {
     async getMultipleChoicePlainInputTotalCount(lessonId) {

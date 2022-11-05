@@ -1,5 +1,4 @@
 const httpStatusCodes = require('./httpStatusCodes');
-const enums = require('./enums');
 const hashPassword = require('./hashPassword');
 const errors = require('./errors');
 const convertToGraphQLEnum = require('./convertToGraphQLEnum');
@@ -10,16 +9,19 @@ const useUnsubscribeCb = require('./useUnsubscribeCb');
 const logger = require('./logger');
 const mailTemplates = require('./mailTemplates');
 
-module.exports = {
-    httpStatusCodes,
-    ...enums,
-    ...errors,
-    ...factories,
-    ...dateUtils,
-    hashPassword,
-    convertToGraphQLEnum,
-    emailTransport,
-    useUnsubscribeCb,
-    logger,
-    mailTemplates,
-};
+// utils/index.ts
+export * from './enums';
+
+// export {
+//     httpStatusCodes,
+//     ...enums,
+//     ...errors,
+//     ...factories,
+//     ...dateUtils,
+//     hashPassword,
+//     convertToGraphQLEnum,
+//     emailTransport,
+//     useUnsubscribeCb,
+//     logger,
+//     mailTemplates,
+// };

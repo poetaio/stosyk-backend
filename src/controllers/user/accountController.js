@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const {UnauthorizedError, ValidationError, UserRoleEnum} = require("../../utils");
 const {REGISTERED} = require("../../utils/enums/UserType.enum");
 const {schoolService} = require("../../services/school");
-const accountStatusEnum = require('../../utils/enums/accountStatus.enum')
+const accountStatusEnum = require('../../utils/enums/AccountStatus.enum')
 const jwt = require("jsonwebtoken");
 
 class AccountController {

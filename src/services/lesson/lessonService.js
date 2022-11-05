@@ -22,7 +22,7 @@ const {
     TaskList,
     TaskListTask,
     Option, Course,
-} = require('../../db/models');
+} = require('../../db/entities');
 const {
     LessonStatusEnum,
     NotFoundError,

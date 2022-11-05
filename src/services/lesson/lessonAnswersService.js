@@ -1,4 +1,4 @@
-const {allTasksWithShownAnswersByLessonIdInclude, Task} = require("../../db/models");
+const {allTasksWithShownAnswersByLessonIdInclude, Task} = require("../../db/entities");
 
 class LessonAnswersService {
     // todo: remove method

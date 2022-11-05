@@ -7,7 +7,7 @@ const {
     scoreService,
     studentLessonService,
 } = require('../../services');
-const {LessonMarkup, allLessonMarkupsBySchoolIdInclude, allLessonsBySchoolIdInclude, Lesson, Course} = require("../../db/models");
+const {LessonMarkup, allLessonMarkupsBySchoolIdInclude, allLessonsBySchoolIdInclude, Lesson, Course} = require("../../db/entities");
 const teacherService = require("../../services/user/teacherService");
 const {ValidationError, NotFoundError} = require("../../utils");
 const Sequelize = require("sequelize");

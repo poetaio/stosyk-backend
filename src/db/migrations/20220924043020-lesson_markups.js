@@ -11,7 +11,7 @@
  */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        const {LessonMarkupTable, LessonCourseTable} = require("../schema/20220806043020-lesson-markups")(Sequelize);
+        const {LessonMarkupTable, LessonCourseTable} = require("../migrations-schemas/20220806043020-lesson-markups")(Sequelize);
 
         return queryInterface.sequelize.transaction((transaction) =>
             queryInterface.createTable(...LessonMarkupTable, { transaction })
@@ -85,7 +85,7 @@ module.exports = {
     },
 
     async down(queryInterface, Sequelize) {
-        const {LessonCourseTable} = require("../schema/relations")(Sequelize);
+        const {LessonCourseTable} = require("../migrations-schemas/relations")(Sequelize);
 
         return queryInterface.sequelize.transaction((transaction) =>
             queryInterface.removeColumn(

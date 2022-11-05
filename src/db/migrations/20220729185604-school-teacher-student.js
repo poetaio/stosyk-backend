@@ -28,7 +28,7 @@ const COPY_COURSES_FROM_TEACHER_TO_SCHOOL_QUERY = `
 
 module.exports = {
     async up(queryInterface, Sequelize) {
-        const {SchoolTeacherTable, SchoolStudentSeatTable} = require('../schema/relations')(Sequelize);
+        const {SchoolTeacherTable, SchoolStudentSeatTable} = require('../migrations-schemas/relations')(Sequelize);
 
         return queryInterface.sequelize.transaction((transaction) =>
             queryInterface.createTable(...SchoolTeacherTable, {transaction})
@@ -60,7 +60,7 @@ module.exports = {
     },
 
     async down(queryInterface, Sequelize) {
-        const {SchoolTeacherTable, SchoolStudentSeatTable} = require('../schema/relations')(Sequelize);
+        const {SchoolTeacherTable, SchoolStudentSeatTable} = require('../migrations-schemas/relations')(Sequelize);
 
         return queryInterface.sequelize.transaction((transaction) =>
             queryInterface.dropTable(SchoolTeacherTable[0], {transaction})

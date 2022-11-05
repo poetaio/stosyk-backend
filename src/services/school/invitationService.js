@@ -1,4 +1,4 @@
-const {SchoolInvitation, invitationStatusIndex} = require("../../db/models");
+const {SchoolInvitation, invitationStatusIndex} = require("../../db/entities");
 const {SchoolInvitationStatusEnum, normalizeDate} = require("../../utils");
 const {Op} = require("sequelize");
 

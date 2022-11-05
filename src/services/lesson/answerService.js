@@ -1,5 +1,5 @@
 const {NotFoundError, ValidationError, TaskTypeEnum} = require("../../utils");
-const {StudentOption, GapOption, allStudentOptionsBySentenceIdInclude} = require("../../db/models");
+const {StudentOption, GapOption, allStudentOptionsBySentenceIdInclude} = require("../../db/entities");
 const taskService = require("./taskService");
 const gapService = require("./gapService");
 const optionService = require("./optionService");
