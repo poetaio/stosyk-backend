@@ -2,6 +2,7 @@ const fetch = require('node-fetch')
 const {logger} = require("../utils");
 const {teacherService, paymentService} = require("../services");
 const ValidationError = require("../utils/errors/ValidationError");
+const {encryptData, decryptData} = require("../utils/dataEncryption");
 
 class PaymentController {
 
@@ -14,7 +15,8 @@ class PaymentController {
         if (!teacher) {
             throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
         }
-        return await paymentService.createInvoice(pack.packageId, pack.priceUAH, teacher.teacherId)
+        const packInfo = await paymentService.findPackagePriceAndDate(teacher, packageId)
+        return await paymentService.createInvoice(pack.packageId, packInfo.price, userId)
     }
 
     async checkUserPackage({user: {userId}}){
@@ -36,7 +38,8 @@ class PaymentController {
         if(!teacher.walletId){
             throw new ValidationError(`Teacher with id ${teacher.teacherId} has no wallet`);
         }
-        return paymentService.getUserCards(teacher.walletId, teacher.defaultCardToken)
+        const defaultCardToken = decryptData(teacher.defaultCardToken)
+        return paymentService.getUserCards(teacher.walletId, defaultCardToken)
     }
 
     async checkInvoiceStatus({invoiceId}){
@@ -60,15 +63,17 @@ class PaymentController {
         return paymentService.addSubPackage(seats, months, priceUAH, priceUSD)
     }
 
-    async addUserCard(userId, walletId, cardToken, status){
+    async addUserCard(req, res){
+        const {userId} = req.params;
+        const {walletId, cardToken, status} = req.body;
         if(status !== "created"){
-            throw new ValidationError("Card was not created");
+            return res.status(404).send(`Card was not created`);
         }
         const teacher = await teacherService.findOneByUserId(userId);
         if (!teacher) {
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+            return res.status(404).send(`User with id ${userId} and role TEACHER not found`);
         }
-        return paymentService.addUserCard(teacher.teacherId, walletId, cardToken)
+        return res.status(200).send(await paymentService.addUserCard(teacher.teacherId, walletId, cardToken))
     }
 
     async payByCard({packageId, cardMask}, {user: {userId}}){
@@ -83,7 +88,8 @@ class PaymentController {
         if(!teacher.walletId){
             throw new ValidationError(`Teacher with id ${teacher.teacherId} has no wallet`);
         }
-        return await paymentService.payByCard(pack.packageId, pack.priceUAH, teacher.teacherId, cardMask, teacher.walletId)
+        const packInfo = await paymentService.findPackagePriceAndDate(teacher, packageId)
+        return await paymentService.payByCard(pack.packageId, packInfo.price, packInfo.date, teacher.teacherId, cardMask, teacher.walletId)
     }
 
     async userWalletId({user: {userId}}){
@@ -97,15 +103,17 @@ class PaymentController {
         return teacher.walletId
     }
 
-    async quickPayment(userId, status){
+    async quickPayment(req, res){
+        const {userId, packageId} = req.params
+        const {status} = req.body
         const teacher = await teacherService.findOneByUserId(userId);
         if (!teacher) {
-            throw new ValidationError(`User with id ${userId} and role TEACHER not found`);
+            return res.status(404).send(`User with id ${userId} and role TEACHER not found`);
         }
         if(status !== 'success'){
-            throw new ValidationError(`Payment did not succeed`);
+            return res.status(404).send(`Payment did not succeed`);
         }
-        return await paymentService.quickPayment(teacher.teacherId)
+        return res.status(200).send(await paymentService.quickPayment(teacher, teacher.teacherId,  packageId))
     }
 
     async packagesList(){

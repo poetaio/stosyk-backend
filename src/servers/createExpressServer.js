@@ -26,17 +26,12 @@ module.exports = (pubsub) => {
     app.post('/storage',  upload.single('file'), (req, res, next) =>
         storageController.uploadFileAndGetLink(req, res));
 
-    app.post('/add-card/:userId', (req, res) => {
-        const {userId} = req.params;
-        const {walletId, cardToken, status} = req.body;
-        paymentController.addUserCard(userId, walletId, cardToken, status);
-    })
 
-    app.get('/pay-invoice/:userId', (req, res) => {
-        const {userId} = req.params;
-        const {status} = req.body;
-        paymentController.quickPayment(userId, status);
-    })
+    app.post('/add-card/:userId', (req, res, next) =>
+        paymentController.addUserCard(req, res));
+
+    app.post('/pay-invoice/:userId/:packageId', (req, res, next) =>
+        paymentController.quickPayment(req, res));
 
     return [app, app.listen(PORT, () => logger.info(`Server is listening on port ${PORT}`))];
 };

@@ -1,6 +1,7 @@
 const fetch = require("node-fetch");
 const {logger, PaymentStatusEnum} = require("../utils");
 const {Subpackage, Teacher} = require('../db/models');
+const {encryptData} = require("../utils/dataEncryption");
 
 class PaymentService {
 
@@ -39,6 +40,24 @@ class PaymentService {
         const defaultCardMask  = await this.getCardMaskByToken(defaultCardToken)
         return {cardMasks, defaultCardMask}
     }
+
+    async findPackagePriceAndDate(teacher, packageId){
+        const newPackage = this.findPackageById(packageId)
+        let price = newPackage.priceUAH
+        let date = new Date()
+        if(teacher.packageId){
+            const check = this.checkUserPackage(packageId, teacher.lastPaymentDate)
+            if(check.status === PaymentStatusEnum.ACTIVE){
+                const currentPackage = this.findPackageById(teacher.packageId)
+                if(currentPackage.priceUAH < newPackage.priceUAH){
+                    price = newPackage.priceUAH - currentPackage.priceUAH
+                    date = teacher.lastPaymentDate
+                }
+            }
+        }
+        return {price: price, date: date}
+    }
+
 
     async getCardTokensFromWallet(walletId){
         const variables = {
@@ -113,12 +132,12 @@ class PaymentService {
         })
     }
 
-    async createInvoice (packageId, packagePrice, teacherId)
+    async createInvoice (packageId, packagePrice, userId)
     {
         const variables = {
             amount: packagePrice*100,
             redirectUrl: `${process.env.FRONTEND_URL}/teacher/myspace/students/pricingpackages/paymentredirect`,
-            // webHookUrl: `/pay-invoice/:${teacherId}`
+            webHookUrl: `localhost:${process.env.PORT}/pay-invoice/:${userId}/:${packageId}`
         }
         const result = await fetch('https://api.monobank.ua/api/merchant/invoice/create', {
             method: 'post',
@@ -135,18 +154,20 @@ class PaymentService {
                 logger.info(e)
             })
 
-        await Teacher.update({
-            packageId: packageId,
-            //for testing
-            // lastPaymentDate: new Date()
-        },
-            {
-                where: {teacherId}
-            })
+        //for testing
+
+        // await Teacher.update({
+        //
+        //         packageId: packageId,
+        //         lastPaymentDate: new Date()
+        // },
+        //     {
+        //         where: {teacherId}
+        //     })
         return result
     }
 
-    async payByCard(packageId, packagePrice, teacherId, cardMask, walletId){
+    async payByCard(packageId, packagePrice, paymentDate, teacherId, cardMask, walletId){
         const cardTokens = this.getCardTokensFromWallet(walletId)
         let paymentCardToken
         cardTokens.map(async (el) => {
@@ -176,10 +197,11 @@ class PaymentService {
                 logger.info(e)
             })
         if (result.status === 'success') {
+            const defaultCardToken = encryptData(paymentCardToken)
             await Teacher.update({
                 packageId,
-                lastPaymentDate: new Date(),
-                defaultCardToken: paymentCardToken
+                lastPaymentDate: paymentDate,
+                defaultCardToken
             }, {
                 where: {
                     teacherId
@@ -191,9 +213,11 @@ class PaymentService {
     }
 
     async addUserCard(teacherId, walletId, cardToken){
+
+        const defaultCardToken = encryptData(cardToken)
         const res = await Teacher.update({
             walletId,
-            defaultCard: cardToken
+            defaultCardToken
         },{
             where:
                 {
@@ -203,9 +227,11 @@ class PaymentService {
         return !!res[0]
     }
 
-    async quickPayment(teacherId){
+    async quickPayment(teacher, teacherId, packageId){
+        const packInfo = await this.findPackagePriceAndDate(teacher, packageId)
         const res = await Teacher.update({
-            lastPaymentDate: new Date()
+            packageId,
+            lastPaymentDate: packInfo.date
         }, {
             where:{
                 teacherId
