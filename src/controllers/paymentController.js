@@ -2,7 +2,7 @@ const fetch = require('node-fetch')
 const {logger} = require("../utils");
 const {teacherService, paymentService} = require("../services");
 const ValidationError = require("../utils/errors/ValidationError");
-const {encryptData, decryptData} = require("../utils/dataEncryption");
+const {decryptData} = require("../utils/dataEncryption");
 
 class PaymentController {
 

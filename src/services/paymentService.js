@@ -137,7 +137,7 @@ class PaymentService {
         const variables = {
             amount: packagePrice*100,
             redirectUrl: `${process.env.FRONTEND_URL}/teacher/myspace/students/pricingpackages/paymentredirect`,
-            webHookUrl: `localhost:${process.env.PORT}/pay-invoice/:${userId}/:${packageId}`
+            webHookUrl: `${process.env.HOST}:${process.env.PORT}/pay-invoice/:${userId}/:${packageId}`
         }
         const result = await fetch('https://api.monobank.ua/api/merchant/invoice/create', {
             method: 'post',
