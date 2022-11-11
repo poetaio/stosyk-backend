@@ -46,7 +46,7 @@ class PaymentService {
         let price = newPackage.priceUAH
         let date = new Date()
         if(teacher.packageId){
-            const check = this.checkUserPackage(packageId, teacher.lastPaymentDate)
+            const check = this.checkUserPackage(teacher.packageId, teacher.lastPaymentDate)
             if(check.status === PaymentStatusEnum.ACTIVE){
                 const currentPackage = this.findPackageById(teacher.packageId)
                 if(currentPackage.priceUAH < newPackage.priceUAH){
@@ -168,7 +168,7 @@ class PaymentService {
     }
 
     async payByCard(packageId, packagePrice, paymentDate, teacherId, cardMask, walletId){
-        const cardTokens = this.getCardTokensFromWallet(walletId)
+        const cardTokens = await this.getCardTokensFromWallet(walletId)
         let paymentCardToken
         cardTokens.map(async (el) => {
             if(cardMask === await this.getCardMaskByToken(el)){

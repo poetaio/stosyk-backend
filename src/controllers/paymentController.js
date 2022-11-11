@@ -27,7 +27,7 @@ class PaymentController {
         if(!teacher.packageId){
             return null
         }
-        return paymentService.checkUserPackage(teacher.packageId, teacher.lastPaymentDate)
+        return await paymentService.checkUserPackage(teacher.packageId, teacher.lastPaymentDate)
     }
 
     async getUserCards({user: {userId}}){
@@ -39,7 +39,7 @@ class PaymentController {
             throw new ValidationError(`Teacher with id ${teacher.teacherId} has no wallet`);
         }
         const defaultCardToken = decryptData(teacher.defaultCardToken)
-        return paymentService.getUserCards(teacher.walletId, defaultCardToken)
+        return await paymentService.getUserCards(teacher.walletId, defaultCardToken)
     }
 
     async checkInvoiceStatus({invoiceId}){
@@ -60,7 +60,7 @@ class PaymentController {
     }
 
     async addSubPackage({package:{seats, months, priceUAH, priceUSD}}){
-        return paymentService.addSubPackage(seats, months, priceUAH, priceUSD)
+        return await paymentService.addSubPackage(seats, months, priceUAH, priceUSD)
     }
 
     async addUserCard(req, res){
