@@ -2,6 +2,7 @@ const fetch = require("node-fetch");
 const {logger, PaymentStatusEnum} = require("../utils");
 const {Subpackage, Teacher} = require('../db/models');
 const {encryptData} = require("../utils/dataEncryption");
+const {schoolService} = require("./school");
 
 class PaymentService {
 
@@ -39,6 +40,17 @@ class PaymentService {
         })
         const defaultCardMask  = await this.getCardMaskByToken(defaultCardToken)
         return {cardMasks, defaultCardMask}
+    }
+
+    async packageAddSeats(newSeats, teacherId){
+        const teacher = await Teacher.findOne({
+            where: {teacherId}
+        })
+        const pack = this.findPackageById(teacher.packageId)
+        const seats = newSeats - pack.seats
+        const schoolId = await schoolService.getOneByTeacherId(teacherId)
+        const res = await schoolService.addStudentsSeats(schoolId, seats)
+        return !!res[0]
     }
 
     async findPackagePriceAndDate(teacher, packageId){

@@ -89,6 +89,7 @@ class PaymentController {
             throw new ValidationError(`Teacher with id ${teacher.teacherId} has no wallet`);
         }
         const packInfo = await paymentService.findPackagePriceAndDate(teacher, packageId)
+        await paymentService.packageAddSeats(pack.seats, teacher.teacherId)
         return await paymentService.payByCard(pack.packageId, packInfo.price, packInfo.date, teacher.teacherId, cardMask, teacher.walletId)
     }
 
@@ -114,6 +115,8 @@ class PaymentController {
         if(status !== 'success'){
             return res.status(404).send(`Payment did not succeed`);
         }
+        const pack = paymentService.findPackageById(packageId)
+        await paymentService.packageAddSeats(pack.seats, teacher.teacherId)
         return res.status(200).send(await paymentService.quickPayment(teacher, teacher.teacherId,  packageId))
     }
 
