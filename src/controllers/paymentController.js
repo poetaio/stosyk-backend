@@ -104,8 +104,9 @@ class PaymentController {
     }
 
     async quickPayment(req, res){
-        const {userId, packageId} = req.params
-        const {status} = req.body
+        const userId = req.query.userId
+        const packageId = req.query.packageId
+        const status = req.body.status
         const teacher = await teacherService.findOneByUserId(userId);
         if (!teacher) {
             return res.status(404).send(`User with id ${userId} and role TEACHER not found`);
