@@ -30,7 +30,7 @@ module.exports = (pubsub) => {
     app.post('/add-card/:userId', (req, res, next) =>
         paymentController.addUserCard(req, res));
 
-    app.post('/pay-invoice/:userId/:packageId', (req, res, next) =>
+    app.post('/pay-invoice', (req, res, next) =>
         paymentController.quickPayment(req, res));
 
     return [app, app.listen(PORT, () => logger.info(`Server is listening on port ${PORT}`))];

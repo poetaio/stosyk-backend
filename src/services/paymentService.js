@@ -42,13 +42,13 @@ class PaymentService {
     }
 
     async findPackagePriceAndDate(teacher, packageId){
-        const newPackage = this.findPackageById(packageId)
+        const newPackage = await this.findPackageById(packageId)
         let price = newPackage.priceUAH
         let date = new Date()
         if(teacher.packageId){
-            const check = this.checkUserPackage(teacher.packageId, teacher.lastPaymentDate)
+            const check = await this.checkUserPackage(teacher.packageId, teacher.lastPaymentDate)
             if(check.status === PaymentStatusEnum.ACTIVE){
-                const currentPackage = this.findPackageById(teacher.packageId)
+                const currentPackage = await this.findPackageById(teacher.packageId)
                 if(currentPackage.priceUAH < newPackage.priceUAH){
                     price = newPackage.priceUAH - currentPackage.priceUAH
                     date = teacher.lastPaymentDate
@@ -137,7 +137,7 @@ class PaymentService {
         const variables = {
             amount: packagePrice*100,
             redirectUrl: `${process.env.FRONTEND_URL}/teacher/myspace/students/pricingpackages/paymentredirect`,
-            webHookUrl: `${process.env.HOST}/pay-invoice/:${userId}/:${packageId}`
+            webHookUrl: `${process.env.HOST}/pay-invoice/?userId=${userId}&packageId=${packageId}`
         }
         const result = await fetch('https://api.monobank.ua/api/merchant/invoice/create', {
             method: 'post',
