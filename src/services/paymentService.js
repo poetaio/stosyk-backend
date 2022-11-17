@@ -3,6 +3,7 @@ const {logger, PaymentStatusEnum} = require("../utils");
 const {Subpackage, Teacher} = require('../db/models');
 const {encryptData} = require("../utils/dataEncryption");
 const {schoolService} = require("./school");
+const ValidationError = require("../utils/errors/ValidationError");
 
 class PaymentService {
 
@@ -47,8 +48,14 @@ class PaymentService {
             where: {teacherId}
         })
         const pack = this.findPackageById(teacher.packageId)
-        const seats = newSeats - pack.seats
         const schoolId = await schoolService.getOneByTeacherId(teacherId)
+        if(newSeats < pack.seats){
+            const seatsTaken = await schoolService.countStudents(schoolId)
+            if(seatsTaken > newSeats){
+                throw new ValidationError(`School already has more students than package seats`);
+            }
+        }
+        const seats = newSeats - pack.seats
         const res = await schoolService.addStudentsSeats(schoolId, seats)
         return !!res[0]
     }
