@@ -115,7 +115,7 @@ class PaymentController {
         if(status !== 'success'){
             return res.status(404).send(`Payment did not succeed`);
         }
-        const pack = paymentService.findPackageById(packageId)
+        const pack = await paymentService.findPackageById(packageId)
         await paymentService.packageAddSeats(pack.seats, teacher.teacherId)
         return res.status(200).send(await paymentService.quickPayment(teacher, teacher.teacherId,  packageId))
     }

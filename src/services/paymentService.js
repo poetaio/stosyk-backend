@@ -47,7 +47,7 @@ class PaymentService {
         const teacher = await Teacher.findOne({
             where: {teacherId}
         })
-        const pack = this.findPackageById(teacher.packageId)
+        const pack = await this.findPackageById(teacher.packageId)
         const schoolId = await schoolService.getOneByTeacherId(teacherId)
         if(newSeats < pack.seats){
             const seatsTaken = await schoolService.countStudents(schoolId)
