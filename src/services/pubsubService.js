@@ -50,7 +50,7 @@ class PubsubService {
         });
     }
 
-    async subscribeOnStudentOnLesson(pubsub, studentId, lessonId){
+    async subscribeOnStudentOnLesson(pubsub, lessonId, studentId){
         return pubsub.asyncIterator([eventNameFactory.studentOnLessonEventName(lessonId, studentId)]);
     }
 

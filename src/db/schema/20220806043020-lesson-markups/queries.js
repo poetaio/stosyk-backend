@@ -16,12 +16,12 @@ module.exports.SELECT_ALL_LESSONS_WITH_TASKLISTS_WITH_COURSES = `
         INNER JOIN "teachers" t ON let."teacherId" = t."teacherId"
         INNER JOIN "schoolTeachers" st ON st."teacherId" = t."teacherId"
         INNER JOIN "taskLists" tal ON tal."lessonId" = l."lessonId"
-        INNER JOIN "lessonCourses" lc ON lc."lessonId" = l."lessonId"
+        LEFT OUTER JOIN "lessonCourses" lc ON lc."lessonId" = l."lessonId"
 `;
 
 // row attribs: homeworkId, taskListId
 module.exports.SELECT_ALL_HOMEWORKS_WITH_TASKLIST_BY_LESSON_ID = `
-    SELECT h."homeworkId", tal."taskListId", h."createdAt" as hCreatedAt, h."updatedAt" as hUpdatedAt, tal."createdAt" as talCreatedAt, tal."updatedAt" as talUpdatedAt
+    SELECT h."homeworkId", tal."taskListId", h."createdAt" as "hCreatedAt", h."updatedAt" as "hUpdatedAt", tal."createdAt" as "talCreatedAt", tal."updatedAt" as "talUpdatedAt"
     FROM homeworks h
         INNER JOIN "taskLists" tal ON tal."homeworkId" = h."homeworkId"
     where h."lessonId" = ?;
@@ -82,8 +82,7 @@ module.exports.INSERT_INTO_TASKLIST_LESSON_MARKUP = `
 
 module.exports.INSERT_INTO_TASKLIST_HOMEWORK = `
     INSERT INTO "taskLists"("taskListId", "homeworkId", "createdAt", "updatedAt")
-    VALUES (?, ?, ?, ?)
-    returning "taskListId";
+    VALUES (?, ?, ?, ?);
 `;
 
 module.exports.INSERT_INTO_TASKLIST_TASK = `

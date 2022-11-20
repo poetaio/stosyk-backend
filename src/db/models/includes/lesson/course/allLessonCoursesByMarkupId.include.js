@@ -1,6 +1,6 @@
 // used on LessonCourse model
 module.exports = (lessonMarkupId) => ({
-    association: 'lessonCourses',
+    association: 'lesson',
     required: true,
     attributes: [],
     where: {lessonMarkupId},

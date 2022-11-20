@@ -114,12 +114,14 @@ module.exports = {
                         values: [lessonMarkupId, lessonId]
                     }, {transaction});
 
-                    // adding relation with course
-                    logger.debug('Relating lesson markup to course (inserting into lessonCourses)');
-                    await queryInterface.sequelize.query({
-                        query: INSERT_INTO_LESSON_COURSE,
-                        values: [v4(), courseId, lessonMarkupId, lesCoCreatedAt, lesCoUpdatedAt]
-                    }, {transaction});
+                    if (courseId) {
+                        // adding relation with course
+                        logger.debug('Relating lesson markup to course (inserting into lessonCourses)');
+                        await queryInterface.sequelize.query({
+                            query: INSERT_INTO_LESSON_COURSE,
+                            values: [v4(), courseId, lessonMarkupId, lesCoCreatedAt, lesCoUpdatedAt]
+                        }, { transaction });
+                    }
 
                     // copying each homework
                     logger.debug(`Copying each homework of ${lessonId} in order to relate to lesson markup`);
@@ -138,7 +140,7 @@ module.exports = {
 
                         logger.debug('Inserting into taskList (with homeworkId)');
                         const newTaskListId = v4();
-                        const [taskListId] = await queryInterface.sequelize.query({
+                        await queryInterface.sequelize.query({
                             query: INSERT_INTO_TASKLIST_HOMEWORK,
                             values: [newTaskListId, homeworkMarkupId, talCreatedAt, talUpdatedAt]
                         }, {transaction});
