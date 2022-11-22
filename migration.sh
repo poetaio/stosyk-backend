@@ -1,3 +1,4 @@
+#"/bin/bash"
 name=$1
 npx sequelize-cli migration:generate --name $name
 migration_path=$(find ./src/db/migrations -type f -printf "%p\n" | sort -n | tail -1)
