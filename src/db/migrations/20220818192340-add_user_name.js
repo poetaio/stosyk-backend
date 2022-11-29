@@ -45,6 +45,10 @@ module.exports = {
                 .then(() => queryInterface.sequelize.query(SET_TEACHER_NAME_TO_DEFAULT, { transaction: t }))
                 .then(() => logger.info("Changing column name to non-nullish"))
                 // change column to non-nullish
+                .then(async () => {
+                    const [teachers] = await queryInterface.sequelize.query("SELECT * FROM users", {transaction: t});
+                    console.log(teachers)
+                })
                 .then(() => queryInterface.changeColumn(
                     "users",
                     "name",
